@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(servers = {@Server (url = "http://localhost/evaluation")})
+@OpenAPIDefinition(servers = {@Server (url = "http://localhost:8181/evaluation")})
 public class OpenAPIConfig {
 
     @Bean
