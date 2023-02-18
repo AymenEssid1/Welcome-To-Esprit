@@ -2,18 +2,16 @@
 version: '3.7'
 services:
 #Nginx WebServer Container
-  nginx:
-   container_name: nginx
-   image: nginx:1.13
-   restart: always
-   ports:
-   - 80:80
-   - 443:443
-   volumes:
-   - ./nginx/conf.d:/etc/nginx/conf.d
-   - ./nginx/webserver:/usr/share/nginx/html
-   links:
-     - api-gateway
+  #nginx:
+   #container_name: nginx
+   #image: nginx:1.13
+   #restart: always
+   #ports:
+  #- 80:80
+  #- 443:443
+  #volumes:
+  #- ./nginx/conf.d:/etc/nginx/conf.d
+  #- ./nginx/webserver:/usr/share/nginx/html
 
   ## MySQL Container
   mysql:
