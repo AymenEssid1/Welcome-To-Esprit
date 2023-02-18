@@ -25,6 +25,7 @@
         <module>admission-service</module>
         <module>event-service</module>
         <module>recrutement-service</module>
+        <module>openapi-service</module>
     </modules>
 
     <properties>
