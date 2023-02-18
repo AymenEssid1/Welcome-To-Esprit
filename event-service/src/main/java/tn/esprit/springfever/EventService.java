@@ -10,8 +10,8 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 @EnableSpringConfigured
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
 @EnableEurekaClient
-public class EvaluationService {
+public class EventService {
     public static void main(String[] args) {
-        SpringApplication.run(EvaluationService.class, args);
+        SpringApplication.run(EventService.class, args);
     }
 }
