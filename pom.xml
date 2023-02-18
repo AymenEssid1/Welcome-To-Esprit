@@ -19,12 +19,9 @@
         <module>user-service</module>
         <module>discovery-server</module>
         <module>api-gateway</module>
-        <module>forum-service</module>
-        <module>evaluation-service</module>
-        <module>faq-service</module>
-        <module>admission-service</module>
+
         <module>event-service</module>
-        <module>recrutement-service</module>
+
         <module>openapi-service</module>
     </modules>
 
