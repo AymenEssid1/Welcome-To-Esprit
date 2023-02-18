@@ -7,7 +7,6 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.swagger2.mappers.ModelMapper;
 
 @Configuration
 @OpenAPIDefinition(servers = {@Server (url = "http://localhost/admission")})
@@ -32,11 +31,5 @@ public class OpenAPIConfig {
                 .url("https://github.com/Ahmed-Debbiche007");
         return contact;
     }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
-
 
 }

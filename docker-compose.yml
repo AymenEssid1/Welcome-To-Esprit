@@ -66,6 +66,10 @@ services:
     container_name: user-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "85:85"
+    expose:
+      - "85"
     depends_on:
       - discovery-server
       - api-gateway
@@ -155,5 +159,3 @@ services:
       - api-gateway
       - mysql
     restart: always
-
-  
