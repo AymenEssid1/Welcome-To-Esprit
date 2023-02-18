@@ -37,174 +37,174 @@ services:
     ports:
       - "8080:8080"
 
-# Eureka Server Container
-  discovery-server:
-    build:
-      context: ./discovery-server
-      dockerfile: ./Dockerfile
-    container_name: discovery-server
-    ports:
-      - "8761:8761"
-    working_dir: /app
-    volumes:
-      - ./discovery-server:/app
-      - ~/.m2:/root/.m2
-#API Gateway Container
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: ./Dockerfile
-    container_name: api-gateway
-    ports:
-      - "8181:8181"
-    expose:
-      - "8181"
-    working_dir: /app
-    volumes:
-      - ./api-gateway:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
+# # Eureka Server Container
+#   discovery-server:
+#     build:
+#       context: ./discovery-server
+#       dockerfile: ./Dockerfile
+#     container_name: discovery-server
+#     ports:
+#       - "8761:8761"
+#     working_dir: /app
+#     volumes:
+#       - ./discovery-server:/app
+#       - ~/.m2:/root/.m2
+# #API Gateway Container
+#   api-gateway:
+#     build:
+#       context: ./api-gateway
+#       dockerfile: ./Dockerfile
+#     container_name: api-gateway
+#     ports:
+#       - "8181:8181"
+#     expose:
+#       - "8181"
+#     working_dir: /app
+#     volumes:
+#       - ./api-gateway:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
 
-  ## User-Service Container
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: ./Dockerfile
-    container_name: user-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./user-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## User-Service Container
+#   user-service:
+#     build:
+#       context: ./user-service
+#       dockerfile: ./Dockerfile
+#     container_name: user-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./user-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## Forum-Service Container
-  forum-service:
-    build:
-      context: ./forum-service
-      dockerfile: ./Dockerfile
-    container_name: forum-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./forum-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## Forum-Service Container
+#   forum-service:
+#     build:
+#       context: ./forum-service
+#       dockerfile: ./Dockerfile
+#     container_name: forum-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./forum-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## FAQ-Service Container
-  faq-service:
-    build:
-      context: ./faq-service
-      dockerfile: ./Dockerfile
-    container_name: faq-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./faq-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## FAQ-Service Container
+#   faq-service:
+#     build:
+#       context: ./faq-service
+#       dockerfile: ./Dockerfile
+#     container_name: faq-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./faq-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## Evaluation-Service Container
-  evaluation-service:
-    build:
-      context: ./evaluation-service
-      dockerfile: ./Dockerfile
-    container_name: evaluation-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./evaluation-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## Evaluation-Service Container
+#   evaluation-service:
+#     build:
+#       context: ./evaluation-service
+#       dockerfile: ./Dockerfile
+#     container_name: evaluation-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./evaluation-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## Admission-Service Container
-  admission-service:
-    build:
-      context: ./admission-service
-      dockerfile: ./Dockerfile
-    container_name: admission-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./admission-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## Admission-Service Container
+#   admission-service:
+#     build:
+#       context: ./admission-service
+#       dockerfile: ./Dockerfile
+#     container_name: admission-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./admission-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## Event-Service Container
-  event-service:
-    build:
-      context: ./event-service
-      dockerfile: ./Dockerfile
-    container_name: event-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./event-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## Event-Service Container
+#   event-service:
+#     build:
+#       context: ./event-service
+#       dockerfile: ./Dockerfile
+#     container_name: event-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./event-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  ## Recrutement-Service Container
-  recrutement-service:
-    build:
-      context: ./recrutement-service
-      dockerfile: ./Dockerfile
-    container_name: recrutement-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./recrutement-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   ## Recrutement-Service Container
+#   recrutement-service:
+#     build:
+#       context: ./recrutement-service
+#       dockerfile: ./Dockerfile
+#     container_name: recrutement-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./recrutement-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
 
-  documentation-service:
-    build:
-      context: ./openapi-service
-      dockerfile: ./Dockerfile
-    container_name: openapi-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    volumes:
-      - ./openapi-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
+#   documentation-service:
+#     build:
+#       context: ./openapi-service
+#       dockerfile: ./Dockerfile
+#     container_name: openapi-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./openapi-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
