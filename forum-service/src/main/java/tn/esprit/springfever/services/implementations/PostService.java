@@ -52,4 +52,9 @@ public class PostService implements IPostService {
     public Post getSinglePost(Long id) {
         return repo.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Post> getByUser(Long id) {
+        return repo.findByUser(id);
+    }
 }

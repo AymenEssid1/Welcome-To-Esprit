@@ -9,5 +9,7 @@ public interface IMessageService {
     public Message updateMessage(Long id,Message post);
     public String deleteMessage(Long message);
     public List<Message> getAllMessages();
-    public List<Message> getPostsByUser(Long user);
+    public List<Message> getMessageByUser(int user);
+
+    public String deleteMessageByUser(int id);
 }

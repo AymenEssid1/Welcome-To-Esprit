@@ -10,4 +10,5 @@ public interface IPostService {
     public String deletePost(Long post);
     public List<Post> getAllPosts();
     public Post getSinglePost(Long id);
+    public List<Post> getByUser(Long id);
 }

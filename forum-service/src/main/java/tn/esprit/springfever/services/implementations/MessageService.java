@@ -46,8 +46,13 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public List<Message> getPostsByUser(Long user) {
-        //return repo.findBySenderAndReceiver(user);
+    public List<Message> getMessageByUser(int user) {
+
+        return null;
+    }
+
+    @Override
+    public String deleteMessageByUser(int id) {
         return null;
     }
 }

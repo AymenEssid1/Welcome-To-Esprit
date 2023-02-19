@@ -26,6 +26,8 @@ public class Post implements Serializable {
     private String title;
     private String content;
 
+    private Long user;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     @JsonIgnore
     private List<PostLike> likes;

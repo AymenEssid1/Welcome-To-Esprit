@@ -10,4 +10,5 @@ import java.util.Optional;
 
 @EnableJpaRepositories
 public interface PostRepository extends JpaRepository<Post,Long> {
+    public List<Post> findByUser(Long id);
 }
