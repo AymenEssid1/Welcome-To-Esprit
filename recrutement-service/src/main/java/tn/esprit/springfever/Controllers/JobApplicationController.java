@@ -1,7 +1,9 @@
 package tn.esprit.springfever.Controllers;
 
 
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
@@ -55,7 +57,7 @@ public class JobApplicationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    @GetMapping(value = "/application/{id}/pdf",produces = MediaType.APPLICATION_PDF_VALUE)
+    /*@GetMapping(value = "/application/{id}/pdf",produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<Resource>uploadCVAndLetter(@PathVariable Long id) throws Exception {
         Job_Application application = jobApplicationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Job application not found with id " + id));
@@ -82,7 +84,47 @@ public class JobApplicationController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=application.pdf");
         ResponseEntity<Resource> response = new ResponseEntity<>(resource, headers, HttpStatus.OK);
         return response;
+    }*/
+    @GetMapping(value = "/application/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<Resource> generatePdfFromApplication(@PathVariable Long id) throws Exception {
+        Job_Application application = jobApplicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Job application not found with id " + id));
+
+        if (application.getCv() == null || application.getLettreMotivation() == null) {
+            throw new Exception("Both the CV and the motivation letter must be uploaded before generating the PDF.");
+        }
+
+        // Get the text content from the CV and motivation letter bytes
+        String cvText = new String(application.getCv());
+        String motivationText = new String(application.getLettreMotivation());
+
+        // Create a PDF document
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Document document = new Document();
+        PdfWriter.getInstance(document, outputStream);
+        document.open();
+        // Add content to the PDF
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL);
+        Chunk cvTitle = new Chunk("CV", font);
+        Chunk cvContent = new Chunk(cvText, font);
+        Chunk motivationTitle = new Chunk("Motivation Letter", font);
+        Chunk motivationContent = new Chunk(motivationText, font);
+
+        document.add(new Paragraph(cvTitle));
+        document.add(new Paragraph(cvContent));
+        document.add(new Paragraph(motivationTitle));
+        document.add(new Paragraph(motivationContent));
+        document.close();
+
+        // Return PDF as byte array with appropriate headers
+        ByteArrayResource resource = new ByteArrayResource(outputStream.toByteArray());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=application.pdf");
+        ResponseEntity<Resource> response = new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        return response;
     }
+
+
 
 
 

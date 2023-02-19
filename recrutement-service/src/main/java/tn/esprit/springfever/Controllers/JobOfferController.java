@@ -40,4 +40,11 @@ public class JobOfferController  {
     }
 
 
+    @PutMapping("AssignImageToJobOffer/{Id_Job_Offer}/{id}")
+    public String AssignImageToJobOffer(@PathVariable("Id_Job_Offer") Long Id_Job_Offer ,@PathVariable("id") Long id ){
+        return iJobOffer.AssignImageToJobOffer(Id_Job_Offer,id);
+
+    }
+
+
 }

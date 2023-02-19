@@ -9,7 +9,7 @@ import javax.persistence.Lob;
 import java.io.Serializable;
 @Entity
 @Data
-public class Image_JobOffer implements Serializable {
+public class Image_JobOffer  {
     @Id
     @GeneratedValue
     Long id;

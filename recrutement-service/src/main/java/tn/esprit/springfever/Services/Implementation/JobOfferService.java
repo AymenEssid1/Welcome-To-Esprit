@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IJobOffer;
+import tn.esprit.springfever.entities.Image_JobOffer;
 import tn.esprit.springfever.entities.Job_Category;
 import tn.esprit.springfever.entities.Job_Offer;
+import tn.esprit.springfever.repositories.Image_JobOfferRepository;
 import tn.esprit.springfever.repositories.JobCategoryRepository;
 import tn.esprit.springfever.repositories.JobOfferRepository;
 
@@ -19,6 +21,9 @@ public class JobOfferService implements IJobOffer {
     JobOfferRepository jobOfferRepository;
     @Autowired
     JobCategoryRepository jobCategoryRepository;
+
+    @Autowired
+    Image_JobOfferRepository image_jobOfferRepository;
 
     public Job_Offer addJobOffer(Job_Offer job_offer){
         return jobOfferRepository.save(job_offer);
@@ -61,5 +66,16 @@ public class JobOfferService implements IJobOffer {
         }
         return "Job Offer or Job Catgory Does not exist !";
 
+    }
+
+    public String AssignImageToJobOffer(Long Id_Job_Offer , Long id ){
+        Job_Offer job_offer =jobOfferRepository.findById(Id_Job_Offer).orElse(null);
+        Image_JobOffer image_jobOffer=image_jobOfferRepository.findById(id).orElse(null);
+        if(job_offer!=null && image_jobOffer!=null){
+            job_offer.setImage(image_jobOffer);
+            jobOfferRepository.save(job_offer);
+            return "Image Is successffully affected To Job Offer ! ";
+        }
+        return "Job Offer Or Image Does not Exist ";
     }
 }
