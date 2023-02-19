@@ -16,5 +16,8 @@ public interface IServiceClaims {
  public  boolean deleteClaim(Long idClaim) ;
  public Claim updateClaim(Long idClaim , ClaimDTO claimDTO) ;
  public  List<Claim> getClaimsByUser(String username) ;
+ public Claim findById(Long id) ;
+
+
 
 }

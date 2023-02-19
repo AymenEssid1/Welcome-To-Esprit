@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Implementation.FileLocationService;
@@ -33,8 +35,22 @@ public class FileSystemVideoController {
             @ApiResponse(code = 200, message = "Successful retrieval of video file", response = FileSystemResource.class),
             @ApiResponse(code = 404, message = "Video file not found")
     })
-    @GetMapping(value = "/video/{videoId}", produces =   "video/mp4" )
-    FileSystemResource downloadVideo(@PathVariable Long videoId) throws Exception {
-        return fileLocationService.findVideo(videoId);
+    @GetMapping(value = "/video/{videoId}", produces =  "video/mp4" )
+    ResponseEntity<FileSystemResource> downloadVideo(@PathVariable Long videoId) throws Exception {
+        //return fileLocationService.findVideo(videoId);
+        try {
+            FileSystemResource fileSystemResource =fileLocationService.findVideo(videoId);
+            MediaType mediaType = MediaTypeFactory.getMediaType(fileSystemResource).orElse(MediaType.APPLICATION_OCTET_STREAM);
+            return ResponseEntity.ok().contentType(mediaType).body( fileLocationService.findVideo(videoId));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+
+
+
+
+
+
 }

@@ -43,4 +43,6 @@ public class Claim implements Serializable {
     @JsonIgnore
     private User user ;
 
+    public Claim(Long entityId, String test_claim) {
+    }
 }

@@ -6,7 +6,8 @@ import lombok.extern.slf4j.Slf4j;
  import opennlp.tools.tokenize.TokenizerME;
  import opennlp.tools.tokenize.TokenizerModel;
  import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
@@ -106,6 +107,13 @@ public class ServiceClaimsImpl implements IServiceClaims {
         }
         log.info("user not found ");
         return  null ;
+    }
+
+
+    @Cacheable(cacheNames = "findClaimById")
+    @Override
+    public Claim findById(Long id) {
+        return claimRepository.findById(id).orElse(null);
     }
 }
 
