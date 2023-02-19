@@ -1,0 +1,50 @@
+package tn.esprit.springfever.model;
+
+
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+
+
+@Getter
+@Setter
+public class DemandeAdmissionDTO {
+
+    private Long idAdmission;
+
+    private LocalDate dateAdmission;
+
+    private Status status;
+
+    private Diplome diplome;
+
+    private Niveau niveau;
+
+    private Cursus cursus;
+
+    @Size(max = 255)
+    private String specialite;
+
+    @Size(max = 255)
+    private String option;
+
+    @Size(max = 255)
+    private String frais;
+
+    @Size(max = 255)
+    private String nomParent;
+
+    @Size(max = 255)
+    private String prenomParent;
+
+    @Size(max = 255)
+    private String mailParent;
+
+    @Size(max = 255)
+    private String telParent;
+
+    private Long demandeUser;
+
+}
