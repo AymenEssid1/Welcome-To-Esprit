@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @EnableJpaRepositories
 public interface MessageRepository extends JpaRepository<Message,Long> {
-    public List<Message> findBySenderAndReceiver(int user);
+    //public List<Message> findBySenderAndReceiver(int user);
 }

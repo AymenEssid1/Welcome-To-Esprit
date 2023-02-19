@@ -3,6 +3,7 @@ package tn.esprit.springfever.services.implementations;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentLike;
 import tn.esprit.springfever.repositories.CommentLikeRepository;
 import tn.esprit.springfever.services.interfaces.ICommentLikeService;
@@ -20,7 +21,7 @@ public class CommentLikeService implements ICommentLikeService {
     }
 
     @Override
-    public CommentLike updateCommentLike(int id, CommentLike like) {
+    public CommentLike updateCommentLike(Long id, CommentLike like) {
         CommentLike p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             like.setId(p.getId());
@@ -30,7 +31,7 @@ public class CommentLikeService implements ICommentLikeService {
     }
 
     @Override
-    public String deleteCommentLike(int id) {
+    public String deleteCommentLike(Long id) {
         CommentLike p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);
@@ -45,7 +46,7 @@ public class CommentLikeService implements ICommentLikeService {
     }
 
     @Override
-    public List<CommentLike> getLikesByComment(int comment) {
+    public List<CommentLike> getLikesByComment(Comment comment) {
         return repo.findLikeByComment(comment);
     }
 }

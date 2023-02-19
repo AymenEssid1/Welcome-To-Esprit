@@ -1,8 +1,9 @@
 package tn.esprit.springfever.services.interfaces;
 
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.entities.CommentMedia;
 public interface ICommentMediaService {
-    public CommentMedia save(byte[] bytes, String imageName) throws Exception ;
+    public CommentMedia save(MultipartFile file) throws Exception ;
     public FileSystemResource find(Long imageId) ;
 }

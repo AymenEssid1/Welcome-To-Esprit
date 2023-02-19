@@ -24,7 +24,7 @@ import java.util.List;
 public class Ad implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @NotBlank
     @Size(max = 200)
     private String name;
@@ -45,7 +45,7 @@ public class Ad implements Serializable {
     private float cost;
     @Enumerated(EnumType.STRING)
     private Channel typeOfAudience;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ad")
     @JsonIgnore
     private List<AdMedia> media;
 

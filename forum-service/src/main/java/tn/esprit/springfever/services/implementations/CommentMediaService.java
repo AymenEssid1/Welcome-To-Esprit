@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.entities.CommentMedia;
 import tn.esprit.springfever.entities.PostMedia;
@@ -21,9 +22,9 @@ public class CommentMediaService implements ICommentMediaService {
     @Autowired
     CommentMediaRepository repo;
 
-    public CommentMedia save(byte[] bytes, String imageName) throws Exception {
-        String location = fileSystemRepository.save(bytes, imageName);
-        return repo.save(new CommentMedia(imageName, location));
+    public CommentMedia save(MultipartFile file) throws Exception {
+        String location = fileSystemRepository.save(file);
+        return repo.save(new CommentMedia(file.getOriginalFilename(), location));
     }
     public FileSystemResource find(Long imageId) {
         CommentMedia image = repo.findById(imageId)

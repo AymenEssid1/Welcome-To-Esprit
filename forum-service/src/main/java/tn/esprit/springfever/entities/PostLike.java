@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class PostLike implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private int user;
     @ManyToOne

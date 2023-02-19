@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface IMessageService {
     public Message addMessage(Message msg);
-    public Message updateMessage(int id,Message post);
-    public String deleteMessage(int message);
+    public Message updateMessage(Long id,Message post);
+    public String deleteMessage(Long message);
     public List<Message> getAllMessages();
-    public List<Message> getPostsByUser(int user);
+    public List<Message> getPostsByUser(Long user);
 }

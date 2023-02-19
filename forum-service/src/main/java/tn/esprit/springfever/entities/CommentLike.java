@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class CommentLike implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "reaction_type")
 

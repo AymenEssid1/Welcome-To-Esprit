@@ -23,7 +23,7 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Post updatePost(int id, Post post) {
+    public Post updatePost(Long id, Post post) {
         Post p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             post.setId(p.getId());
@@ -33,7 +33,7 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public String deletePost(int post) {
+    public String deletePost(Long post) {
         Post p = repo.findById(Long.valueOf(post)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);
@@ -46,5 +46,10 @@ public class PostService implements IPostService {
     @Override
     public List<Post> getAllPosts() {
         return repo.findAll();
+    }
+
+    @Override
+    public Post getSinglePost(Long id) {
+        return repo.findById(id).orElse(null);
     }
 }

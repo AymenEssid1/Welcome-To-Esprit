@@ -21,7 +21,7 @@ import java.io.Serializable;
 public class PostMedia implements Serializable {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -36,14 +36,16 @@ public class PostMedia implements Serializable {
     @ManyToOne
     private Post post;
 
-    public PostMedia(String name, String location) {
+    public PostMedia(String name, String location, Post post) {
         this.name = name;
         this.location = location;
+        this.post = post;
     }
 
-    public PostMedia(String name, byte[] content) {
+    public PostMedia(String name, byte[] content, Post post) {
         this.name = name;
         this.content = content;
+        this.post = post;
     }
 
 }

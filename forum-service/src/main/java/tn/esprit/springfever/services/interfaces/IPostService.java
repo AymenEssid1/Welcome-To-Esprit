@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface IPostService {
     public Post addPost(Post post);
-    public Post updatePost(int id,Post post);
-    public String deletePost(int post);
+    public Post updatePost(Long id,Post post);
+    public String deletePost(Long post);
     public List<Post> getAllPosts();
+    public Post getSinglePost(Long id);
 }

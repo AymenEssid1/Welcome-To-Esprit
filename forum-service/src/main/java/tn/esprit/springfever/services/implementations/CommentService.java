@@ -22,7 +22,7 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public Comment updateComment(int id, Comment comment) {
+    public Comment updateComment(Long id, Comment comment) {
         Comment p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             comment.setId(p.getId());
@@ -32,7 +32,7 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public String deleteComment(int comment) {
+    public String deleteComment(Long comment) {
         Comment p = repo.findById(Long.valueOf(comment)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);

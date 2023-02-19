@@ -22,7 +22,7 @@ public class PostLikesService implements IPostLikeService {
     }
 
     @Override
-    public PostLike updatePostLike(int id, PostLike like) {
+    public PostLike updatePostLike(Long id, PostLike like) {
         PostLike p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             like.setId(p.getId());
@@ -32,7 +32,7 @@ public class PostLikesService implements IPostLikeService {
     }
 
     @Override
-    public String deletePostLike(int like) {
+    public String deletePostLike(Long like) {
         PostLike p = repo.findById(Long.valueOf(like)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);

@@ -21,7 +21,7 @@ import java.io.Serializable;
 public class AdMedia implements Serializable {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     private String name;
 

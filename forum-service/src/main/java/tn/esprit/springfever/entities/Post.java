@@ -20,7 +20,7 @@ import java.util.List;
 public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @NotBlank
     @Size(max = 200)
     private String title;

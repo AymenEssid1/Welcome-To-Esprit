@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class CommentMedia implements Serializable {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     private String name;
 

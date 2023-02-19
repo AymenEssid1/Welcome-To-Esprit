@@ -21,7 +21,7 @@ public class AdService implements IAdService {
     }
 
     @Override
-    public Ad updateAd(int id, Ad ad) {
+    public Ad updateAd(Long id, Ad ad) {
         Ad p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             ad.setId(p.getId());
@@ -31,7 +31,7 @@ public class AdService implements IAdService {
     }
 
     @Override
-    public String deleteAd(int ad) {
+    public String deleteAd(Long ad) {
         Ad p = repo.findById(Long.valueOf(ad)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);

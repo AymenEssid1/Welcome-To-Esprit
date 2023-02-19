@@ -21,7 +21,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Message updateMessage(int id, Message msg) {
+    public Message updateMessage(Long id, Message msg) {
         Message p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
             msg.setId(p.getId());
@@ -31,7 +31,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public String deleteMessage(int message) {
+    public String deleteMessage(Long message) {
         Message p = repo.findById(Long.valueOf(message)).orElse(null) ;
         if(p!=null) {
             repo.delete(p);
@@ -46,7 +46,8 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public List<Message> getPostsByUser(int user) {
-        return repo.findBySenderAndReceiver(user);
+    public List<Message> getPostsByUser(Long user) {
+        //return repo.findBySenderAndReceiver(user);
+        return null;
     }
 }

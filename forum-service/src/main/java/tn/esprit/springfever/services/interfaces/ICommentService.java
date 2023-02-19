@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface ICommentService {
     public Comment addComment(Comment post);
-    public Comment updateComment(int id,Comment comment);
-    public String deleteComment(int comment);
+    public Comment updateComment(Long id,Comment comment);
+    public String deleteComment(Long comment);
     public List<Comment> getAllComments();
     public List<Comment> getCommentsByPosts(Post post);
 }

@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface IPostLikeService {
     public PostLike addPostLike(PostLike like);
-    public PostLike updatePostLike(int id,PostLike like);
-    public String deletePostLike(int like);
+    public PostLike updatePostLike(Long id,PostLike like);
+    public String deletePostLike(Long like);
     public List<PostLike> getAllPostLikes();
     public List<PostLike> getLikesByPosts(Post post);
 }
