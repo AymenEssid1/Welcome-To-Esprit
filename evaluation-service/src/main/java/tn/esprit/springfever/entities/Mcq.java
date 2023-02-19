@@ -1,6 +1,7 @@
 package tn.esprit.springfever.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @ToString
@@ -27,6 +29,11 @@ public class Mcq implements Serializable {
     private Long idMcq;
     private String McqTitle ;
     private int Duration ;
+
+
+    @ManyToMany(cascade = CascadeType.ALL )
+    @JsonIgnore
+    private List<Question> questions;
 
 
 }

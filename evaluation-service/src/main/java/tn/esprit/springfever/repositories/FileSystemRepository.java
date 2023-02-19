@@ -14,14 +14,20 @@ public class FileSystemRepository  {
 
 
     public String save(byte[] content, String imageName) throws Exception {
-         Path newFile = Paths.get("C:\\Users\\Msi\\Desktop\\Projet Spring jwt\\PICTURES" + new Date().getTime() + "-" + imageName); // to change
+         Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\pictures\\" + new Date().getTime() + "-" + imageName);
          Files.createDirectories(newFile.getParent());
         Files.write(newFile, content);
         return newFile.toAbsolutePath()
                 .toString();
     }
 
-
+    public String saveVideo(byte[] data, String videoName) throws Exception {
+          Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\videos\\"+ new Date().getTime() + "-" + videoName);
+        Files.createDirectories(newFile.getParent());
+        Files.write(newFile, data);
+        return newFile.toAbsolutePath()
+                .toString();
+    }
 
     public FileSystemResource findInFileSystem(String location) {
         try {

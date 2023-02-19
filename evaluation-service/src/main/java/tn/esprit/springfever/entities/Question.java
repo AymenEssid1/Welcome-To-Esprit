@@ -1,16 +1,15 @@
 package tn.esprit.springfever.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @ToString
@@ -29,5 +28,9 @@ public class Question implements Serializable {
     private String option3 ;
     private String answer ;
 
+
+    @ManyToMany(cascade = CascadeType.ALL , mappedBy = "questions")
+    @JsonIgnore
+    private List<Mcq> mcqs;
 
 }

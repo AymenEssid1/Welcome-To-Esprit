@@ -65,6 +65,12 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+
+
+    @OneToOne
+    Deliberation deliberation ;
+
+
     public User() {
 
     }
