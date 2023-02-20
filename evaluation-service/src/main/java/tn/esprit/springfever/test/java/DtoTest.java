@@ -2,14 +2,8 @@ package tn.esprit.springfever.test.java;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mapstruct.Mapper;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,24 +12,15 @@ import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.EvaluationService;
 import tn.esprit.springfever.Services.Implementation.ServiceClaimsImpl;
 import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
-import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.entities.Claim;
-import tn.esprit.springfever.enums.ClaimRate;
-import tn.esprit.springfever.enums.ClaimStatus;
-import tn.esprit.springfever.enums.ClaimSubject;
 import tn.esprit.springfever.repositories.ClaimRepository;
-
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = EvaluationService.class)
-
 public class DtoTest {
 
     @Autowired
@@ -79,21 +64,14 @@ public class DtoTest {
         //         when it is called.
         //         This allows you to test the behavior of your code without actually saving anything to the database.
         //         */
-
       when(claimRepository.save(any(Claim.class))).thenReturn(claim);
           claimService.updateClaim(1L,claimDTO);
-
         // Fetch the Claim entity from the database
-
      when(claimRepository.findById(1L)).thenReturn(Optional.of(claim));
         Claim updatedClaim = claimService.findById(1L);
-
-
         // Assert that the updated data in the Claim entity matches the data in the updated ClaimDTO
         //assertEquals(claimDTO.getClaimSubject(), updatedClaim.getClaimSubject());
       assertEquals(claimDTO.getDecision(), updatedClaim.getDecision());
-
-
 
     }
 

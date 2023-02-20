@@ -2,6 +2,7 @@ package tn.esprit.springfever.Services.Interfaces;
 
 import tn.esprit.springfever.entities.Mcq;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IServiceMcq {
@@ -11,6 +12,7 @@ public interface IServiceMcq {
         String deleteMcq(Long idMcq);
         Mcq updateMcq(Long idMcq, Mcq mcq);
         Mcq getMcq(Long idMcq);
+        Mcq generateMcq(String diplomaTitle) throws IOException ;
 
 }
 

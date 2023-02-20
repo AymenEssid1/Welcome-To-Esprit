@@ -25,17 +25,12 @@ public class Mcq implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     @Setter
-
     private Long idMcq;
     private String McqTitle ;
     private int Duration ;
-
-
     @ManyToMany(cascade = CascadeType.ALL )
     @JsonIgnore
     private List<Question> questions;
-
-
 }
 
 
