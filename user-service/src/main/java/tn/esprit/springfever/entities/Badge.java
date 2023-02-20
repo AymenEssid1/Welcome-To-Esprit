@@ -1,5 +1,6 @@
 package tn.esprit.springfever.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +25,13 @@ public class Badge implements Serializable {
     @Setter
     private Long badgeid;
 
-    @OneToOne(mappedBy = "badge")
+
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
     private User user;
+
+
+
 
 
 

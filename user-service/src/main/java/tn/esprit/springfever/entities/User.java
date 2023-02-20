@@ -1,11 +1,8 @@
 package tn.esprit.springfever.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.ToString;
-
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -26,30 +23,24 @@ public class User implements Serializable {
     @Getter
     @Setter
     private Long userid;
-
-    @NotBlank
     @Size(max = 20)
     private String username;
 
-
-    @NotBlank
     @Size(max = 20)
     private String firstname;
-
-    @NotBlank
     @Size(max = 20)
     private String lastname;
 
-
-    @NotBlank
     private int cin;
 
-    @NotBlank
+    @Temporal(value=TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyy-MM-dd")
     private Date dob;
-
-    @NotBlank
     @Size(max = 120)
     private String password;
+
+
+
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
@@ -62,28 +53,11 @@ public class User implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
+
+
     @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user")
     private Badge badge;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public User() {
     }

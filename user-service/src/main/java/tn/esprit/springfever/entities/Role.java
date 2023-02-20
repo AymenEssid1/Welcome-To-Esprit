@@ -21,8 +21,11 @@ public class Role implements Serializable {
     @Getter
     @Setter
     private Long id;
+
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
+
     private RoleType rolename;
 
 }
