@@ -5,9 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 
-@SpringBootApplication
+@SpringBootApplication // ( @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan )
 @EnableSpringConfigured
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
 @EnableEurekaClient

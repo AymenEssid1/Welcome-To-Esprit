@@ -35,15 +35,20 @@ public class ClaimDTO implements Serializable  {
     private ClaimRate claimRate ;
      private User user ;
 
-    public ClaimDTO(Long idClaim, ClaimSubject claimSubject, String desciption, ClaimStatus claimStatus,
+    public ClaimDTO(Long idClaim, ClaimSubject claimSubject, String description, ClaimStatus claimStatus,
                     String decision, ClaimRate claimRate) {
         this.idClaim = idClaim;
         this.claimSubject = claimSubject;
-        this.desciption = desciption;
+        this.desciption = description;
         this.claimStatus = claimStatus;
         this.decision = decision;
         this.claimRate = claimRate;
+    }
+    public ClaimDTO() {}
 
+    public ClaimDTO(long l, String second) {
+        this.idClaim= l ;
+        this.desciption=second;
     }
 }
 

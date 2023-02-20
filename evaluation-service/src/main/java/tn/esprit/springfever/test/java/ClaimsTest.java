@@ -1,14 +1,8 @@
 package tn.esprit.springfever.test.java ;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -19,7 +13,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import tn.esprit.springfever.EvaluationService;
 import tn.esprit.springfever.Services.Implementation.ServiceClaimsImpl;
-import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.entities.Claim;
 import tn.esprit.springfever.repositories.ClaimRepository;
 
@@ -27,7 +20,7 @@ import tn.esprit.springfever.repositories.ClaimRepository;
 @SpringBootTest(classes = EvaluationService.class)
 
 
-public class WelcomeToEspritTest {
+public class ClaimsTest {
 
     @Autowired
     private ServiceClaimsImpl entityService;

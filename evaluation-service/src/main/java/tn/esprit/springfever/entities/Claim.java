@@ -33,16 +33,23 @@ public class Claim implements Serializable {
     private ClaimSubject claimSubject ;
     @NotBlank
     @Size(max = 500)
-    private String desciption;
+    private String description;
     @Enumerated(EnumType.STRING)
     private ClaimStatus claimStatus ;
     private String decision ;
     @Enumerated(EnumType.STRING)
     private ClaimRate claimRate ;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     private User user ;
 
-    public Claim(Long entityId, String test_claim) {
+    public Claim(Long ClaimId, String test_claim) {
+        this.idClaim=ClaimId ;
+        this.description= test_claim ;
+
+    }
+
+    public Claim() {
+
     }
 }

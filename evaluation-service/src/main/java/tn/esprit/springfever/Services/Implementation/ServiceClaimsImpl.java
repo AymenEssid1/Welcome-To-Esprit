@@ -35,7 +35,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
      @Override
     public Claim addClaim(Claim claim) throws IOException {
-
+/*
         // Load the tokenizer model
         InputStream modelIn = new FileInputStream("en-token.bin");
         TokenizerModel model = new TokenizerModel(modelIn);
@@ -51,8 +51,11 @@ public class ServiceClaimsImpl implements IServiceClaims {
         for (String token : tokens)
             log.info(token);
         //log takone
+        */
+        log.info("theeeeeeee claim " + claim.toString());
          log.info("claim was successfully added !");
-        return claimRepository.save(claim);
+         claimRepository.save(claim);
+        return claim;
      }
 
     @Override
@@ -67,7 +70,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
              log.info("claim deleted");
              return true ;
          }
-        log.info(" this claim is not existing");
+      else {log.info(" this claim is not existing");}
         return false;
     }
 
@@ -93,9 +96,10 @@ public class ServiceClaimsImpl implements IServiceClaims {
             claimRepository.save(claim);
             log.info("claim was successfully updated !");
         }
-        log.info("claim not found !");
-        return  claim;
-
+        else {
+            log.info("claim not found !");
+         }
+        return claim;
     }
 
     @Override
@@ -105,7 +109,8 @@ public class ServiceClaimsImpl implements IServiceClaims {
             log.info("claims list of the user  : " + existingUser.getUsername() );
             return claimRepository.getClaimByUserUsername(username);
         }
-        log.info("user not found ");
+        else {log.info("user not found ");}
+
         return  null ;
     }
 

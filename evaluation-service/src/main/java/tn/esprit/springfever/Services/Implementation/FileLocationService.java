@@ -1,6 +1,8 @@
 package tn.esprit.springfever.Services.Implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import tn.esprit.springfever.repositories.FileSystemRepository;
 import tn.esprit.springfever.repositories.ImageDataRepository;
 import tn.esprit.springfever.repositories.VideoRepository;
 
+
+
 @Service
 public class FileLocationService implements IFileLocationService {
 
@@ -25,7 +29,10 @@ public class FileLocationService implements IFileLocationService {
     @Autowired
     VideoRepository videoRepository;
 
-    public ImageData save(byte[] bytes, String imageName) throws Exception {
+
+
+
+     public ImageData save(byte[] bytes, String imageName) throws Exception {
         String location = fileSystemRepository.save(bytes, imageName);
         return imageDataRepository.save(new ImageData(imageName, location));
     }
