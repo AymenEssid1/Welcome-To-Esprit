@@ -20,15 +20,15 @@ import org.springframework.context.annotation.Configuration;
         }
 
         public Info infoAPI() {
-        return new Info().title("EXAM - JAN - 2023")
-        .description("This is a springboot exam")
+        return new Info().title("SPRING FEVER")
+        .description("This is a springboot project")
         .contact(contactAPI());
         }
 
         public Contact contactAPI() {
-        Contact contact = new Contact().name("Ahmed_Debbiche-4SE4")
-        .email("ahmed.debbiche@esprit.tn")
-        .url("https://github.com/Ahmed-Debbiche007");
+        Contact contact = new Contact().name("Mondher-Souissi-4SE4")
+        .email("mondher.souissi@esprit.tn")
+        .url("https://gitlab.com/ahmedg99/welcome-to-esprit");
         return contact;
         }
 

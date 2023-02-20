@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.RDVDTO;
 import tn.esprit.springfever.service.RDVService;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(value = "/api/rDVs", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RDVResource {
 
+    @Autowired
     private  RDVService rDVService;
 
     public RDVResource( RDVService rDVService) {
@@ -31,9 +33,9 @@ public class RDVResource {
         return ResponseEntity.ok(rDVService.get(idRDV));
     }
 
-    @PostMapping
-    public ResponseEntity<Long> createRDV(@RequestBody @Valid  RDVDTO rDVDTO) {
-        return new ResponseEntity<>(rDVService.create(rDVDTO), HttpStatus.CREATED);
+    @PostMapping("/{iduser}")
+    public ResponseEntity<Long> createRDV(@RequestBody @Valid  RDVDTO rDVDTO,@PathVariable  Long iduser) {
+        return new ResponseEntity<>(rDVService.create(rDVDTO,iduser), HttpStatus.CREATED);
     }
 
     @PutMapping("/{idRDV}")

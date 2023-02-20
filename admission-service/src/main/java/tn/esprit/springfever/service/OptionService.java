@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.domain.Option;
 import tn.esprit.springfever.model.OptionDTO;
 import tn.esprit.springfever.repos.OptionRepository;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class OptionService {
 
+    @Autowired
     private  OptionRepository optionRepository;
 
     public OptionService( OptionRepository optionRepository) {

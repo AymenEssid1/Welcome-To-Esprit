@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.OptionDTO;
 import tn.esprit.springfever.service.OptionService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/options", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OptionResource {
-
+    @Autowired
     private  OptionService optionService;
 
     public OptionResource( OptionService optionService) {

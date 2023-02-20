@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.domain.RDV;
 import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.RDVDTO;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 @Service
 public class RDVService {
 
+    @Autowired
     private  RDVRepository rDVRepository;
+    @Autowired
     private  UserRepository userRepository;
 
     public RDVService( RDVRepository rDVRepository,  UserRepository userRepository) {
@@ -37,9 +40,11 @@ public class RDVService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( RDVDTO rDVDTO) {
+    public Long create( RDVDTO rDVDTO,Long idUser) {
+        User user= userRepository.findById(idUser).orElse(new User());
          RDV rDV = new RDV();
         mapToEntity(rDVDTO, rDV);
+        rDV.setRDVuser(user);
         return rDVRepository.save(rDV).getIdRDV();
     }
 

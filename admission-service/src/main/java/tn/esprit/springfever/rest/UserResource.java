@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.UserDTO;
 import tn.esprit.springfever.service.UserService;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserResource {
 
+        @Autowired
     private  UserService userService;
 
     public UserResource( UserService userService) {

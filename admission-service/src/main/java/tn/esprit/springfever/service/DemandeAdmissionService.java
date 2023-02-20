@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.domain.DemandeAdmission;
 import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.DemandeAdmissionDTO;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 @Service
 public class DemandeAdmissionService {
 
+    @Autowired
     private  DemandeAdmissionRepository demandeAdmissionRepository;
+    @Autowired
     private  UserRepository userRepository;
 
     public DemandeAdmissionService( DemandeAdmissionRepository demandeAdmissionRepository,
@@ -32,19 +35,22 @@ public class DemandeAdmissionService {
                 .collect(Collectors.toList());
     }
 
-    public DemandeAdmissionDTO get( Long idAdmission) {
+    public DemandeAdmissionDTO get(Long idAdmission) {
         return demandeAdmissionRepository.findById(idAdmission)
                 .map(demandeAdmission -> mapToDTO(demandeAdmission, new DemandeAdmissionDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( DemandeAdmissionDTO demandeAdmissionDTO) {
+    public Long create(DemandeAdmissionDTO demandeAdmissionDTO, Long IdUser)  {
+        User user = userRepository.findById(IdUser).orElse(new User());
          DemandeAdmission demandeAdmission = new DemandeAdmission();
         mapToEntity(demandeAdmissionDTO, demandeAdmission);
+        demandeAdmission.setDemandeUser(user);
         return demandeAdmissionRepository.save(demandeAdmission).getIdAdmission();
+
     }
 
-    public void update( Long idAdmission,  DemandeAdmissionDTO demandeAdmissionDTO) {
+    public void update(Long idAdmission,DemandeAdmissionDTO demandeAdmissionDTO) {
          DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(idAdmission)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(demandeAdmissionDTO, demandeAdmission);
@@ -52,6 +58,7 @@ public class DemandeAdmissionService {
     }
 
     public void delete( Long idAdmission) {
+
         demandeAdmissionRepository.deleteById(idAdmission);
     }
 

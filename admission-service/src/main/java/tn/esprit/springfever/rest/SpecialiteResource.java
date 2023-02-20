@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.SpecialiteDTO;
 import tn.esprit.springfever.service.SpecialiteService;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(value = "/api/specialites", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SpecialiteResource {
 
+    @Autowired
     private  SpecialiteService specialiteService;
 
     public SpecialiteResource( SpecialiteService specialiteService) {
@@ -31,11 +33,14 @@ public class SpecialiteResource {
         return ResponseEntity.ok(specialiteService.get(idSpecialite));
     }
 
-    @PostMapping
+    @PostMapping("/{iddemande}/{idOption}")
     public ResponseEntity<Long> createSpecialite(
-            @RequestBody @Valid  SpecialiteDTO specialiteDTO) {
-        return new ResponseEntity<>(specialiteService.create(specialiteDTO), HttpStatus.CREATED);
+            @RequestBody @Valid SpecialiteDTO specialiteDTO,
+            @PathVariable Long iddemande,
+            @PathVariable Long idOption) {
+        return new ResponseEntity<>(specialiteService.create(specialiteDTO, iddemande, idOption), HttpStatus.CREATED);
     }
+
 
     @PutMapping("/{idSpecialite}")
     public ResponseEntity<Void> updateSpecialite(@PathVariable  Long idSpecialite,

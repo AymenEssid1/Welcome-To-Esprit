@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.domain.DemandeAdmission;
 import tn.esprit.springfever.domain.Option;
 import tn.esprit.springfever.domain.Specialite;
@@ -18,8 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class SpecialiteService {
 
+    @Autowired
     private  SpecialiteRepository specialiteRepository;
+    @Autowired
     private  DemandeAdmissionRepository demandeAdmissionRepository;
+    @Autowired
     private  OptionRepository optionRepository;
 
     public SpecialiteService( SpecialiteRepository specialiteRepository,
@@ -43,9 +47,13 @@ public class SpecialiteService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( SpecialiteDTO specialiteDTO) {
+    public Long create( SpecialiteDTO specialiteDTO, Long IdAdmission,Long idoption) {
+        DemandeAdmission demandeAdmission= demandeAdmissionRepository.findById(IdAdmission).orElse(new DemandeAdmission());
+        Option o = optionRepository.findById(idoption).orElse(new Option());
          Specialite specialite = new Specialite();
         mapToEntity(specialiteDTO, specialite);
+        specialite.setDemandeSpecialite(demandeAdmission);
+        specialite.setSpecialiteOption(o);
         return specialiteRepository.save(specialite).getIdSpecialite();
     }
 

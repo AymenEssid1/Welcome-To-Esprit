@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.DemandeAdmissionDTO;
 import tn.esprit.springfever.service.DemandeAdmissionService;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(value = "/api/demandeAdmissions", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DemandeAdmissionResource {
 
+    @Autowired
     private  DemandeAdmissionService demandeAdmissionService;
 
     public DemandeAdmissionResource( DemandeAdmissionService demandeAdmissionService) {
@@ -32,10 +34,10 @@ public class DemandeAdmissionResource {
         return ResponseEntity.ok(demandeAdmissionService.get(idAdmission));
     }
 
-    @PostMapping
+    @PostMapping("/{iduser}")
     public ResponseEntity<Long> createDemandeAdmission(
-            @RequestBody @Valid  DemandeAdmissionDTO demandeAdmissionDTO) {
-        return new ResponseEntity<>(demandeAdmissionService.create(demandeAdmissionDTO), HttpStatus.CREATED);
+            @RequestBody @Valid  DemandeAdmissionDTO demandeAdmissionDTO,@PathVariable  Long iduser) {
+        return new ResponseEntity<>(demandeAdmissionService.create(demandeAdmissionDTO,iduser), HttpStatus.CREATED);
     }
 
     @PutMapping("/{idAdmission}")

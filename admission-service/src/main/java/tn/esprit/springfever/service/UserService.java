@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.UserDTO;
 import tn.esprit.springfever.repos.UserRepository;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+    @Autowired
 
     private  UserRepository userRepository;
 
