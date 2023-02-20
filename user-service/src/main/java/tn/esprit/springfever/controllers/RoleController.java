@@ -17,7 +17,7 @@ public class RoleController {
     private RoleRepo roleRepository;
 
     // Get all roles
-    @GetMapping
+    @GetMapping("/allroles")
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }

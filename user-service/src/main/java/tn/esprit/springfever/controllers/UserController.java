@@ -3,7 +3,9 @@ package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Repositories.BadgeRepo;
+import tn.esprit.springfever.Repositories.FileSystemRepository;
 import tn.esprit.springfever.Repositories.RoleRepo;
 import tn.esprit.springfever.Repositories.UserRepo;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
@@ -38,11 +41,15 @@ public class UserController {
     private RoleRepo roleRepo;
     @Autowired
     private BadgeRepo badgerepo;
+    @Autowired
+    FileSystemRepository fileSystemRepository;
 
     @Autowired
     IServiceUser iServiceUser;
     @Autowired
     IFileLocationService iFileLocationService;
+    @Autowired
+    BadgeRepo badgeRepository;
 
     @GetMapping("/getallusers")
     public List<User> getAllUsers() {
@@ -69,15 +76,24 @@ public class UserController {
         u.setDob(userDTO.getDob());
         u.setPassword(userDTO.getPassword());
         u.setUsername(userDTO.getUsername());
-        System.out.println("aaaaaaaaaaggghhhh!!!!");
-
         if(image!=null){
             System.out.println(image.getOriginalFilename());
             Image newImage = iFileLocationService.save(image);
             u.setImage(newImage);
         }
         iServiceUser.addUserAndAssignRole(u,roleType);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(u);
+    }
+    @GetMapping(value = "/badge/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId) {
+        try {
+            Badge badge = badgeRepository.findById(imageId).orElse(null);
+            FileSystemResource fileSystemResource = fileSystemRepository.findInFileSystem(badge.getQrCode());
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(fileSystemResource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 
@@ -123,34 +139,5 @@ public class UserController {
 
 
 
-
-
-
-
-
-/*
-    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Image> uploadImage(@RequestParam("image") MultipartFile image) {
-        try {
-            Image savedImageData = iFileLocationService.save(image);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedImageData);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }*/
-
-
-
-
-
-
-    @PostMapping("/add_ROLE/")
-    public Role createRole(@Valid @RequestBody Role role) {
-        return roleRepo.save(role);}
-
-
-    @PostMapping("/add_Badge/")
-    public Badge createBadge(@Valid @RequestBody Badge badge, @RequestParam("userid") long userid) {
-        return iServiceUser.addBadge(badge,userid);}
 
 }

@@ -1,6 +1,8 @@
 package tn.esprit.springfever.entities;
 
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,8 +25,8 @@ public class Image implements Serializable {
 
 
 
-    @OneToOne(mappedBy = "image")
-    private User user;
+
+
 
     public Image(String name, String location) {
         this.name = name;

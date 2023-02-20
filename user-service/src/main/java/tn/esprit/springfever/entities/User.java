@@ -49,7 +49,7 @@ public class User implements Serializable {
     private Set<Role> roles = new HashSet<>();
 
 
-    @JsonIgnore
+
     @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
