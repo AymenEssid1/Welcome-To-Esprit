@@ -1,18 +1,24 @@
 package tn.esprit.springfever.Controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Interfaces.IServiceFaq;
 import tn.esprit.springfever.entities.Faq;
 import  tn.esprit.springfever.Services.Interfaces.IServiceFaq;
 import  tn.esprit.springfever.entities.Faq;
 import  tn.esprit.springfever.enums.Faq_Category_enum;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 @RestController
 @RequestMapping("/faqs")
+@Slf4j
 public class FaqController {
 
     @Autowired
@@ -51,6 +57,17 @@ public class FaqController {
     public ResponseEntity<String> AssignCategoryToFaq(@PathVariable Long idFaq,@PathVariable Long idFaqCategory ) {
             String  updatedFaqStatus = faqService.AssignCategoryToFaq(idFaq, idFaqCategory);
         return new ResponseEntity<>(updatedFaqStatus, HttpStatus.OK);
+    }
+
+    @PostMapping(value="/import" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<List<Faq>> importFAQs(@RequestParam("file") MultipartFile file) throws IOException {
+        try {
+            List<Faq> faqs =faqService.importFAQsFromExcel(file);
+            log.info("FAQs imported successfully");
+            return ResponseEntity.ok(faqs);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
     }
 
 }

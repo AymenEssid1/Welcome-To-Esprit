@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.FaqCategory;
+import tn.esprit.springfever.enums.Faq_Category_enum;
 import tn.esprit.springfever.repositories.FaqCategoryRepository;
 import tn.esprit.springfever.repositories.UserRepository;
 import tn.esprit.springfever.Services.Interfaces.IServiceFaqCategory;
- import tn.esprit.springfever.entities.FaqCategory;
- import tn.esprit.springfever.repositories.FaqCategoryRepository;
- import tn.esprit.springfever.repositories.UserRepository;
 
 import java.util.List;
 
@@ -56,6 +54,15 @@ public class ServiceFaqCategoriesImpl implements IServiceFaqCategory {
         }
         log.info("This Faq Category is not existing !");
         return existingFaqCategory;
+    }
+
+
+    @Override
+    public FaqCategory veriforAdd(Faq_Category_enum faq_category_enum) {
+
+        FaqCategory faqCategory = faqCategoryRepository.findByFaqCategory(faq_category_enum);
+
+        return null;
     }
 
 

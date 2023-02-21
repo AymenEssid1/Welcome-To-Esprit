@@ -38,4 +38,5 @@ public class FaqCategory implements Serializable {
     @JsonIgnore
     private List<Faq> faqs ;
 
+
 }
