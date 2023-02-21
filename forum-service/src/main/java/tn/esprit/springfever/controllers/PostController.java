@@ -138,8 +138,8 @@ public class PostController {
         return ResponseEntity.notFound().build();
 
 }
-    @GetMapping(value = "/lazy")
-    public ResponseEntity<List<Post>> getAllLazy(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id) {
+    @GetMapping(value = "/")
+    public ResponseEntity<List<Post>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id) {
         if (id != null) {
             return ResponseEntity.ok().body(service.getByUserLazy(page, size, id));
         } else {
@@ -183,7 +183,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
-    @DeleteMapping(value = "/like")
+    @DeleteMapping(value = "/dislike")
     public ResponseEntity<String> dislike(Long id) {
         return ResponseEntity.ok().body(likeService.deletePostLike(id));
     }

@@ -163,8 +163,8 @@ public class AdController {
         }
     }
 
-    @GetMapping(value = "/lazy")
-    public ResponseEntity<List<Ad>> getAllLazy(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id) {
+    @GetMapping(value = "/")
+    public ResponseEntity<List<Ad>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id) {
         return ResponseEntity.ok().body(service.getAllLazy(page, size));
     }
 

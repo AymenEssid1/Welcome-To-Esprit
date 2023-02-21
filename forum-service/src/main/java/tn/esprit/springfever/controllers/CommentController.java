@@ -171,7 +171,7 @@ public class CommentController {
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
-    @DeleteMapping(value = "/like")
+    @DeleteMapping(value = "/dislike")
     public ResponseEntity<String> dislike(Long id) {
         return ResponseEntity.ok().body(likeService.deleteCommentLike(id));
     }

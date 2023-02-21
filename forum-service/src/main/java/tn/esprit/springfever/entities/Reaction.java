@@ -22,6 +22,15 @@ public class Reaction implements Serializable {
     private Long id;
     private String name;
     private String location;
+    @Lob
+    @JsonIgnore
+    byte[] content;
+
+    public Reaction(String name, String location, byte[] content){
+        this.name = name;
+        this.location = location;
+        this.content = content;
+    }
 
 
 }
