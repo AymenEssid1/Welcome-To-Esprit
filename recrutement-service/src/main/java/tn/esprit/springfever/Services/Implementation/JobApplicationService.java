@@ -2,12 +2,21 @@ package tn.esprit.springfever.Services.Implementation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.Services.Interfaces.IJobApplication;
+import tn.esprit.springfever.entities.Image_JobOffer;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.repositories.JobApplicationRepository;
 import tn.esprit.springfever.repositories.JobApplicatonPdfRepository;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,6 +27,7 @@ public class JobApplicationService implements IJobApplication {
     JobApplicationRepository jobApplicationRepository;
     @Autowired
     JobApplicatonPdfRepository jobApplicatonPdfRepository;
+
 
     public Job_Application AddJobApplication (Job_Application job_application){
        return jobApplicationRepository.save(job_application);
@@ -58,4 +68,26 @@ public class JobApplicationService implements IJobApplication {
         return JobApplicationExisted;
 
     }*/
+
+    public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv, String location_LettreMotivation) throws Exception {
+        Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
+        Path lettreFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_LettreMotivation);
+
+        Files.write(cvFile, cv);
+        Files.write(lettreFile, lettre);
+
+        String cvLocation = cvFile.toAbsolutePath().toString();
+        String lettreLocation = lettreFile.toAbsolutePath().toString();
+
+        return jobApplicationRepository.save(new Job_Application(cv, lettre, cvLocation, lettreLocation));
+    }
+
+    public Resource[] find(Long Id_Job_Application) {
+        Job_Application job_application = jobApplicationRepository.findById(Id_Job_Application)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return jobApplicatonPdfRepository.findInFileSystem(job_application.getLocation_Cv(),job_application.getLocation_LettreMotivation());
+    }
+
+
+
 }

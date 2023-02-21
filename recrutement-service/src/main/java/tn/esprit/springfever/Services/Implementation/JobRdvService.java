@@ -3,7 +3,9 @@ package tn.esprit.springfever.Services.Implementation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
+import tn.esprit.springfever.Services.Interfaces.JobMapper;
 import tn.esprit.springfever.entities.Entretien;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.entities.Job_RDV;
@@ -22,6 +24,8 @@ public class JobRdvService implements IJobRDV {
 
     @Autowired
     JobApplicationRepository jobApplicationRepository;
+    @Autowired
+    JobMapper jobMapper;
 
     public Job_RDV addJobRDV(Job_RDV job_rdv){
         return jobRdvRepository.save(job_rdv);
@@ -31,7 +35,7 @@ public class JobRdvService implements IJobRDV {
         return jobRdvRepository.findAll();
 
     }
-    public Job_RDV updateJobRDV (Long ID_Job_DRV , Job_RDV job_rdv ) {
+    /*public Job_RDV updateJobRDV (Long ID_Job_DRV , Job_RDV job_rdv ) {
         Job_RDV jobRdvExisted = jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if(jobRdvExisted!=null){
             jobRdvExisted.setUser2(job_rdv.getUser2());
@@ -47,7 +51,21 @@ public class JobRdvService implements IJobRDV {
         }
         log.info("Job RDV does not exist !! ");
         return jobRdvExisted;
+    }*/
+
+    public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto) {
+        Job_RDV jobRdv = jobRdvRepository.findById(ID_Job_DRV).orElse(null);
+        if (jobRdv != null) {
+            jobMapper.updateClaimFromDto(jobRdv, jobRdvDto);
+            log.info(jobRdv.getSalle_Rdv());
+            jobRdvRepository.save(jobRdv);
+            log.info("Job was successfully updated !");
+            return jobRdv;
+        }
+        log.info("Job not found !");
+        return  jobRdv;
     }
+
     public  String deleteJobOffer(Long  ID_Job_DRV) {
         Job_RDV jobRdv=jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if(jobRdv!=null){

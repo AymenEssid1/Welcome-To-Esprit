@@ -1,5 +1,6 @@
 package tn.esprit.springfever.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,10 +38,12 @@ public class Job_RDV implements Serializable {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Id_Job_Application")
+    @JsonIgnore
     private Job_Application jobApplication;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entretien_id")
+    @JsonIgnore
     private Entretien entretien;
 
 

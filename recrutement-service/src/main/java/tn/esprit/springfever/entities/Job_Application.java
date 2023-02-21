@@ -19,6 +19,8 @@ public class Job_Application implements Serializable  {
 
 
     private Long Id_Job_Application ;
+     private String location_Cv ;
+    private String location_LettreMotivation;
 
     @Lob
     @Column(name = "Candidate_cv")
@@ -44,6 +46,17 @@ public class Job_Application implements Serializable  {
         this.lettreMotivation = lettreMotivation;
     }
     public Job_Application(){
+
+    }
+    public Job_Application(String location_Cv,byte[] cv ){
+        this.location_Cv=location_Cv;
+        this.cv=cv;
+    }
+    public Job_Application(byte[]lettreMotivation,byte[]cv,String location_LettreMotivation, String location_Cv){
+        this.location_LettreMotivation=location_LettreMotivation;
+        this.location_Cv=location_Cv;
+        this.lettreMotivation=lettreMotivation;
+        this.cv=cv;
 
     }
 

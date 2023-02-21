@@ -1,7 +1,9 @@
 package tn.esprit.springfever.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.entities.Job_RDV;
 
@@ -31,11 +33,17 @@ public class JobRdvController {
 
     }
 
-    @PutMapping("updateJobRDV/{id}")
+    /*@PutMapping("updateJobRDV/{id}")
     public Job_RDV updateJobRDV (@PathVariable("id") Long ID_Job_DRV , @RequestBody Job_RDV job_rdv ) {
         return iJobRDV.updateJobRDV(ID_Job_DRV,job_rdv);
 
-    }
+    }*/
+//updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto)
+    @PutMapping("/updateJobRDv/{id}")
+    @ResponseBody
+
+    public Job_RDV updateJobRDV(@PathVariable("id") Long ID_Job_DRV, @RequestBody Job_RDV_DTO jobRdvDto )  {return  iJobRDV.updateJobRDV(ID_Job_DRV,jobRdvDto);}
+
 
 
     @DeleteMapping("deleteJobRDV/{id}")

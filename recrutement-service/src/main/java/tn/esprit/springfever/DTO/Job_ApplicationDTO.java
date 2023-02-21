@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
-public class Job_ApplicationDTO implements Serializable {
+public class Job_ApplicationDTO  {
     private Long Id_Job_Application ;
 
     @Lob
