@@ -3,19 +3,19 @@ package tn.esprit.springfever.services.implementations;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tn.esprit.springfever.entities.Comment;
-import tn.esprit.springfever.entities.CommentLike;
-import tn.esprit.springfever.entities.Post;
+import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.repositories.CommentPagingRepository;
 import tn.esprit.springfever.repositories.CommentRepository;
 import tn.esprit.springfever.services.interfaces.ICommentService;
-
-import java.util.List;
 
 @Service
 @Slf4j
 public class CommentService implements ICommentService {
     @Autowired
     private CommentRepository repo;
+
+    @Autowired
+    private CommentPagingRepository pagingRepository;
     @Override
     public Comment addComment(Comment comment) {
         return repo.save(comment);
@@ -42,11 +42,8 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public List<Comment> getAllComments() {
-        return repo.findAll();
+    public Comment getSingleComment(Long id) {
+        return repo.findById(id).orElse(null);
     }
 
-    public List<Comment> getCommentsByPosts(Post id) {
-        return repo.findByPost(id);
-    }
 }

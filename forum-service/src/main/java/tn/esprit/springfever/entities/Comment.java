@@ -24,14 +24,16 @@ public class Comment implements Serializable {
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "comment")
-    @JsonIgnore
     private List<CommentLike> likes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "comment")
-    @JsonIgnore
-    private List<CommentMedia> comments;
 
     @ManyToOne
+    @JsonIgnore
     private Post post;
+
+    @OneToMany (cascade = CascadeType.ALL, mappedBy = "comment")
+    private List<CommentMedia> media;
+
+    private Long user;
 
 
 

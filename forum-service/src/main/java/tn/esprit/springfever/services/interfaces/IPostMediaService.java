@@ -11,5 +11,5 @@ import java.util.List;
 public interface IPostMediaService {
     public PostMedia save(MultipartFile file, Post post) throws Exception ;
     public FileSystemResource find(Long imageId) ;
-    public String delete(Long id);
+    public void delete(Long id);
 }

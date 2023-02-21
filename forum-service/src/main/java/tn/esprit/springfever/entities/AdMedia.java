@@ -22,26 +22,22 @@ public class AdMedia implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-
     private String name;
-
     private String location;
-
     @Lob
+    @JsonIgnore
     byte[] content;
-
     @Enumerated(EnumType.STRING)
     private MediaType type;
+
     @ManyToOne
+    @JsonIgnore
     private Ad ad;
 
-    public AdMedia(String name, String location) {
+    public AdMedia(String name, String location, Ad ad, byte[] content) {
         this.name = name;
         this.location = location;
-    }
-
-    public AdMedia(String name, byte[] content) {
-        this.name = name;
+        this.ad = ad;
         this.content = content;
     }
 }

@@ -9,6 +9,10 @@ import tn.esprit.springfever.entities.Reaction;
 import java.util.List;
 
 public interface IReactionService {
-    public Reaction save(MultipartFile file, String label) throws Exception ;
-    public FileSystemResource find(Long imageId) ;
+    public List<Reaction> getAll();
+    public Reaction getById(Long id);
+    public String deleteReaction(Long id);
+    public Reaction updateReaction(Long id, Reaction r);
+    public Reaction addReaction(Reaction reaction);
+    public FileSystemResource find(Long imageId);
 }

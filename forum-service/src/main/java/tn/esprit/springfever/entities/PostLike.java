@@ -25,7 +25,8 @@ public class PostLike implements Serializable {
     @ManyToOne
     @JoinColumn(name = "reaction_type")
     private Reaction type;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JsonIgnore
     private Post post;
 
 

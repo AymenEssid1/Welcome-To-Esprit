@@ -8,5 +8,6 @@ public interface IAdService {
     public Ad addAd(Ad ad);
     public Ad updateAd(Long id,Ad ad);
     public String deleteAd(Long ad);
-    public List<Ad> getAllAds();
+    public Ad getSingleAd(Long id);
+    public List<Ad> getAllLazy(int page, int size);
 }

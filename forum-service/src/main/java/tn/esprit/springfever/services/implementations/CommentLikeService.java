@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentLike;
+import tn.esprit.springfever.entities.Reaction;
 import tn.esprit.springfever.repositories.CommentLikeRepository;
+import tn.esprit.springfever.repositories.ReactionRepository;
 import tn.esprit.springfever.services.interfaces.ICommentLikeService;
 
 import java.util.List;
@@ -15,17 +17,21 @@ import java.util.List;
 public class CommentLikeService implements ICommentLikeService {
     @Autowired
     private CommentLikeRepository repo;
+    @Autowired
+    private ReactionRepository reactionRepository;
     @Override
     public CommentLike addCommentLike(CommentLike like) {
         return repo.save(like);
     }
 
     @Override
-    public CommentLike updateCommentLike(Long id, CommentLike like) {
+    public CommentLike updateCommentLike(Long id, Long type) {
         CommentLike p = repo.findById(Long.valueOf(id)).orElse(null) ;
+        Reaction r = reactionRepository.findById(type).orElse(null);
         if(p!=null) {
-            like.setId(p.getId());
-            repo.save(like);
+            if (r!=null){
+                p.setType(r);
+            }
         }
         return p;
     }
@@ -40,13 +46,4 @@ public class CommentLikeService implements ICommentLikeService {
         return "Not Found ! ";
     }
 
-    @Override
-    public List<CommentLike> getAllCommentLikes() {
-        return repo.findAll();
-    }
-
-    @Override
-    public List<CommentLike> getLikesByComment(Comment comment) {
-        return repo.findLikeByComment(comment);
-    }
 }

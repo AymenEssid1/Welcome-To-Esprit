@@ -23,7 +23,7 @@ public class PostMediaService implements IPostMediaService {
 
     public PostMedia save(MultipartFile file, Post post) throws Exception {
         String location = fileSystemRepository.save(file);
-        return repo.save(new PostMedia(file.getOriginalFilename(), location, post));
+        return repo.save(new PostMedia(file.getOriginalFilename(), location, post, file.getBytes()));
     }
     public FileSystemResource find(Long imageId) {
         PostMedia image = repo.findById(Long.valueOf(imageId))
@@ -32,10 +32,10 @@ public class PostMediaService implements IPostMediaService {
     }
 
     @Override
-    public String delete(Long id) {
+    public void delete(Long id) {
         PostMedia image = repo.findById(Long.valueOf(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         fileSystemRepository.deletefile(image.getLocation());
-        return "file deleted";
+        repo.delete(image);
     }
 }

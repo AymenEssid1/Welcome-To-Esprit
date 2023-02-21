@@ -22,30 +22,22 @@ public class PostMedia implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-
     private String name;
-
     private String location;
-
     @Lob
+    @JsonIgnore
     byte[] content;
-
     @Enumerated(EnumType.STRING)
     private MediaType type;
 
     @ManyToOne
+    @JsonIgnore
     private Post post;
 
-    public PostMedia(String name, String location, Post post) {
+    public PostMedia(String name, String location, Post post, byte[] content) {
         this.name = name;
         this.location = location;
         this.post = post;
-    }
-
-    public PostMedia(String name, byte[] content, Post post) {
-        this.name = name;
         this.content = content;
-        this.post = post;
     }
-
 }

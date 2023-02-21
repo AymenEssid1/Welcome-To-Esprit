@@ -19,6 +19,8 @@ public class PostDTO {
     private String title;
     private String content;
 
+    private Long user;
+
     private List<PostLike> likes;
 
     private List<Comment> comments;

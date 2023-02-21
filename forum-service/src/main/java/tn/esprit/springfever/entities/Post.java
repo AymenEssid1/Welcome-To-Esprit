@@ -28,14 +28,11 @@ public class Post implements Serializable {
 
     private Long user;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
-    @JsonIgnore
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<PostLike> likes;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
-    @JsonIgnore
     private List<Comment> comments;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
-    @JsonIgnore
     private List<PostMedia> media;
 
 

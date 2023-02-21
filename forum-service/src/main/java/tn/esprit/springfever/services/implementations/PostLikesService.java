@@ -18,7 +18,10 @@ public class PostLikesService implements IPostLikeService {
     private PostLikeRepository repo;
     @Override
     public PostLike addPostLike(PostLike like) {
-        return repo.save(like);
+        if (repo.findByUser(like.getUser()).isEmpty()){
+            return repo.save(like);
+        }
+        return null;
     }
 
     @Override

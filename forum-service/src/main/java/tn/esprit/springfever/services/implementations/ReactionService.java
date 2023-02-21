@@ -25,13 +25,44 @@ public class ReactionService implements IReactionService {
     @Autowired
     ReactionRepository repo;
 
-    public Reaction save(MultipartFile file, String label) throws Exception {
-        String location = fileSystemRepository.save(file);
-        return repo.save(new Reaction(file.getOriginalFilename(), location, label));
-    }
+    @Override
     public FileSystemResource find(Long imageId) {
         Reaction image = repo.findById(imageId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return fileSystemRepository.findInFileSystem(image.getLocation());
+    }
+    @Override
+    public List<Reaction> getAll() {
+        return repo.findAll();
+    }
+    @Override
+    public Reaction getById(Long id) {
+        return repo.findById(id).orElse(null);
+    }
+    @Override
+    public String deleteReaction(Long id) {
+        repo.delete(repo.findById(id).orElse(null));
+        return "Reaction Deleted!";
+    }
+
+    @Override
+    public Reaction updateReaction(Long id, Reaction r) {
+        Reaction reaction = repo.findById(id).orElse(null);
+        if (reaction!=null){
+            reaction.setName(r.getName());
+            if (!r.getLocation().equals(reaction.getLocation())){
+                fileSystemRepository.deletefile(reaction.getLocation());
+                reaction.setLocation(r.getLocation());
+            }
+
+            return repo.save(reaction);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public Reaction addReaction(Reaction reaction) {
+        return null;
     }
 }

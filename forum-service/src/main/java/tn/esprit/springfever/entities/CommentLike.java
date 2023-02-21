@@ -25,7 +25,10 @@ public class CommentLike implements Serializable {
 
     private Reaction type;
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private Comment comment;
+
+    private Long user;
 
 
 }

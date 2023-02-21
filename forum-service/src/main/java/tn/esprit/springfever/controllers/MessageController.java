@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/msg")
 @Api(tags = "Messages Module")
 @Tag(name = "Messages Module")
+@CrossOrigin
 public class MessageController {
     @Autowired
     private IMessageService service;
@@ -37,19 +38,40 @@ public class MessageController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMessage(@PathVariable Long id){
         return ResponseEntity.ok().body(service.deleteMessage(id));
-
+    }
+    @DeleteMapping("/convo/{id}/{user}")
+    public ResponseEntity<String> deleteConversation(@PathVariable String id, @PathVariable int user){
+        return ResponseEntity.ok().body(service.deleteConversation(id,user));
     }
 
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteMessageByUser(@PathVariable int id){
         return ResponseEntity.ok().body(service.deleteMessageByUser(id));
-
     }
 
     @GetMapping(value="/{id}")
-    public List<Message> getMessages(@PathVariable int id){
+    public ResponseEntity<List<Message>> getMessages(@PathVariable int id){
+        return ResponseEntity.ok().body(service.getMessageByUser(id));
+    }
 
-        return service.getMessageByUser(id);
+    @GetMapping(value="/convo/{id}")
+    public ResponseEntity<List<Message>> getMessagesByConvo(@PathVariable String id){
+        return ResponseEntity.ok().body(service.getMsgsByConvo(id));
+    }
+
+    @GetMapping(value = "exists/{id}")
+    public ResponseEntity<?> convoExists(String id){
+        if (service.convoExists(id)){
+            return ResponseEntity.ok().body(true);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(value = "user/convo/{id}")
+    public ResponseEntity<List<String>> getConvsByUser(int id){
+        return ResponseEntity.ok().body(service.getConvsByUser(id));
     }
 
 

@@ -12,4 +12,5 @@ import java.util.Optional;
 @EnableJpaRepositories
 public interface PostLikeRepository extends JpaRepository<PostLike,Long> {
     public List<PostLike> findPostLikeByPost(Post post);
+    public List<PostLike> findByUser(int id);
 }

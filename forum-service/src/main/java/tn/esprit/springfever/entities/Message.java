@@ -1,6 +1,5 @@
 package tn.esprit.springfever.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,8 +8,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "Message")
@@ -32,7 +29,14 @@ public class Message implements Serializable {
     private int sender;
     private int receiver;
 
+    private String convId;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
     private LocalDateTime timestamps;
+
+    public Message(String id){
+        this.convId = id;
+    }
+
 
 }

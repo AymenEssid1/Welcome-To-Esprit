@@ -20,26 +20,8 @@ public class Reaction implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-
     private String name;
-
-    private String label;
-
     private String location;
 
-    @Lob
-    byte[] content;
-
-    public Reaction(String name, String location, String label) {
-        this.name = name;
-        this.location = location;
-        this.label=label;
-    }
-
-    public Reaction(String name, byte[] content, String label) {
-        this.name = name;
-        this.content = content;
-        this.label=label;
-    }
 
 }

@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @Configuration
-@OpenAPIDefinition(servers = {@Server(url = "http://localhost:8181/forum")})
+@OpenAPIDefinition(servers = {@Server(url = "/forum")})
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.APIKEY,
