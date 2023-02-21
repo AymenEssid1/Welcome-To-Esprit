@@ -4,11 +4,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 
 @SpringBootApplication
 @EnableSpringConfigured
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
+@ComponentScan(basePackages = {"tn.esprit.springfever.controllers","tn.esprit.springfever.Services","tn.esprit.springfever.configuration","tn.esprit.springfever.repositories","tn.esprit.springfever.Security","tn.esprit.springfever.payload"})
+
+
 @EnableEurekaClient
 public class EventService {
     public static void main(String[] args) {
