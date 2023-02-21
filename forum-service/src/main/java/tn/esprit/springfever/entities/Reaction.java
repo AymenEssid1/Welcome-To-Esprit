@@ -32,5 +32,9 @@ public class Reaction implements Serializable {
         this.content = content;
     }
 
+    public Reaction(String name){
+        this.name = name;
+    }
+
 
 }

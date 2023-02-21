@@ -35,6 +35,13 @@ services:
     ports:
       - "8080:8080"
 
+## Redis Container
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
 # # Eureka Server Container
 #   discovery-server:
 #     build:

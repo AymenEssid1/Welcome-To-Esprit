@@ -2,6 +2,8 @@ package tn.esprit.springfever.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class CommentMediaService implements ICommentMediaService {
         String location = fileSystemRepository.save(file);
         return repo.save(new CommentMedia(file.getOriginalFilename(), location, comment, file.getBytes()));
     }
+    @Cacheable("commentMedia")
     public FileSystemResource find(Long imageId) {
         CommentMedia image = repo.findById(Long.valueOf(imageId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -35,6 +38,7 @@ public class CommentMediaService implements ICommentMediaService {
     }
 
     @Override
+    @CacheEvict("commentMedia")
     public void delete(Long id) {
         CommentMedia image = repo.findById(Long.valueOf(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

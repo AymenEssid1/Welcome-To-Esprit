@@ -2,6 +2,9 @@ package tn.esprit.springfever.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Message;
 import tn.esprit.springfever.entities.Post;
@@ -37,6 +40,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    @CachePut("msg")
     public Message updateMessage(Long id, Message msg) {
         Message p = repo.findById(Long.valueOf(id)).orElse(null);
         if (p != null) {
@@ -47,6 +51,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    @CacheEvict("msg")
     public String deleteMessage(Long message) {
         Message p = repo.findById(Long.valueOf(message)).orElse(null);
         if (p != null) {
@@ -57,16 +62,19 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    @Cacheable("msg")
     public List<Message> getAllMessages() {
         return repo.findAll();
     }
 
     @Override
+    @Cacheable("msg")
     public List<Message> getMessageByUser(int user) {
         return repo.findBySenderOrReceiver(user, user);
     }
 
     @Override
+    @CacheEvict("msg")
     public String deleteMessageByUser(int id) {
         List<Message> msgs = repo.findBySenderOrReceiver(id, id);
         deleteSequence(msgs, id);
@@ -74,6 +82,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    @CacheEvict("msg")
     public String deleteConversation(String id, int user) {
         List<Message> msgs = repo.findByConvId(id);
         log.info(String.valueOf(msgs.size()));
@@ -82,11 +91,13 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    @Cacheable("msg")
     public List<Message> getMsgsByConvo(String id) {
         return repo.findByConvId(id);
     }
 
     @Override
+    @Cacheable("msg")
     public List<String> getConvsByUser(int user) {
         return repo.findDistinctConversationsBySenderOrReceiver(user, user);
     }

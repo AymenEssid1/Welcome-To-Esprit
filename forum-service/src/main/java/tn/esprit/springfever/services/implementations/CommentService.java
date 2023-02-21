@@ -2,6 +2,9 @@ package tn.esprit.springfever.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.CommentPagingRepository;
@@ -22,6 +25,7 @@ public class CommentService implements ICommentService {
     }
 
     @Override
+    @CachePut("comment")
     public Comment updateComment(Long id, Comment comment) {
         Comment p = repo.findById(Long.valueOf(id)).orElse(null) ;
         if(p!=null) {
@@ -32,6 +36,7 @@ public class CommentService implements ICommentService {
     }
 
     @Override
+    @CacheEvict("comment")
     public String deleteComment(Long comment) {
         Comment p = repo.findById(Long.valueOf(comment)).orElse(null) ;
         if(p!=null) {
@@ -42,6 +47,7 @@ public class CommentService implements ICommentService {
     }
 
     @Override
+    @Cacheable("comment")
     public Comment getSingleComment(Long id) {
         return repo.findById(id).orElse(null);
     }
