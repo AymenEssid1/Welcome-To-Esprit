@@ -5,7 +5,9 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -16,16 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Interfaces.IJobApplication;
-import tn.esprit.springfever.entities.Image_JobOffer;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.repositories.JobApplicationRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -152,9 +151,6 @@ public class JobApplicationController {
     }*/
 
 
-
-
-
     @GetMapping(value = "/application/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<Resource> generatePdfFromApplication(@PathVariable Long id) throws Exception {
         Job_Application application = jobApplicationRepository.findById(id)
@@ -208,17 +204,18 @@ public class JobApplicationController {
         ResponseEntity<Resource> response = new ResponseEntity<>(resource, headers, HttpStatus.OK);
         return response;
     }
+
     @GetMapping(value = "/GetCV/{id}")
     public ResponseEntity<FileSystemResource> downloadPDFCV(@PathVariable("id") Long Id) {
         try {
-            System.out.println("mriguel") ;
+            System.out.println("mriguel");
             FileSystemResource fileSystemResource = iJobApplication.findCV(Id);
-            System.out.println("mriguel") ;
+            System.out.println("mriguel");
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(fileSystemResource);
         } catch (Exception e) {
-            System.out.println("eror pdf") ;
+            System.out.println("eror pdf");
 
             return ResponseEntity.notFound().build();
         }
@@ -228,14 +225,14 @@ public class JobApplicationController {
     @GetMapping(value = "/GetLettreMotivation/{id}")
     public ResponseEntity<FileSystemResource> downloadPDFLettreMotivation(@PathVariable("id") Long Id) {
         try {
-            System.out.println("mriguel") ;
+            System.out.println("mriguel");
             FileSystemResource fileSystemResource = iJobApplication.findLettreMotivation(Id);
-            System.out.println("mriguel") ;
+            System.out.println("mriguel");
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(fileSystemResource);
         } catch (Exception e) {
-            System.out.println("eror pdf") ;
+            System.out.println("eror pdf");
 
             return ResponseEntity.notFound().build();
         }
@@ -260,21 +257,8 @@ public class JobApplicationController {
     }*/
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @GetMapping("getAllJobApplications/")
-    public List<Job_Application> GetAllJobApplications(){
+    public List<Job_Application> GetAllJobApplications() {
         return iJobApplication.GetAllJobApplications();
 
     }
@@ -287,8 +271,31 @@ public class JobApplicationController {
 
 
     @DeleteMapping("deleteJobApplication/{id}")
-    public String DeleteJobApplication (@PathVariable("id") Long Id_Job_Application){
+    public String DeleteJobApplication(@PathVariable("id") Long Id_Job_Application) {
         return iJobApplication.DeleteJobApplication(Id_Job_Application);
 
     }
+
+
+    @GetMapping(value = "/pdf-text/{id}")
+    public String extractTextFromPdf(@PathVariable("id") Long Id) {
+        String text = null;
+        try {
+            FileSystemResource fileSystemResource = iJobApplication.findLettreMotivation(Id);
+
+            PdfReader reader = new PdfReader(fileSystemResource.getPath());
+
+            int n = reader.getNumberOfPages();
+            text = "";
+            for (int i = 0; i < n; i++) {
+                text += PdfTextExtractor.getTextFromPage(reader, i + 1).trim() + "\n";
+            }
+            reader.close();
+            System.out.println(text);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return text;
+    }
 }
+

@@ -10,8 +10,11 @@ public interface IJobOffer {
     public Job_Offer updateJobOffer(Long Id_Job_Offer , Job_Offer job_offer ) ;
     public  String deleteJobOffer(Long  Id_Job_Offer) ;
     public String AssignCategoryToJobOffer( Long Id_Job_Offer, Long Id_Job_Category);
+    public String AssignJobApplicationToJobOffer(Long Id_Job_Offer,Long Id_Job_Application);
 
-    public String AssignImageToJobOffer(Long Id_Job_Offer , Long id );
+    public String AssignImageToJobOffer(Long Id_Job_Offer , Long Id_Job_Application );
+
+    public String AssignUserToJobApplication(Long id , Long Id_Job_Application );
 
 
 }

@@ -46,5 +46,17 @@ public class JobOfferController  {
 
     }
 
+    @PutMapping("AssignJobApplicationToJobOffer/{Id_Job_Offer}/{id}")
+    public String AssignJobApplicationToJobOffer(@PathVariable("Id_Job_Offer") Long Id_Job_Offer ,@PathVariable("id") Long id ){
+        return iJobOffer.AssignJobApplicationToJobOffer(Id_Job_Offer,id);
+
+    }
+
+    @PutMapping("AssignUserToJobApplication/{id}/{Id_Job_Application}")
+    public String AssignUserToJobApplication(@PathVariable("id") Long id ,@PathVariable("Id_Job_Application") Long Id_Job_Application ){
+         return iJobOffer.AssignUserToJobApplication(id,Id_Job_Application);
+
+    }
+
 
 }

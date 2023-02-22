@@ -4,12 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IJobOffer;
-import tn.esprit.springfever.entities.Image_JobOffer;
-import tn.esprit.springfever.entities.Job_Category;
-import tn.esprit.springfever.entities.Job_Offer;
-import tn.esprit.springfever.repositories.Image_JobOfferRepository;
-import tn.esprit.springfever.repositories.JobCategoryRepository;
-import tn.esprit.springfever.repositories.JobOfferRepository;
+import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.repositories.*;
 
 import java.util.List;
 
@@ -24,6 +20,11 @@ public class JobOfferService implements IJobOffer {
 
     @Autowired
     Image_JobOfferRepository image_jobOfferRepository;
+
+    @Autowired
+    JobApplicationRepository jobApplicationRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public Job_Offer addJobOffer(Job_Offer job_offer){
         return jobOfferRepository.save(job_offer);
@@ -77,5 +78,31 @@ public class JobOfferService implements IJobOffer {
             return "Image Is successffully affected To Job Offer ! ";
         }
         return "Job Offer Or Image Does not Exist ";
+    }
+
+
+    public String AssignJobApplicationToJobOffer(Long Id_Job_Offer,Long Id_Job_Application){
+        Job_Offer job_offer=jobOfferRepository.findById(Id_Job_Offer).orElse(null);
+        Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
+        if(job_offer!=null && job_application!=null){
+            job_application.setJobOffer(job_offer);
+            jobApplicationRepository.save(job_application);
+            return "Job Application is succesffuly affected to job Offer !";
+        }
+        return "Job Offer Or Job Application are not found ! ";
+    }
+
+    public String AssignUserToJobApplication(Long id , Long Id_Job_Application ){
+        User user=userRepository.findById(id).orElse(null);
+        Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
+        if(job_application!=null && user!=null){
+            job_application.setUser(user);
+            jobApplicationRepository.save(job_application);
+            return "User is Affected To Job Application  Sucessffully !";
+
+        }
+        return "User Or Job Application are not Fouund !";
+
+
     }
 }
