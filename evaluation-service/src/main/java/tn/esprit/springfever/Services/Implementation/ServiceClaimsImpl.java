@@ -2,11 +2,10 @@ package tn.esprit.springfever.Services.Implementation;
 
 
 import lombok.extern.slf4j.Slf4j;
-  import opennlp.tools.tokenize.Tokenizer;
- import opennlp.tools.tokenize.TokenizerME;
- import opennlp.tools.tokenize.TokenizerModel;
- import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
@@ -15,10 +14,7 @@ import tn.esprit.springfever.entities.Claim;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
-
- import java.io.FileInputStream;
  import java.io.IOException;
- import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -31,29 +27,18 @@ public class ServiceClaimsImpl implements IServiceClaims {
     ClaimRepository claimRepository ;
     @Autowired
     ClaimMapper claimMapper;
-
+    @Autowired
+    JavaMailSender javaMailSender;
 
      @Override
     public Claim addClaim(Claim claim) throws IOException {
-/*
-        // Load the tokenizer model
-        InputStream modelIn = new FileInputStream("en-token.bin");
-        TokenizerModel model = new TokenizerModel(modelIn);
-
-        // Create a new tokenizer
-        Tokenizer tokenizer = new TokenizerME(model);
-
-        // Analyze the keywords from the student's diploma
-        String diploma = "Diploma in Computer Science with a specialization in Web Development";
-        String[] tokens = tokenizer.tokenize(diploma);
-
-        // Display the separated keywords
-        for (String token : tokens)
-            log.info(token);
-        //log takone
-        */
-        log.info("theeeeeeee claim " + claim.toString());
-         log.info("claim was successfully added !");
+             // Send email notification to user
+         SimpleMailMessage message = new SimpleMailMessage();
+         message.setSubject("New claim submitted");
+         message.setText("A new claim has been submitted.");
+         message.setTo("springforfever@gmail.com\n");
+         javaMailSender.send(message);
+          log.info("claim was successfully added !");
          claimRepository.save(claim);
         return claim;
      }

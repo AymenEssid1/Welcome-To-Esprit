@@ -120,7 +120,6 @@ public class ServiceFaqsImpl  implements IServiceFaq {
          }
         // Save the list of FAQs to the database
         faqRepository.saveAll(faqs);
-
         return faqs ;
 
     }

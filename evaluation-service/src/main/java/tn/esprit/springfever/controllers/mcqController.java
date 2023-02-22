@@ -2,10 +2,13 @@ package tn.esprit.springfever.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
- import org.springframework.web.bind.annotation.*;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import   tn.esprit.springfever.Services.Interfaces.*;
 import tn.esprit.springfever.entities.Mcq;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -41,4 +44,6 @@ public class McqController {
     public ResponseEntity<String> deleteMcq(@PathVariable Long idMcq) {
         return ResponseEntity.ok(mcqService.deleteMcq(idMcq));
     }
+
+
 }
