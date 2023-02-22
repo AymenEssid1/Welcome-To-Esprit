@@ -1,6 +1,8 @@
 package tn.esprit.springfever.entities;
 
 import java.io.Serializable;
+import java.util.Collection;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,4 +30,14 @@ public class Role implements Serializable {
 
     private RoleType rolename;
 
+    @ManyToMany(mappedBy = "roles")
+    private Collection<User> users;
+
+    public Collection<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Collection<User> users) {
+        this.users = users;
+    }
 }

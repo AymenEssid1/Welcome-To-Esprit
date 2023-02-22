@@ -6,12 +6,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
@@ -25,6 +24,10 @@ public class User implements Serializable {
     private Long userid;
     @Size(max = 20)
     private String username;
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
 
     @Size(max = 20)
     private String firstname;
@@ -74,6 +77,11 @@ public class User implements Serializable {
         this.lastname = lastname;
         this.cin = cin;
         this.dob = dob;
+        this.password = password;
+    }
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
         this.password = password;
     }
 }

@@ -7,6 +7,10 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -19,12 +23,11 @@ import tn.esprit.springfever.Services.Interface.IServiceUser;
 import tn.esprit.springfever.entities.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.InputStream;
+import java.util.*;
 
 
 @Service
@@ -126,5 +129,37 @@ public class UserIMP implements IServiceUser {
         return filePath;
     }
 
+
+    @Transactional
+    public void saveAll(List<User> users) {
+        userrepo.saveAll(users);
+    }
+
+    public List<User> readUsersFromExcelFile(InputStream is) throws IOException {
+        Workbook workbook = new XSSFWorkbook(is);
+        Sheet sheet = workbook.getSheetAt(0); // assuming the user data is in the first sheet
+        List<User> users = new ArrayList<>();
+
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0) {
+                // skip the header row
+                continue;
+            }
+
+            User user = new User();
+            user.setUsername(row.getCell(0).getStringCellValue());
+            user.setEmail(row.getCell(1).getStringCellValue());
+            user.setFirstname(row.getCell(2).getStringCellValue());
+            user.setLastname(row.getCell(3).getStringCellValue());
+            user.setCin((int) row.getCell(4).getNumericCellValue());
+            user.setDob(row.getCell(5).getDateCellValue());
+            user.setPassword(row.getCell(6).getStringCellValue());
+
+            users.add(user);
+        }
+
+        workbook.close();
+        return users;
+    }
 
 }

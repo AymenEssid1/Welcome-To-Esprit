@@ -4,11 +4,18 @@ package tn.esprit.springfever.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.converters.Auto;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +24,7 @@ import tn.esprit.springfever.Repositories.BadgeRepo;
 import tn.esprit.springfever.Repositories.FileSystemRepository;
 import tn.esprit.springfever.Repositories.RoleRepo;
 import tn.esprit.springfever.Repositories.UserRepo;
+
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
 import tn.esprit.springfever.dto.UserDTO;
@@ -50,6 +58,13 @@ public class UserController {
     IFileLocationService iFileLocationService;
     @Autowired
     BadgeRepo badgeRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @GetMapping("/getallusers")
     public List<User> getAllUsers() {
@@ -138,6 +153,11 @@ public class UserController {
     }
 
 
-
+    @PostMapping(value = "/users/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadUsersFile(@RequestParam("file") MultipartFile file) throws IOException {
+        List<User> users = iServiceUser.readUsersFromExcelFile(file.getInputStream());
+        iServiceUser.saveAll(users);
+        return ResponseEntity.ok("Users uploaded successfully.");
+    }
 
 }

@@ -9,6 +9,8 @@ import tn.esprit.springfever.entities.Image;
 import tn.esprit.springfever.entities.RoleType;
 import tn.esprit.springfever.entities.User;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 
@@ -26,7 +28,8 @@ public interface IServiceUser {
     public User getSingleUser(Long id);
     public String generateQr(User user);
 
+    public  void saveAll(List<User> users) ;
 
-
+    public List<User> readUsersFromExcelFile(InputStream is) throws IOException;
 
 }
