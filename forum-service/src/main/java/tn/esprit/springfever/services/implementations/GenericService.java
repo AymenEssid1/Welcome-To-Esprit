@@ -7,7 +7,7 @@ public class GenericService implements IGenericService {
     @Override
     public HttpHeaders createHeadersWithBearerToken(String token) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
+        headers.set("Authorization", "Bearer " + token);
         return headers;
     }
 }

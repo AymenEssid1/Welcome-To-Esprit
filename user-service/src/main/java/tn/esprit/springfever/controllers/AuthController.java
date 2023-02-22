@@ -135,10 +135,9 @@ public class AuthController {
     }
 
     @GetMapping("/id")
-    public String getById(HttpServletRequest request){
+    public User getById(HttpServletRequest request){
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        return request.getHeader("AUTHORIZATION");
-        //String token = authHeader.substring("Bearer ".length());
-        //return userRepository.findByUsername( jwtUtils.getUserNameFromJwtToken(token)).orElse(null);
+        String token = authHeader.substring("Bearer ".length());
+        return userRepository.findByUsername( jwtUtils.getUserNameFromJwtToken(token)).orElse(null);
     }
 }

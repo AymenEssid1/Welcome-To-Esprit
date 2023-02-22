@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,6 +16,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.Post;
@@ -29,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,34 +85,37 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public List<Post> getAllLazy(int page, int size, HttpServletRequest request) {
+    public List<Post> getAllLazy(int page, int size, HttpServletRequest requestt) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
         List<Post> list = pagerepo.findAll(pageable).getContent();
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        log.info(authHeader);
+        String authHeader = requestt.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader!=null){
             String token = authHeader.substring("Bearer ".length());
-            ObjectMapper objectMapper = new ObjectMapper();
-            JSONObject response = restTemplate.exchange("http://localhost:8181/user/auth/id", HttpMethod.GET,
-                    new HttpEntity<>(null, genericService.createHeadersWithBearerToken(token)), JSONObject.class).getBody();
-            UserDTO userDTO = null;
+            HttpHeaders headers = genericService.createHeadersWithBearerToken(token);
+            HttpEntity<?> request = new HttpEntity<>("parameters",headers);
             try {
-                userDTO = objectMapper.readValue(response.toString(), UserDTO.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            if (userDTO !=null) {
-                log.info(userDTO.getUsername());
-                String user = userDTO.getUsername();
-                list.forEach(post -> {
-                    if (viewsRepository.findByPostAndUser(post, user) == null) {
-                        viewsRepository.save(new PostViews(user, post, LocalDateTime.now()));
-                    }
-                    ;
-                });
+                ResponseEntity<?> response = restTemplate.exchange("http://localhost:8181/user/auth/id", HttpMethod.GET,
+                        request, UserDTO.class);
+                UserDTO userDTO = (UserDTO) response.getBody();
+                if (userDTO !=null) {
+                    String user = userDTO.getUsername();
+                    list.forEach(post -> {
+                        if (viewsRepository.findByPostAndUser(post, user) == null) {
+                            viewsRepository.save(new PostViews(user, post, LocalDateTime.now()));
+                        }
+                    });
+                }
+            } catch (HttpClientErrorException ex) {
+                log.error("Error calling user service1: {}", ex.getMessage());
+
+            } catch (HttpServerErrorException ex) {
+                log.error("Error calling user service2: {}", ex.getMessage());
+
+            } catch (RestClientException ex) {
+                log.error("Error calling user service3: {}", ex.getMessage());
+
             }
         }
-
         return list;
 
     }

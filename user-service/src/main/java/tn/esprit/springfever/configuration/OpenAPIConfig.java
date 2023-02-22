@@ -15,13 +15,10 @@ import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-
 @Configuration
 @OpenAPIDefinition(servers = {@Server(url = "/user")})
 @SecurityScheme(
@@ -32,7 +29,6 @@ import java.util.List;
 )
 
 public class OpenAPIConfig {
-
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private ApiInfo apiInfo() {
         return new ApiInfo("My REST API",
@@ -67,18 +63,14 @@ public class OpenAPIConfig {
                 .consumes(Collections.singleton(MediaType.MULTIPART_FORM_DATA_VALUE))
                 .produces(Collections.singleton(MediaType.APPLICATION_JSON_VALUE));
     }
-
-
     private ApiKey apiKey() {
         return new ApiKey("JWT", AUTHORIZATION_HEADER, "header");
     }
-
     private SecurityContext securityContext() {
         return SecurityContext.builder()
                 .securityReferences(defaultAuth())
                 .build();
     }
-
     List<SecurityReference> defaultAuth() {
         AuthorizationScope authorizationScope
                 = new AuthorizationScope("global", "accessEverything");
