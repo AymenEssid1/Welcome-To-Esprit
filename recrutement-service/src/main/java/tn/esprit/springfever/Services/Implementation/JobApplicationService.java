@@ -69,7 +69,7 @@ public class JobApplicationService implements IJobApplication {
 
     }*/
 
-    public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv, String location_LettreMotivation) throws Exception {
+    /*public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv, String location_LettreMotivation) throws Exception {
         Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
         Path lettreFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_LettreMotivation);
 
@@ -80,13 +80,30 @@ public class JobApplicationService implements IJobApplication {
         String lettreLocation = lettreFile.toAbsolutePath().toString();
 
         return jobApplicationRepository.save(new Job_Application(cv, lettre, cvLocation, lettreLocation));
+    }*/
+
+    public FileSystemResource findCV(Long Id_Job_Application) {
+
+        Job_Application job_application = jobApplicationRepository.findById(Id_Job_Application)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return jobApplicatonPdfRepository.findInFileSystem(job_application.getLocation_Cv());
     }
 
-    public Resource[] find(Long Id_Job_Application) {
+    public FileSystemResource findLettreMotivation(Long Id_Job_Application) {
+
+        Job_Application job_application = jobApplicationRepository.findById(Id_Job_Application)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return jobApplicatonPdfRepository.findInFileSystem(job_application.getLocation_LettreMotivation());
+    }
+
+
+
+    /*public Resource[] find(Long Id_Job_Application) {
+        System.out.println("*********");
         Job_Application job_application = jobApplicationRepository.findById(Id_Job_Application)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return jobApplicatonPdfRepository.findInFileSystem(job_application.getLocation_Cv(),job_application.getLocation_LettreMotivation());
-    }
+    }*/
 
 
 

@@ -13,6 +13,7 @@ public interface JobMapper {
 
     //@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(target = "salle_Rdv", source = "salleRdv")
+
     void updateClaimFromDto(@MappingTarget Job_RDV job_rdv, Job_RDV_DTO job_rdv_dto);
 }
 

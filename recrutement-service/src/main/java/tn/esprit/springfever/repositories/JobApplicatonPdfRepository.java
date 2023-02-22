@@ -24,15 +24,32 @@ public class JobApplicatonPdfRepository {
     }
 
 
-    public Resource[] findInFileSystem(String location_Cv, String location_LettreMotivation) {
+    public FileSystemResource findInFileSystem(String location_Cv) {
         try {
-            Resource cvResource = new FileSystemResource(Paths.get(location_Cv));
-            Resource lettreMotivationResource = new FileSystemResource(Paths.get(location_LettreMotivation));
-            return new Resource[]{cvResource, lettreMotivationResource};
+
+
+            return  new FileSystemResource(Paths.get(location_Cv));
         } catch (Exception e) {
             // Handle access or file not found problems.
             throw new RuntimeException();
         }
     }
+
+    /*public Resource[] findInFileSystem(String location_Cv, String location_LettreMotivation) {
+        try {
+            Resource[] resources = new Resource[2];
+            resources[0] = new FileSystemResource(Paths.get(location_Cv));
+            resources[1] = new FileSystemResource(Paths.get(location_LettreMotivation));
+            return resources;
+        } catch (Exception e) {
+            // Handle access or file not found problems.
+            throw new RuntimeException(e);
+        }
+    }*/
+
+
+
+
+
 
 }

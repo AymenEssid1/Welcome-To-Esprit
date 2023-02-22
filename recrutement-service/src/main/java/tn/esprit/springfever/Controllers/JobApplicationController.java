@@ -64,7 +64,7 @@ public class JobApplicationController {
     }*/
 
 
-    @PostMapping(value = "/JobAdd2" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    /*@PostMapping(value = "/JobAdd2" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public ResponseEntity<Job_Application> uploadImage(@RequestParam("cv") MultipartFile cvFile,@RequestParam("lettreMotivation") MultipartFile lettreMotivationFile ) {
         try {
             Job_Application savedImageData = iJobApplication.savef(cvFile.getBytes(), lettreMotivationFile.getBytes(),cvFile.getOriginalFilename(),lettreMotivationFile.getOriginalFilename());
@@ -72,7 +72,7 @@ public class JobApplicationController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
+    }*/
 
 
     /*@GetMapping(value = "/jobApplication/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
@@ -198,6 +198,7 @@ public class JobApplicationController {
             throw new RuntimeException("Error reading file content", e);
         } finally {
             document.close();
+
         }
 
         // Return PDF as byte array with appropriate headers
@@ -207,18 +208,56 @@ public class JobApplicationController {
         ResponseEntity<Resource> response = new ResponseEntity<>(resource, headers, HttpStatus.OK);
         return response;
     }
-    @GetMapping(value = "/Jobbb/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<List<Resource>> downloadPDF(@PathVariable("id") Long Id) {
+    @GetMapping(value = "/GetCV/{id}")
+    public ResponseEntity<FileSystemResource> downloadPDFCV(@PathVariable("id") Long Id) {
         try {
-            Resource[] fileSystemResources = iJobApplication.find(Id);
-            List<Resource> resourceList = Arrays.asList(fileSystemResources);
+            System.out.println("mriguel") ;
+            FileSystemResource fileSystemResource = iJobApplication.findCV(Id);
+            System.out.println("mriguel") ;
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
-                    .body(resourceList);
+                    .body(fileSystemResource);
         } catch (Exception e) {
+            System.out.println("eror pdf") ;
+
             return ResponseEntity.notFound().build();
         }
     }
+
+
+    @GetMapping(value = "/GetLettreMotivation/{id}")
+    public ResponseEntity<FileSystemResource> downloadPDFLettreMotivation(@PathVariable("id") Long Id) {
+        try {
+            System.out.println("mriguel") ;
+            FileSystemResource fileSystemResource = iJobApplication.findLettreMotivation(Id);
+            System.out.println("mriguel") ;
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(fileSystemResource);
+        } catch (Exception e) {
+            System.out.println("eror pdf") ;
+
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    /*@GetMapping(value = "/Jobbb/{id}")
+    public ResponseEntity<Resource[]> downloadPDF(@PathVariable("id") Long Id) {
+        try {
+            System.out.println("mriguel") ;
+            Resource[] resources = iJobApplication.find(Id);
+            System.out.println("mriguel2") ;
+            return ResponseEntity.ok()
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(resources);
+
+        } catch (Exception e) {
+            System.out.println("eror pdf") ;
+
+            return ResponseEntity.notFound().build();
+        }
+    }*/
 
 
 
