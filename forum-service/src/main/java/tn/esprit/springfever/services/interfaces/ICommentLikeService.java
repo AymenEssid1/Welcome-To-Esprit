@@ -1,9 +1,6 @@
 package tn.esprit.springfever.services.interfaces;
 
-import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentLike;
-
-import java.util.List;
 
 public interface ICommentLikeService {
     public CommentLike addCommentLike(CommentLike like);

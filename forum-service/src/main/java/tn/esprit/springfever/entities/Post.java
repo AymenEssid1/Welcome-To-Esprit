@@ -1,6 +1,5 @@
 package tn.esprit.springfever.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -35,6 +34,6 @@ public class Post implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<PostMedia> media;
 
-
-
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<PostViews> views;
 }

@@ -16,11 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.entities.Reaction;
 import tn.esprit.springfever.services.interfaces.IReactionService;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController

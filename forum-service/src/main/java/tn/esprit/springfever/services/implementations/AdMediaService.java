@@ -11,9 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.entities.Ad;
 import tn.esprit.springfever.entities.AdMedia;
-import tn.esprit.springfever.entities.CommentMedia;
 import tn.esprit.springfever.repositories.AdMediaRepository;
-import tn.esprit.springfever.repositories.CommentMediaRepository;
 import tn.esprit.springfever.repositories.FileSystemRepository;
 import tn.esprit.springfever.services.interfaces.IAdMediaService;
 @Service

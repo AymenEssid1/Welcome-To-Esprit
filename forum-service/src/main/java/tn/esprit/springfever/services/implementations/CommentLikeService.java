@@ -5,14 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
-import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentLike;
 import tn.esprit.springfever.entities.Reaction;
 import tn.esprit.springfever.repositories.CommentLikeRepository;
 import tn.esprit.springfever.repositories.ReactionRepository;
 import tn.esprit.springfever.services.interfaces.ICommentLikeService;
-
-import java.util.List;
 
 @Service
 @Slf4j

@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.repositories.CommentPagingRepository;
 import tn.esprit.springfever.repositories.CommentRepository;
 import tn.esprit.springfever.services.interfaces.ICommentService;

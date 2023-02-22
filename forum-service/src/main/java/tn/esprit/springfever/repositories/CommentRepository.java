@@ -7,7 +7,6 @@ import tn.esprit.springfever.entities.Post;
 
 
 import java.util.List;
-import java.util.Optional;
 
 @EnableJpaRepositories
 public interface CommentRepository extends JpaRepository<Comment,Long> {

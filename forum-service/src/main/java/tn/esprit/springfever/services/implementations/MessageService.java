@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Message;
-import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.repositories.MessageRepository;
 import tn.esprit.springfever.services.ConvoGenerator;
 import tn.esprit.springfever.services.interfaces.IMessageService;

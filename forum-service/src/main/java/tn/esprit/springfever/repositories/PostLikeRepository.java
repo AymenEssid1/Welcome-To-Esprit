@@ -7,7 +7,6 @@ import tn.esprit.springfever.entities.PostLike;
 
 
 import java.util.List;
-import java.util.Optional;
 
 @EnableJpaRepositories
 public interface PostLikeRepository extends JpaRepository<PostLike,Long> {

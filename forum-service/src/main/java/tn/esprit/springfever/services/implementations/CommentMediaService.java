@@ -11,11 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentMedia;
-import tn.esprit.springfever.entities.Post;
-import tn.esprit.springfever.entities.PostMedia;
 import tn.esprit.springfever.repositories.CommentMediaRepository;
 import tn.esprit.springfever.repositories.FileSystemRepository;
-import tn.esprit.springfever.repositories.PostMediaRepository;
 import tn.esprit.springfever.services.interfaces.ICommentMediaService;
 
 @Service

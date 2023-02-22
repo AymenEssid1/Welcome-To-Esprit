@@ -6,13 +6,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.services.interfaces.IPostLikeService;
 import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.entities.PostLike;
 import tn.esprit.springfever.repositories.PostLikeRepository;
-import tn.esprit.springfever.services.interfaces.IPostLikeService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j

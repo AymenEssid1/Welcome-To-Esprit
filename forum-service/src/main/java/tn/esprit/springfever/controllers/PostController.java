@@ -20,14 +20,19 @@ import tn.esprit.springfever.dto.PostDTO;
 import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.entities.PostLike;
 import tn.esprit.springfever.entities.PostMedia;
+import tn.esprit.springfever.security.UserPrincipal;
 import tn.esprit.springfever.services.interfaces.IPostLikeService;
+import tn.esprit.springfever.utils.MultipartFileSizeComparator;
+import tn.esprit.springfever.utils.PostMediaComparator;
 import tn.esprit.springfever.services.interfaces.IPostMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
 import tn.esprit.springfever.services.interfaces.IReactionService;
-import tn.esprit.springfever.utils.MultipartFileSizeComparator;
-import tn.esprit.springfever.utils.PostMediaComparator;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,11 +144,11 @@ public class PostController {
 
 }
     @GetMapping(value = "/")
-    public ResponseEntity<List<Post>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id) {
+    public ResponseEntity<List<Post>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id, HttpServletRequest request) {
         if (id != null) {
             return ResponseEntity.ok().body(service.getByUserLazy(page, size, id));
         } else {
-            return ResponseEntity.ok().body(service.getAllLazy(page, size));
+            return ResponseEntity.ok().body(service.getAllLazy(page, size,request));
         }
     }
 

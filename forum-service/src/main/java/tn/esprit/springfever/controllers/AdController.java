@@ -14,16 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.AdDTO;
-import tn.esprit.springfever.dto.CommentDTO;
-import tn.esprit.springfever.dto.PostDTO;
-import tn.esprit.springfever.entities.*;
-import tn.esprit.springfever.services.interfaces.*;
+import tn.esprit.springfever.entities.Ad;
+import tn.esprit.springfever.entities.AdMedia;
 import tn.esprit.springfever.utils.AdMediaComparator;
-import tn.esprit.springfever.utils.CommentMediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
+import tn.esprit.springfever.services.interfaces.IAdMediaService;
+import tn.esprit.springfever.services.interfaces.IAdService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,10 +31,10 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ads")
-@Api(tags = "Advertisements Module")
-@Tag(name = "Advertisements Module")
-@CrossOrigin
+@RequestMapping("advertisement")
+@Tag(name = "Advertisement Module")
+@Api(tags = "Advertisement Module")
+@Service
 public class AdController {
     @Autowired
     private IAdService service;

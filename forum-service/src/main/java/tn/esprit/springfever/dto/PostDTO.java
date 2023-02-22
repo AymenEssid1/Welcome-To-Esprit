@@ -1,12 +1,10 @@
 package tn.esprit.springfever.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.PostLike;
 import tn.esprit.springfever.entities.PostMedia;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;

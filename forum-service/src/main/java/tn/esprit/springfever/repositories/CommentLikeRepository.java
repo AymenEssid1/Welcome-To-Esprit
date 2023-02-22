@@ -6,7 +6,6 @@ import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.CommentLike;
 
 import java.util.List;
-import java.util.Optional;
 
 @EnableJpaRepositories
 public interface CommentLikeRepository extends JpaRepository<CommentLike,Long> {

@@ -8,7 +8,6 @@ import tn.esprit.springfever.entities.Message;
 
 
 import java.util.List;
-import java.util.Optional;
 
 @EnableJpaRepositories
 public interface MessageRepository extends JpaRepository<Message,Long> {

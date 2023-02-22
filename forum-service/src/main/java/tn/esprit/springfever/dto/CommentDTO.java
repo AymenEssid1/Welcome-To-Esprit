@@ -2,7 +2,6 @@ package tn.esprit.springfever.dto;
 
 import lombok.Data;
 import tn.esprit.springfever.entities.CommentLike;
-import tn.esprit.springfever.entities.CommentMedia;
 import tn.esprit.springfever.entities.Post;
 
 import java.util.List;

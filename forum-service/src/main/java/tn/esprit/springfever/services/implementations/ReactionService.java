@@ -10,17 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import tn.esprit.springfever.entities.AdMedia;
-import tn.esprit.springfever.entities.Message;
-import tn.esprit.springfever.entities.PostMedia;
 import tn.esprit.springfever.entities.Reaction;
-import tn.esprit.springfever.repositories.AdMediaRepository;
 import tn.esprit.springfever.repositories.FileSystemRepository;
-import tn.esprit.springfever.repositories.PostMediaRepository;
 import tn.esprit.springfever.repositories.ReactionRepository;
 import tn.esprit.springfever.services.interfaces.IReactionService;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service

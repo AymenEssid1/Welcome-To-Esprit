@@ -14,7 +14,7 @@ public class CachingConfig {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager(
-                "ad", "adMedia", "post", "postLike", "postMedia", "comment", "commentMedia","commentLike", "reaction"
+                "ad", "adMedia", "post", "postLike", "postMedia", "comment", "commentMedia","commentLike", "react", "msg"
         );
     }
 

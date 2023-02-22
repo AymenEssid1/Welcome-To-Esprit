@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.CommentDTO;
 import tn.esprit.springfever.dto.PostDTO;
-import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.entities.Comment;
+import tn.esprit.springfever.entities.CommentLike;
+import tn.esprit.springfever.entities.CommentMedia;
 import tn.esprit.springfever.services.interfaces.*;
 import tn.esprit.springfever.utils.CommentMediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
+import tn.esprit.springfever.services.interfaces.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -162,7 +165,7 @@ public class CommentController {
     @ApiOperation(value = "This method is used to like a post ")
     @PostMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<CommentLike> like( Long user,  Long postId,  Long reaction) {
+    public ResponseEntity<CommentLike> like(Long user, Long postId, Long reaction) {
         CommentLike pl = new CommentLike();
         pl.setType(reactionService.getById(reaction));
         pl.setComment(service.getSingleComment(postId));

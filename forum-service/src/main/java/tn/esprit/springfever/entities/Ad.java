@@ -1,6 +1,5 @@
 package tn.esprit.springfever.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import tn.esprit.springfever.enums.Channel;
@@ -40,13 +39,13 @@ public class Ad implements Serializable {
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
-
     private int initialTargetNumberOfViews;
-    private int finalNumberofViews;
     private float cost;
     @Enumerated(EnumType.STRING)
     private TypeOfAudience typeOfAudience;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ad")
     private List<AdMedia> media;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ad")
+    private List<AdViews> views;
 
 }
