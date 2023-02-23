@@ -12,6 +12,7 @@ import tn.esprit.springfever.entities.Ad;
 import tn.esprit.springfever.repositories.AdPagingRepository;
 import tn.esprit.springfever.repositories.AdRepository;
 import tn.esprit.springfever.services.interfaces.IAdService;
+import tn.esprit.springfever.services.interprocess.RabbitMQMessageSender;
 
 import java.util.List;
 
@@ -20,6 +21,9 @@ import java.util.List;
 public class AdService implements IAdService {
     @Autowired
     private AdRepository repo;
+
+    @Autowired
+    private RabbitMQMessageSender rabbitMQMessageSender;
 
     @Autowired
     private AdPagingRepository pagerepo;
@@ -61,6 +65,7 @@ public class AdService implements IAdService {
     @Cacheable("ad")
     public List<Ad> getAllLazy(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        rabbitMQMessageSender.sendMessage("Get Ad");
         return pagerepo.findAll(pageable).getContent();
     }
 }

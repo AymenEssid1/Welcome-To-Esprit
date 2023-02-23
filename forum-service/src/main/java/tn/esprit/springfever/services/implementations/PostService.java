@@ -85,9 +85,11 @@ public class PostService implements IPostService {
     }
 
     @Override
+    @Cacheable("post")
     public List<Post> getAllLazy(int page, int size, HttpServletRequest requestt) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
         List<Post> list = pagerepo.findAll(pageable).getContent();
+        log.info("Ahla: salamouaalaykom");
         String authHeader = requestt.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader!=null){
             String token = authHeader.substring("Bearer ".length());

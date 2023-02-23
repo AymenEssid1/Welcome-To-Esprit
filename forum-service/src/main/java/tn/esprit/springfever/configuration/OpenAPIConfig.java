@@ -26,7 +26,7 @@ public class OpenAPIConfig {
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt", Arrays.asList("read", "write")));
     }
     public Info infoAPI() {
-        return new Info().title("EXAM - JAN - 2023")
+        return new Info().title("Forum Microservice")
                 .description("This is a springboot exam")
                 .contact(contactAPI());
     }
