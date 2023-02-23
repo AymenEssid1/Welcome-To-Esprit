@@ -48,6 +48,14 @@ public class Job_Application implements Serializable  {
     public Job_Application(){
 
     }
+    public Job_Application(String location_Cv,String location_LettreMotivation){
+        this.location_Cv=location_Cv;
+        this.location_LettreMotivation=location_LettreMotivation;
+    }
+
+    public Job_Application(String location_Cv){
+        this.location_Cv=location_Cv;
+    }
     public Job_Application(String location_Cv,byte[] cv ){
         this.location_Cv=location_Cv;
         this.cv=cv;

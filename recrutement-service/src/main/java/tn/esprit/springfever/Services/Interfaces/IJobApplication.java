@@ -16,10 +16,12 @@ public interface IJobApplication {
 
    // public Job_Application UpdateJobApplication(Long Id_Job_Application , Job_Application job_application);
    public Job_Application save(byte[] cv, byte[] lettre, String imageName) throws Exception ;
-    //public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv,String location_LettreMotivation ) throws Exception ;
+    public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv,String location_LettreMotivation ) throws Exception ;
     public FileSystemResource findCV(Long Id_Job_Application);
     public FileSystemResource findLettreMotivation(Long Id_Job_Application);
 
     //public Resource[] find(Long Id_Job_Application);
+    public String FilterCv(Long Id_Job_Application);
+    public String extractTextFromPdf(Long id);
 
 }
