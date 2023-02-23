@@ -70,4 +70,27 @@ public class FaqController {
         }
     }
 
+    @GetMapping("/SearchFaqs")
+    public ResponseEntity<List<Faq>> searchFaqs(@RequestParam("q") String query) {
+        List<Faq> faqs = faqService.search(query);
+        return ResponseEntity.ok(faqs);
+    }
+
+    @GetMapping("/topSearchedQueries")
+    public ResponseEntity<List<String>> topSearchedQueries() {
+        List<String> faqs = faqService.topSearchedQueries();
+        return ResponseEntity.ok(faqs);
+    }
+    @GetMapping("/getDfaultFaqs")
+    public ResponseEntity<List<Faq>> getDfaultFaqs() {
+        List<Faq> faqs = faqService.getDfaultFaqs();
+        return ResponseEntity.ok(faqs);
+    }
+
+
+
+
+
+
+
 }

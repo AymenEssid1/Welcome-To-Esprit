@@ -18,8 +18,13 @@ public interface IServiceFaq {
  public List<Faq> getAllFaqsByCategory(Faq_Category_enum faq_category_enum) ;
  public String AssignCategoryToFaq( Long idFaq, Long idFaqCategory);
  public List<Faq> importFAQsFromExcel(MultipartFile file) throws IOException;
+ public List<Faq> search(String query) ;
+ public List<String> topSearchedQueries() ;
+ public  List<Faq> getDfaultFaqs() ;
 
 
 
 
- }
+
+
+}

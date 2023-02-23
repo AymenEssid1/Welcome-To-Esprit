@@ -45,5 +45,7 @@ public class McqController {
         return ResponseEntity.ok(mcqService.deleteMcq(idMcq));
     }
 
+    
+
 
 }

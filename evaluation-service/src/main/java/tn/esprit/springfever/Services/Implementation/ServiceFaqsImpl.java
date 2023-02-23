@@ -1,12 +1,13 @@
 package tn.esprit.springfever.Services.Implementation;
 
 
-import lombok.extern.slf4j.Slf4j;
 
+  import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
+  import org.apache.spark.sql.SparkSession;
+  import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.entities.Faq;
@@ -17,15 +18,26 @@ import tn.esprit.springfever.entities.FaqCategory;
  import tn.esprit.springfever.repositories.FaqCategoryRepository;
 import tn.esprit.springfever.repositories.FaqRepository;
 import org.apache.poi.ss.usermodel.Row;
-import java.io.IOException;
+
+  import java.io.BufferedReader;
+  import java.io.FileReader;
+  import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.*;
+  import java.util.Collection;
+  import java.util.List;
+  import java.util.Map;
+  import java.util.function.Function;
+  import java.util.stream.Collectors;
+
+  import org.apache.spark.sql.Dataset;
+   import static org.apache.spark.sql.functions.*;
+
+
+import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 @Service
 @Slf4j
-public class ServiceFaqsImpl  implements IServiceFaq {
+ public class ServiceFaqsImpl  implements IServiceFaq {
 
     @Autowired
     UserRepository userRepository;
@@ -37,13 +49,13 @@ public class ServiceFaqsImpl  implements IServiceFaq {
 
     @Override
     public Faq addFaq(Faq faq) {
-        log.info("Faq was successfully added !");
+        LOGGER.info("Faq was successfully added !");
         return faqRepository.save(faq);
     }
 
     @Override
     public List<Faq> getAllFaqs() {
-        log.info("list of FAQs  : !");
+        LOGGER.info("list of FAQs  : !");
         return faqRepository.findAll();
     }
 
@@ -52,7 +64,7 @@ public class ServiceFaqsImpl  implements IServiceFaq {
         Faq ExistingFaq = faqRepository.findById(idFaq).orElse(null);
         if (ExistingFaq != null) {
             faqRepository.delete(ExistingFaq);
-            log.info("Faq was successfully deleted !");
+            LOGGER.info("Faq was successfully deleted !");
             return "Faq was successfully deleted !";
         }
         return "This Faq is not existing ! ";
@@ -65,16 +77,16 @@ public class ServiceFaqsImpl  implements IServiceFaq {
             existingFaq.setQuestion(faq.getQuestion());
             existingFaq.setResponse(faq.getResponse());
             faqRepository.save(existingFaq);
-            log.info("Faq was successfully updated !");
+            LOGGER.info("Faq was successfully updated !");
         }
-        log.info("This Faq is not existing !");
+        LOGGER.info("This Faq is not existing !");
 
         return existingFaq;
     }
 
     @Override
     public List<Faq> getAllFaqsByCategory(Faq_Category_enum faq_category_enum) {
-        log.info("faqs list by category :!" + faq_category_enum.toString());
+        LOGGER.info("faqs list by category :!" + faq_category_enum.toString());
         return faqRepository.getAllByFaqCategoriesFaqCategory(faq_category_enum);
     }
 
@@ -86,13 +98,14 @@ public class ServiceFaqsImpl  implements IServiceFaq {
         if ((existingFaq != null) && (ExistingFaqCategory != null)) {
             existingFaq.getFaqCategories().add(ExistingFaqCategory);
             faqRepository.save(existingFaq);
-            log.info("FaqCategory  was successfully assigned to Faq !");
+            LOGGER.info("FaqCategory  was successfully assigned to Faq !");
             return "FaqCategory  was successfully assigned to Faq !!";
         }
         return "Faq or Faq Category ot found ! ";
     }
 
     @Override
+
     public List<Faq> importFAQsFromExcel(MultipartFile file) throws IOException {
 
 
@@ -124,6 +137,102 @@ public class ServiceFaqsImpl  implements IServiceFaq {
 
     }
 
+    @Override
+    public List<Faq> search(String query) {
+
+
+         log.info("User searched for {}", query);
+             List<String> allQueries = new ArrayList<>();
+            // Read the SFlogs.log file and extract the search queries
+            try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/SFlogs.log"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.contains("User searched for ")) {
+                        String[] parts = line.split("\\s+");
+                        if (parts.length >= 3) {
+                            String q = parts[11];
+                            allQueries.add(q);
+                        }
+                   }
+                }
+            } catch (IOException e) {
+                // Handle exception
+            }
+            // Count the frequency of each search query
+            Map<String, Long> queryCounts = allQueries.stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            // Sort the search queries by frequency and return the top 10
+            List<String> topQueries = queryCounts.entrySet().stream()
+                    .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                    .limit(10)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        System.out.print("************ liste des 10 queries  *********");
+        System.out.print("************ "+ topQueries +" *********");
+
+
+
+         return faqRepository.search(query);
+
+
+
+    }
+
+    @Override
+    public List<String> topSearchedQueries() {
+        List<String> allQueries = new ArrayList<>();
+        // Read the SFlogs.log file and extract the search queries
+        try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/SFlogs.log"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("User searched for ")) {
+                    String[] parts = line.split("\\s+");
+                    if (parts.length >= 3) {
+                        String q = parts[11];
+                        allQueries.add(q);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            // Handle exception
+        }
+        // Count the frequency of each search query
+        Map<String, Long> queryCounts = allQueries.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        // Sort the search queries by frequency and return the top 10
+        List<String> topQueries = queryCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(10)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        System.out.print("************ liste des 10 queries  *********");
+        System.out.print("************ "+ topQueries +" *********");
+        return topQueries ;
+
+    }
+
+    @Override
+    public List<Faq> getDfaultFaqs() {
+
+        List<Faq> defaultFaqs= new ArrayList<>() ;
+
+        this.topSearchedQueries().forEach(
+                query -> {
+                    List<Faq> ListQuery=faqRepository.findByKeywords(query);
+                    ListQuery.forEach(faq -> {
+                        if(!defaultFaqs.contains(faq)) {
+                            defaultFaqs.add(faq);
+                        }
+                    });
+
+                }
+
+        );
+
+            return defaultFaqs ;
+    }
 
 
 }

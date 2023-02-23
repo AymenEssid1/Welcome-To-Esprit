@@ -1,0 +1,61 @@
+2023-02-23 01:38:00.414  INFO 7948 --- [restartedMain] tn.esprit.springfever.EvaluationService  : Starting EvaluationService using Java 17.0.2 on AHMED-GOUIAA-PC with PID 7948 (M:\piSpring\welcome-to-esprit\evaluation-service\target\classes started by Msi in M:\piSpring\welcome-to-esprit)
+2023-02-23 01:38:00.415  INFO 7948 --- [restartedMain] tn.esprit.springfever.EvaluationService  : No active profile set, falling back to 1 default profile: "default"
+2023-02-23 01:38:00.465  INFO 7948 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-02-23 01:38:00.465  INFO 7948 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2023-02-23 01:38:01.305  INFO 7948 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-02-23 01:38:01.408  INFO 7948 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 97 ms. Found 10 JPA repository interfaces.
+2023-02-23 01:38:01.638  INFO 7948 --- [restartedMain] o.s.cloud.context.scope.GenericScope     : BeanFactory id=b9b0f0ec-b2dd-3b4d-9c68-7f575873b219
+2023-02-23 01:38:01.733  INFO 7948 --- [restartedMain] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$533f2ee1] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-02-23 01:38:01.768  INFO 7948 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2023-02-23 01:38:02.212  INFO 7948 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8082 (http)
+2023-02-23 01:38:02.220  INFO 7948 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-02-23 01:38:02.220  INFO 7948 --- [restartedMain] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.65]
+2023-02-23 01:38:02.356  INFO 7948 --- [restartedMain] o.a.c.c.C.[.[localhost].[/evaluation]    : Initializing Spring embedded WebApplicationContext
+2023-02-23 01:38:02.356  INFO 7948 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1890 ms
+2023-02-23 01:38:02.510  WARN 7948 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-02-23 01:38:02.625  INFO 7948 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-02-23 01:38:02.663  INFO 7948 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.6.10.Final
+2023-02-23 01:38:02.781  INFO 7948 --- [restartedMain] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-02-23 01:38:02.859  INFO 7948 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-02-23 01:38:02.862  WARN 7948 --- [restartedMain] com.zaxxer.hikari.util.DriverDataSource  : Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.
+2023-02-23 01:38:02.965  INFO 7948 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-02-23 01:38:02.974  INFO 7948 --- [restartedMain] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2023-02-23 01:38:03.540  INFO 7948 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-02-23 01:38:03.546  INFO 7948 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-02-23 01:38:04.353  INFO 7948 --- [restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1935c909, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@321e7353, org.springframework.security.web.context.SecurityContextPersistenceFilter@71f9179d, org.springframework.security.web.header.HeaderWriterFilter@4958ff4e, org.springframework.security.web.authentication.logout.LogoutFilter@1963c607, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6fa6b9dc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@763e63c8, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@555cca8a, org.springframework.security.web.session.SessionManagementFilter@3c798020, org.springframework.security.web.access.ExceptionTranslationFilter@2520cb9e, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@6211ffbe]
+2023-02-23 01:38:05.614  WARN 7948 --- [restartedMain] o.s.b.a.f.FreeMarkerAutoConfiguration    : Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.checkTemplateLocation=false)
+2023-02-23 01:38:05.687  INFO 7948 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-02-23 01:38:05.995  INFO 7948 --- [restartedMain] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2023-02-23 01:38:06.312  WARN 7948 --- [restartedMain] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2023-02-23 01:38:06.377  INFO 7948 --- [restartedMain] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2023-02-23 01:38:06.407  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2023-02-23 01:38:06.410  INFO 7948 --- [restartedMain] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2023-02-23 01:38:06.428  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2023-02-23 01:38:06.636  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2023-02-23 01:38:06.641  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2023-02-23 01:38:06.645  INFO 7948 --- [restartedMain] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2023-02-23 01:38:06.655  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1677112686654 with initial instances count: 1
+2023-02-23 01:38:06.659  INFO 7948 --- [restartedMain] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application EVALUATION-SERVICE with eureka with status UP
+2023-02-23 01:38:06.660  INFO 7948 --- [restartedMain] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1677112686660, current=UP, previous=STARTING]
+2023-02-23 01:38:06.661  INFO 7948 --- [DiscoveryClient-InstanceInfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EVALUATION-SERVICE/AHMED-GOUIAA-PC.mshome.net:evaluation-service:8082: registering service...
+2023-02-23 01:38:06.682  INFO 7948 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8082 (http) with context path '/evaluation'
+2023-02-23 01:38:06.683  INFO 7948 --- [restartedMain] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8082
+2023-02-23 01:38:06.694  INFO 7948 --- [DiscoveryClient-InstanceInfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EVALUATION-SERVICE/AHMED-GOUIAA-PC.mshome.net:evaluation-service:8082 - registration status: 204
+2023-02-23 01:38:06.927  INFO 7948 --- [restartedMain] tn.esprit.springfever.EvaluationService  : Started EvaluationService in 7.122 seconds (JVM running for 7.884)
+2023-02-23 01:39:01.740  INFO 7948 --- [SpringApplicationShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application EVALUATION-SERVICE with eureka with status DOWN
+2023-02-23 01:39:01.740  INFO 7948 --- [SpringApplicationShutdownHook] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1677112741740, current=DOWN, previous=UP]
+2023-02-23 01:39:01.741  INFO 7948 --- [DiscoveryClient-InstanceInfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EVALUATION-SERVICE/AHMED-GOUIAA-PC.mshome.net:evaluation-service:8082: registering service...
+2023-02-23 01:39:01.745  INFO 7948 --- [DiscoveryClient-InstanceInfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EVALUATION-SERVICE/AHMED-GOUIAA-PC.mshome.net:evaluation-service:8082 - registration status: 204
+2023-02-23 01:39:01.769  INFO 7948 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-02-23 01:39:01.771  INFO 7948 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2023-02-23 01:39:01.776  INFO 7948 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2023-02-23 01:39:01.776  INFO 7948 --- [SpringApplicationShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2023-02-23 01:39:04.784  INFO 7948 --- [SpringApplicationShutdownHook] com.netflix.discovery.DiscoveryClient    : Unregistering ...
+2023-02-23 01:39:04.788  INFO 7948 --- [SpringApplicationShutdownHook] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_EVALUATION-SERVICE/AHMED-GOUIAA-PC.mshome.net:evaluation-service:8082 - deregister  status: 200
+2023-02-23 01:39:04.822  INFO 7948 --- [SpringApplicationShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient
