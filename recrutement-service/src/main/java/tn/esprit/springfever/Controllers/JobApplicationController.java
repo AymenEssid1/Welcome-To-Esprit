@@ -144,7 +144,7 @@ public class JobApplicationController {
 
 
     @GetMapping(value = "/FilterCv/{id}")
-    public String FilterCv(@PathVariable("id") Long Id_Job_Application){
+    public Boolean FilterCv(@PathVariable("id") Long Id_Job_Application){
          return iJobApplication.FilterCv(Id_Job_Application);
 
     }
@@ -153,12 +153,35 @@ public class JobApplicationController {
     public ResponseEntity<String> sendEmail(@PathVariable ("id")Long id) {
 
 
-        String subject = "Test Email";
-        String text = "This is a test email sent from my Spring Boot application.";
+        if(iJobApplication.FilterCv(id)==true){
+            String subject = "Answer on the Job offer";
+            String text = " Dear Candidate , \n"+"Congratulations \n"+
+                    " We are pleased to inform you that your CV has been accepted for the position  at our company.\n " +
+                    "We would like to congratulate you on your selection and thank you for your interest in working with us.\n"+
+                    "We will be contacting you shortly to schedule an interview and discuss the next steps in the hiring process.\n" +
+                    " Please be prepared to provide us with any additional information or documentation that we may require."
+                    +"We look forward to meeting with you and discussing your qualifications further."
+                    +"Sincerely!";
+
+            iJobApplication.sendEmail(id,subject,text);
+
+            return ResponseEntity.ok("Email sent successfully!");
+        }
+        String subject = "Answer on the Job offer";
+        String text ="Dear Candidate \n "+
+                "Thank you for your interest in the job opportunity at our company. After carefully reviewing your application, " +
+                "we regret to inform you that your CV does not meet our current requirements for the position.\n"+"Please note that this decision is in no way a reflection of your qualifications or experience, " +
+                "and we encourage you to apply for future positions that match your skills\n"
+                +"We appreciate the time and effort you put into your application and wish you all the best in your job search.\n"
+                +"Sincerely!";
 
         iJobApplication.sendEmail(id,subject,text);
 
         return ResponseEntity.ok("Email sent successfully!");
-    }
+
+
+
+        }
+
 }
 

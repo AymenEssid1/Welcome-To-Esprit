@@ -21,7 +21,7 @@ public interface IJobApplication {
     public FileSystemResource findLettreMotivation(Long Id_Job_Application);
 
     //public Resource[] find(Long Id_Job_Application);
-    public String FilterCv(Long Id_Job_Application);
+    public Boolean FilterCv(Long Id_Job_Application);
     public String extractTextFromPdf(Long id);
     public void sendEmail(Long id, String subject, String body);
 

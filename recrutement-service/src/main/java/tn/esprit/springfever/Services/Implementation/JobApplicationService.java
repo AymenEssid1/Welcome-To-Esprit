@@ -105,7 +105,8 @@ public class JobApplicationService implements IJobApplication {
         return jobApplicatonPdfRepository.findInFileSystem(job_application.getLocation_LettreMotivation());
     }
 
-    public String FilterCv(Long Id_Job_Application){
+    public Boolean FilterCv(Long Id_Job_Application){
+
         Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
         Job_Offer job_offer=job_application.getJobOffer();
         String text= extractTextFromPdf(Id_Job_Application);
@@ -113,11 +114,16 @@ public class JobApplicationService implements IJobApplication {
         System.out.println(text);
         System.out.println(text2);
         if(text.contains(text2)) {
-            System.out.println("Text contains Text2");
-            return "Text contains Text2";
+            System.out.println("CV is Accepted  \n" +
+                    "It contains the skills sought by the job offer\n");
+            return true ;
+
+
         } else {
-            System.out.println("Text does not contain Text2");
-            return "Text does not contain Text2";
+            System.out.println("CV is Not Accepted  \n" +
+                    "It Not contains the skills sought by the job offer\n");
+            return false ;
+
         }
 
     }
