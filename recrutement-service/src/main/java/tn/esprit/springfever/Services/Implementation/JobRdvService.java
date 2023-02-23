@@ -24,8 +24,6 @@ public class JobRdvService implements IJobRDV {
 
     @Autowired
     JobApplicationRepository jobApplicationRepository;
-    @Autowired
-    JobMapper jobMapper;
 
     public Job_RDV addJobRDV(Job_RDV job_rdv){
         return jobRdvRepository.save(job_rdv);
@@ -53,7 +51,7 @@ public class JobRdvService implements IJobRDV {
         return jobRdvExisted;
     }*/
 
-    public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto) {
+    /*public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto) {
         Job_RDV jobRdv = jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if (jobRdv != null) {
             jobMapper.updateClaimFromDto(jobRdv, jobRdvDto);
@@ -64,7 +62,7 @@ public class JobRdvService implements IJobRDV {
         }
         log.info("Job not found !");
         return  jobRdv;
-    }
+    }*/
 
     public  String deleteJobOffer(Long  ID_Job_DRV) {
         Job_RDV jobRdv=jobRdvRepository.findById(ID_Job_DRV).orElse(null);

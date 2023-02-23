@@ -23,5 +23,6 @@ public interface IJobApplication {
     //public Resource[] find(Long Id_Job_Application);
     public String FilterCv(Long Id_Job_Application);
     public String extractTextFromPdf(Long id);
+    public void sendEmail(Long id, String subject, String body);
 
 }

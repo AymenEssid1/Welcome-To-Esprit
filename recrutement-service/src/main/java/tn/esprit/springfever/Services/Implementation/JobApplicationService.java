@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.Services.Interfaces.IJobApplication;
@@ -31,6 +33,9 @@ public class JobApplicationService implements IJobApplication {
     JobApplicationRepository jobApplicationRepository;
     @Autowired
     JobApplicatonPdfRepository jobApplicatonPdfRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
 
     public Job_Application AddJobApplication (Job_Application job_application){
@@ -135,6 +140,20 @@ public class JobApplicationService implements IJobApplication {
             e.printStackTrace();
         }
         return text;
+    }
+
+
+    public void sendEmail(Long id, String subject, String body){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("chaima.dammak@espri.tn");
+        Job_Application job_application=jobApplicationRepository.findById(id).orElse(null);
+        String to=job_application.getUser().getEmail();
+        System.out.println(to);
+        message.setTo(to);
+        message.setSubject(subject);
+        //body="Hello !! ";
+        message.setText(body);
+        mailSender.send(message);
     }
     }
 

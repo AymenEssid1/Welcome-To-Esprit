@@ -11,7 +11,7 @@ import tn.esprit.springfever.entities.Job_RDV;
 public interface JobMapper {
     JobMapper INSTANCE = Mappers.getMapper(JobMapper.class);
 
-    //@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(target = "salle_Rdv", source = "salleRdv")
 
     void updateClaimFromDto(@MappingTarget Job_RDV job_rdv, Job_RDV_DTO job_rdv_dto);

@@ -148,5 +148,17 @@ public class JobApplicationController {
          return iJobApplication.FilterCv(Id_Job_Application);
 
     }
+
+    @PostMapping("/send-email/{id}")
+    public ResponseEntity<String> sendEmail(@PathVariable ("id")Long id) {
+
+
+        String subject = "Test Email";
+        String text = "This is a test email sent from my Spring Boot application.";
+
+        iJobApplication.sendEmail(id,subject,text);
+
+        return ResponseEntity.ok("Email sent successfully!");
+    }
 }
 
