@@ -1,6 +1,9 @@
 package tn.esprit.springfever.Controllers;
 
+import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.Services.Interfaces.IJobOffer;
 import tn.esprit.springfever.entities.Job_Offer;
@@ -56,6 +59,11 @@ public class JobOfferController  {
     public String AssignUserToJobApplication(@PathVariable("id") Long id ,@PathVariable("Id_Job_Application") Long Id_Job_Application ){
          return iJobOffer.AssignUserToJobApplication(id,Id_Job_Application);
 
+    }
+    @GetMapping(value = "/rss", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<String> getRSSFeed() throws FeedException {
+        String rssFeed = iJobOffer.generateRSSFeed();
+        return ResponseEntity.ok(rssFeed);
     }
 
 

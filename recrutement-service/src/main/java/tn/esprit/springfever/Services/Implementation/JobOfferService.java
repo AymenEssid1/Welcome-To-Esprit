@@ -1,5 +1,7 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.rometools.rome.feed.synd.*;
+import com.rometools.rome.io.FeedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,7 +9,17 @@ import tn.esprit.springfever.Services.Interfaces.IJobOffer;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.*;
 
+import java.io.IOException;
 import java.util.List;
+import com.rometools.rome.feed.rss.Channel;
+import com.rometools.rome.feed.rss.Item;
+import com.rometools.rome.io.SyndFeedOutput;
+import tn.esprit.springfever.entities.Job_Offer;
+import tn.esprit.springfever.repositories.JobOfferRepository;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+
+import java.io.StringWriter;
+
 
 @Service
 @Slf4j
@@ -104,5 +116,38 @@ public class JobOfferService implements IJobOffer {
         return "User Or Job Application are not Fouund !";
 
 
+    }
+
+
+    public String generateRSSFeed() throws FeedException {
+        List<Job_Offer> jobOffers = jobOfferRepository.findAll();
+
+        SyndFeed feed = new SyndFeedImpl();
+        feed.setFeedType("rss_2.0");
+        feed.setTitle("Job Offers");
+        feed.setDescription("List of available job offers");
+        feed.setLink("https://example.com/job-offers");
+
+        for (Job_Offer jobOffer : jobOffers) {
+            SyndEntryImpl entry = new SyndEntryImpl();
+            entry.setTitle(jobOffer.getJobCategory().getName_Category());
+            entry.setLink("https://example.com/job-offers/" + jobOffer.getId_Job_Offer());
+            SyndContent description = new SyndContentImpl();
+            description.setType("text/plain");
+            description.setValue(jobOffer.getSubject());
+            entry.setDescription(description);
+            //entry.setPublishedDate(jobOffer.getCreationDate());
+            feed.getEntries().add(entry);
+        }
+
+        StringWriter writer = new StringWriter();
+        SyndFeedOutput output = new SyndFeedOutput();
+        try {
+            output.output(feed, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return writer.toString();
     }
 }

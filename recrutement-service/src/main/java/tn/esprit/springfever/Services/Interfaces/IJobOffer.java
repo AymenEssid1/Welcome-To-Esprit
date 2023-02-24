@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Interfaces;
 
+import com.rometools.rome.io.FeedException;
 import tn.esprit.springfever.entities.Job_Offer;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public interface IJobOffer {
     public String AssignImageToJobOffer(Long Id_Job_Offer , Long Id_Job_Application );
 
     public String AssignUserToJobApplication(Long id , Long Id_Job_Application );
+
+    public String generateRSSFeed() throws FeedException;
 
 
 }
