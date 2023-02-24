@@ -2,6 +2,7 @@ package tn.esprit.springfever.controllers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import io.swagger.annotations.ApiResponse;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,9 @@ import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
+import tn.esprit.springfever.configuration.GeoIpService;
 import tn.esprit.springfever.configuration.MailConfiguration;
+import tn.esprit.springfever.configuration.RequestUtils;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.payload.Request.LoginRequest;
@@ -35,6 +38,7 @@ import tn.esprit.springfever.payload.Response.MessageResponse;
 
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -86,6 +90,12 @@ public class AuthController {
     private MailConfiguration mailConfiguration;
 
 
+    @Autowired
+    private RequestUtils requestUtils;
+
+    @Autowired
+    private GeoIpService geoIpService;
+
     @GetMapping("hello")
     public String hello() {
         return "hello" ;
@@ -119,7 +129,7 @@ public class AuthController {
 
 
     @PostMapping("/signinV2")
-    public ResponseEntity<?> authenticateUserV2(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUserV2(@Valid @RequestBody LoginRequest loginRequest) throws IOException, GeoIp2Exception {
 
 
         User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
@@ -171,6 +181,16 @@ public class AuthController {
                         user.setBan(ban);
                         banRepository.save(ban);
                         userRepository.save(user);
+                        String ipAddress = requestUtils.getClientIpAddress();
+                        System.out.println("******************************"+ipAddress);
+                        String city = geoIpService.getCity(ipAddress);
+                        String country = geoIpService.getCountry(ipAddress);
+                        String emailBody = "someone signed in with 3 failed attempts from " +country +"," + city  + " from the IP adress "+ipAddress+"\n Your Account is temporarily locked. Please try again later.";
+                        SimpleMailMessage message = new SimpleMailMessage();
+                        message.setSubject("ACCOUNT SUSPENDED");
+                        message.setText(emailBody);
+                        message.setTo(user.getEmail());
+                        mailConfiguration.sendEmail(message);
 
 
                         // User is banned, return error response
@@ -180,6 +200,9 @@ public class AuthController {
 
                 // Authentication failed, return error response
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");}
+
+
+
 
     /*
     @PostMapping("/signup")
