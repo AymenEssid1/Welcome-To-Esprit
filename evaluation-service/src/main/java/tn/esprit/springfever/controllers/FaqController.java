@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Controllers;
 
+import io.github.flashvayne.chatgpt.service.ChatgptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,8 @@ public class FaqController {
 
     @Autowired
     private IServiceFaq faqService;
+    @Autowired
+    private ChatgptService chatgptService;
 
     @GetMapping("getAllFaqs/")
     public ResponseEntity<List<Faq>> getAllFaqs() {
@@ -86,6 +89,13 @@ public class FaqController {
         List<Faq> faqs = faqService.getDfaultFaqs();
         return ResponseEntity.ok(faqs);
     }
+
+    @GetMapping("/getreponse")
+    public ResponseEntity<String> getreponse(@RequestParam("sentence") String sentence) {
+        String responseMessage = chatgptService.sendMessage(" reformule this sentence :" + sentence);
+         return ResponseEntity.ok(responseMessage);
+    }
+
 
 
 

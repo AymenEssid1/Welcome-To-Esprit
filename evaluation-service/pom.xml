@@ -175,6 +175,23 @@
 
 
 
+
+
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-api-java</artifactId>
+            <version>0.4.4</version>
+        </dependency>
+
+
+
+
+
+
+
+
+
+
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
@@ -277,17 +294,14 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
-
-
-        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core -->
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.13</artifactId>
-            <version>3.3.1</version>
+            <groupId>io.github.flashvayne</groupId>
+            <artifactId>chatgpt-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
-
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
