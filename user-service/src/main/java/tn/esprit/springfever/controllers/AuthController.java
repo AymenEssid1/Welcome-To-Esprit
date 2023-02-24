@@ -3,10 +3,13 @@ package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiResponse;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,11 +19,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.Repositories.*;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
+import tn.esprit.springfever.configuration.MailConfiguration;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.payload.Request.LoginRequest;
@@ -70,6 +75,15 @@ public class AuthController {
     IFileLocationService iFileLocationService;
     @Autowired
     BadgeRepo badgeRepository;
+
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+
+    @Autowired
+    private MailConfiguration mailConfiguration;
 
 
     @GetMapping("hello")
@@ -248,4 +262,59 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(u);
     }
+
+
+
+
+
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestParam String resetPasswordRequest) {
+
+        User user = userRepository.findByUsername(resetPasswordRequest)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        String newPassword = generateRandomPassword();
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+
+        String emailBody = "Hello " + user.getFirstname() + ",\n\n" +
+                "Your password has been reset. Your new password is: " + newPassword + "\n\n" +
+                "Please change your password after logging in.\n\n" +
+                "Regards,\nThe Team";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("PASSWORD RESET");
+        message.setText(emailBody);
+        message.setTo(user.getEmail());
+        mailConfiguration.sendEmail(message);
+
+
+
+        return ResponseEntity.ok("Password reset successfully. Please check your email.");
+    }
+
+    private String generateRandomPassword() {
+        String password = RandomStringUtils.randomAlphanumeric(8);
+        return password;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

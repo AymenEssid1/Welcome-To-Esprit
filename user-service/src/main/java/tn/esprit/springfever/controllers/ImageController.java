@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
@@ -14,6 +15,7 @@ import tn.esprit.springfever.entities.Image;
 
 
 @RestController
+
 @RequestMapping("file-system")
 public class ImageController {
 
@@ -29,6 +31,7 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @GetMapping(value = "/image/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId) {

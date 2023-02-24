@@ -61,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                // .antMatchers("/api/user/**").hasRole(RoleType.SUPER_ADMIN.name())
                 .antMatchers("/**").permitAll()
-
+               // .antMatchers("/file-system/**").hasRole(RoleType.SUPER_ADMIN.name())
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();
