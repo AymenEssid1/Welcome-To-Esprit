@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
-
+import java.time.LocalDateTime;
 @Entity
 @ToString
 @Data
@@ -31,7 +31,7 @@ public class Project implements Serializable{
     @NotBlank
     private String description ;
     @NotBlank
-    private Date submitDate ;
+    private LocalDateTime submitDate ;
 
     @OneToOne(mappedBy="project")
     @JsonIgnore

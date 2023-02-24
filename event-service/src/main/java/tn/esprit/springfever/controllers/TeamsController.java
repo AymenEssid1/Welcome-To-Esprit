@@ -3,6 +3,7 @@ package tn.esprit.springfever.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.TeamsDTO;
 //import tn.esprit.springfever.Security.jwt.JwtUtils;
@@ -52,7 +53,11 @@ public class TeamsController {
     public  boolean deleteTeams(@PathVariable Long idTeam)  {return  iServiceTeams.deleteTeams(idTeam);}
 
 
-
+    @PostMapping("/assign-users")
+    public ResponseEntity<Void> affectusertoteams() {
+        iServiceTeams.assignUserToTeams();
+        return ResponseEntity.ok().build();
+    }
 
 
 

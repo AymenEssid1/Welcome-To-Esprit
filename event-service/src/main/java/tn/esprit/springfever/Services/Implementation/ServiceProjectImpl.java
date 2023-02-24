@@ -58,19 +58,21 @@ public class ServiceProjectImpl implements IServiceProject{
     }
 */
     @Override
-    public List<Project> getAllProject() {return projectRepository.findAll();}
+    public List<Project> getAllProject() {
+        log.info("list of projects");
+        return projectRepository.findAll();}
 
 
     @Override
-    public boolean deleteProject(Long idProject) {
+    public String deleteProject(Long idProject) {
         Project existingProject = projectRepository.findById(idProject).orElse(null);
         if(existingProject!=null) {
             projectRepository.delete(existingProject);
             log.info("project deleted");
-            return true ;
+            return "project deleted ";
         }
-        log.info(" this project is not existing");
-        return false;
+        return " this project is not existing";
+
     }
 
 

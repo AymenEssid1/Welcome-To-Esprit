@@ -12,5 +12,6 @@ public interface IServiceTeams {
     public  List<Teams> getAllTeams() ;
     public  boolean deleteTeams(Long idTeam) ;
     public Teams updateTeams (Long idTeam , TeamsDTO teamsDTO) ;
+    public void assignUserToTeams();
 
 }

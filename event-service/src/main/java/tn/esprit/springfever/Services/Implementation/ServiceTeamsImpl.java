@@ -13,6 +13,8 @@ import tn.esprit.springfever.entities.Event;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.TeamsRepository;
+import tn.esprit.springfever.repositories.UserRepository;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +24,8 @@ import java.util.List;
 @Slf4j
 
 public class ServiceTeamsImpl implements IServiceTeams{
-
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     TeamsRepository teamsRepository ;
     @Autowired
@@ -86,5 +89,42 @@ public class ServiceTeamsImpl implements IServiceTeams{
         return  teams;
 
     }
+/*
+    @Override
+    public void assignUserToTeams(Long id, Long idTeam) {
+        Teams  T1 = teamsRepository.findByIdTeam(idTeam);
+        User U1 = userRepository.findById(id).orElse(null);
+        System.out.println("teams : "+T1);
+        System.out.println("User : "+U1);
+        System.out.println("teams: "+T1);
+        U1.setTeams(T1);
+        userRepository.save(U1);
+    }
+ */
+
+    @Override
+    public void assignUserToTeams() {
+        List<User> users = userRepository.findAll();
+
+        int numUsers = users.size();
+        int numTeams = (int) Math.ceil((double) numUsers / 5);
+
+        for (int i = 0; i < numTeams; i++) {
+            Teams team = new Teams();
+            team.setNameTeam("Team " + (i+1)) ;
+            team.setQRcertificat("Certificate " + (i+1)) ;
+            team.setNiveauEtude("niveau d'étude " + (i+1));
+            teamsRepository.save(team);
+
+            for (int j = i*5; j < Math.min((i+1)*5, numUsers); j++) {
+                User user = users.get(j);
+                user.setTeams(team);
+                userRepository.save(user);
+            }
+        }
+    }
+
+
+
 
 }

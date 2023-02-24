@@ -10,6 +10,6 @@ import java.util.List;
 public interface IServiceProject {
     public Project addProject(Project project) throws IOException;
     public  List<Project> getAllProject() ;
-    public  boolean deleteProject(Long idProject) ;
+    public  String deleteProject(Long idProject) ;
     public Project updateProject (Long idProject , ProjectDTO projectDTO) ;
 }
