@@ -5,6 +5,8 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.TeamsMapper;
@@ -12,6 +14,7 @@ import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.Event;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.repositories.EventRepository;
 import tn.esprit.springfever.repositories.TeamsRepository;
 import tn.esprit.springfever.repositories.UserRepository;
 
@@ -30,6 +33,12 @@ public class ServiceTeamsImpl implements IServiceTeams{
     TeamsRepository teamsRepository ;
     @Autowired
     TeamsMapper teamsMapper;
+
+    @Autowired
+    EventRepository eventRepository ;
+
+    @Autowired
+    JavaMailSender javaMailSender;
 
     @Override
     public Teams addTeams(Teams teams) {
@@ -106,6 +115,8 @@ public class ServiceTeamsImpl implements IServiceTeams{
     public void assignUserToTeams() {
         List<User> users = userRepository.findAll();
 
+        Event event = new Event();
+
         int numUsers = users.size();
         int numTeams = (int) Math.ceil((double) numUsers / 5);
 
@@ -120,11 +131,30 @@ public class ServiceTeamsImpl implements IServiceTeams{
                 User user = users.get(j);
                 user.setTeams(team);
                 userRepository.save(user);
+
+                String subject = "You have been assigned to a team for APP0 event";
+                String message = "Dear" + user.getUsername()+ ",\n\n"
+                        + "We are pleased to inform you that you have been assigned to " + team.getNameTeam()+ " for the" + event.getTypeEvent()+ ", which will be taking place on " + event.getStartDate()  + " at" + event.getEspace() +  ".\n"
+                        + "As a member of " + team.getNameTeam()  + ", you will be expected to attend all scheduled meetings and participate in team activities leading up to the event. Your contribution is crucial to our success, and we believe that your skills and experience will be a valuable asset to the team.\n\n"
+                        + "Please be advised that you must arrive on time for the event .\n\n"
+                        + "Thank you for your dedication and commitment to the success of this event. We look forward to working with you.\n\n"
+                        + "Best regards,\n"
+                        + "APP0 Team";
+
+
+                sendEmail(user.getEmail(), subject, message);
+
             }
         }
     }
 
-
+    private void sendEmail(String to, String subject, String message) {
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(to);
+        email.setSubject(subject);
+        email.setText(message);
+        javaMailSender.send(email);
+    }
 
 
 }
