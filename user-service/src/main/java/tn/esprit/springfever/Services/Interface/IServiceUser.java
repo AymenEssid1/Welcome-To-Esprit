@@ -2,6 +2,8 @@ package tn.esprit.springfever.Services.Interface;
 
 
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import tn.esprit.springfever.entities.Badge;

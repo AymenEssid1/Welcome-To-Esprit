@@ -29,6 +29,7 @@ public class UserDTO {
     private int cin;
     private Date dob;
     private String password;
+    private String email;
 
     private Set<Role> roles = new HashSet<>();
     private Image image;

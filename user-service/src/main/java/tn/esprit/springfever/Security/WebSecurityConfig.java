@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import tn.esprit.springfever.Security.jwt.AuthEntryPointJwt;
 import tn.esprit.springfever.Security.jwt.AuthTokenFilter;
 import tn.esprit.springfever.Security.services.UserDetailsServiceImpl;
-
+import tn.esprit.springfever.entities.RoleType;
 
 
 @Configuration
@@ -58,6 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+               // .antMatchers("/api/user/**").hasRole(RoleType.SUPER_ADMIN.name())
                 .antMatchers("/**").permitAll()
 
                 .anyRequest().authenticated()

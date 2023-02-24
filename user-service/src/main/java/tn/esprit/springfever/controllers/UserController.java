@@ -7,9 +7,11 @@ import com.netflix.discovery.converters.Auto;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Repositories.BadgeRepo;
 import tn.esprit.springfever.Repositories.FileSystemRepository;
@@ -31,15 +35,18 @@ import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.tools.ResourceNotFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+
 @RequestMapping("/api/user")
 public class UserController {
 
@@ -66,6 +73,14 @@ public class UserController {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @GetMapping(value = "/test/authority")
+    public ResponseEntity<?> test(Authentication authentication ){
+        System.out.println("Request headers: " + getRequestHeaders());
+        System.out.println("Authentication: " + authentication);
+        return ResponseEntity.ok().body("authentication.getAuthorities()");
+
+
+    }
     @GetMapping("/getallusers")
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -160,4 +175,17 @@ public class UserController {
         return ResponseEntity.ok("Users uploaded successfully.");
     }
 
+
+    private Map<String, String> getRequestHeaders() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        Map<String, String> headers = new HashMap<>();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            headers.put(headerName, request.getHeader(headerName));
+
+        }
+        System.out.println(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return headers;
+    }
 }

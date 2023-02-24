@@ -44,15 +44,19 @@ public class User implements Serializable {
 
 
 
+    @JsonIgnore
+    private int failedLoginAttempts;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
+
     private Set<Role> roles = new HashSet<>();
 
 
-
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
@@ -61,6 +65,19 @@ public class User implements Serializable {
     @JsonIgnore
     @OneToOne(mappedBy = "user")
     private Badge badge;
+
+
+    //////////////////////////////////////////
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Ban ban;
+
+    //////////////////////////////////////////
+
+
+
+
+
 
     public User() {
     }
@@ -84,4 +101,6 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
     }
+
+
 }

@@ -2,6 +2,7 @@ package tn.esprit.springfever.controllers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,23 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.springfever.Repositories.BadgeRepo;
-import tn.esprit.springfever.Repositories.FileSystemRepository;
-import tn.esprit.springfever.Repositories.RoleRepo;
-import tn.esprit.springfever.Repositories.UserRepo;
+import tn.esprit.springfever.Repositories.*;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
 import tn.esprit.springfever.dto.UserDTO;
-import tn.esprit.springfever.entities.Image;
-import tn.esprit.springfever.entities.Role;
-import tn.esprit.springfever.entities.RoleType;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.payload.Request.LoginRequest;
 import tn.esprit.springfever.payload.Request.SignupRequest;
 import tn.esprit.springfever.payload.Response.JwtResponse;
@@ -33,6 +30,8 @@ import tn.esprit.springfever.payload.Response.MessageResponse;
 
 
 import javax.validation.Valid;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +54,9 @@ public class AuthController {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @Autowired
+    private BanRepository banRepository;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -101,6 +103,71 @@ public class AuthController {
                 roles));
     }
 
+
+    @PostMapping("/signinV2")
+    public ResponseEntity<?> authenticateUserV2(@Valid @RequestBody LoginRequest loginRequest) {
+
+
+        User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        if (user != null && user.getBan() != null && user.getBan().getExpiryTime() != null &&
+                LocalDateTime.now().isBefore(user.getBan().getExpiryTime())) {
+            // User is banned, return error response
+            Duration remainingTime = Duration.between(LocalDateTime.now(), user.getBan().getExpiryTime());
+            String timeLeft = String.format("%d minutes, %d seconds", remainingTime.toMinutes(), remainingTime.getSeconds() % 60);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account is temporarily locked. Please try again in " + timeLeft + ".");}
+
+
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String jwt = jwtUtils.generateJwtToken(authentication);
+
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                List<String> roles = userDetails.getAuthorities().stream()
+                        .map(item -> item.getAuthority())
+                        .collect(Collectors.toList());
+
+                // Reset the failed login attempt count if authentication succeeds
+                if (user != null) {
+                    user.setFailedLoginAttempts(0);
+                    userRepository.save(user);
+                }
+
+                return ResponseEntity.ok(new JwtResponse(jwt,
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles));
+            } catch (AuthenticationException e) {
+                // Authentication failed, increment failed login attempt count
+                if (user != null) {
+                    int failedAttempts = user.getFailedLoginAttempts() + 1;
+                    user.setFailedLoginAttempts(failedAttempts);
+                    userRepository.save(user);
+
+                    // Check if the user should be banned
+                    if (failedAttempts >= 3) {
+                        Ban ban = new Ban();
+                        ban.setLastFailedLoginAttempt(LocalDateTime.now());
+                        ban.setExpiryTime(LocalDateTime.now().plusMinutes(100));
+                        ban.setUser(user);
+                        user.setBan(ban);
+                        banRepository.save(ban);
+                        userRepository.save(user);
+
+
+                        // User is banned, return error response
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account is temporarily locked. Please try again later.");
+                    }
+                }}
+
+                // Authentication failed, return error response
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");}
+
+    /*
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -156,10 +223,10 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+*/
 
 
-
-    @PostMapping(value="/SIGNU_UP",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+    @PostMapping(value="/signUpV2",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
     public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -169,6 +236,7 @@ public class AuthController {
         u.setCin(userDTO.getCin());
         u.setLastname(userDTO.getLastname());
         u.setDob(userDTO.getDob());
+        u.setEmail(userDTO.getEmail());
         u.setPassword(encoder.encode(userDTO.getPassword()));
         u.setUsername(userDTO.getUsername());
         if(image!=null){

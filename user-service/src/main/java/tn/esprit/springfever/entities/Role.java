@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
@@ -27,7 +28,7 @@ public class Role implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-
+    @NaturalId
     private RoleType rolename;
 
     @ManyToMany(mappedBy = "roles")

@@ -13,6 +13,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import tn.esprit.springfever.Repositories.BadgeRepo;
@@ -54,11 +60,10 @@ public class UserIMP implements IServiceUser {
 
     @Override
     public Badge addBadge(Badge badge, long userid) {
-        User user =userrepo.findById(userid).orElse(null);
+        User user = userrepo.findById(userid).orElse(null);
         badge.setUser(user);
         return badgeRepo.save(badge);
     }
-
 
 
     @Override
@@ -68,9 +73,10 @@ public class UserIMP implements IServiceUser {
 
     @Override
     public User updateUser(Long id, User user) {
-        User p = userrepo.findById(Long.valueOf(id)).orElse(null) ;
-        if(p!=null) {
-            user.setUserid(p.getUserid());;
+        User p = userrepo.findById(Long.valueOf(id)).orElse(null);
+        if (p != null) {
+            user.setUserid(p.getUserid());
+            ;
             userrepo.save(user);
         }
         return p;
@@ -78,10 +84,10 @@ public class UserIMP implements IServiceUser {
 
     @Override
     public String deleteUser(Long user) {
-        User p = userrepo.findById(Long.valueOf(user)).orElse(null) ;
-        if(p!=null) {
+        User p = userrepo.findById(Long.valueOf(user)).orElse(null);
+        if (p != null) {
             userrepo.delete(p);
-            return "User was successfully deleted !" ;
+            return "User was successfully deleted !";
         }
         return "Not Found ! ";
 
@@ -105,7 +111,7 @@ public class UserIMP implements IServiceUser {
         hints.put(EncodeHintType.MARGIN, 2);
         // Generate QR code
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = new BitMatrix(8,8);
+        BitMatrix bitMatrix = new BitMatrix(8, 8);
         try {
             bitMatrix = qrCodeWriter.encode(qrCodeData, BarcodeFormat.QR_CODE, 300, 300, hints);
         } catch (WriterException e) {
@@ -113,7 +119,7 @@ public class UserIMP implements IServiceUser {
             e.printStackTrace();
 
         }// Save QR code as a PNG file
-        String filePath = System.getProperty("user.dir")+"/assets/"+"user-"+user.getUserid()+"-"+user.getCin()+".png"; // Specify the file path and name
+        String filePath = System.getProperty("user.dir") + "/assets/" + "user-" + user.getUserid() + "-" + user.getCin() + ".png"; // Specify the file path and name
         File qrCodeFile = new File(filePath);
         try {
             MatrixToImageWriter.writeToFile(bitMatrix, "png", qrCodeFile);
@@ -140,6 +146,7 @@ public class UserIMP implements IServiceUser {
         Sheet sheet = workbook.getSheetAt(0); // assuming the user data is in the first sheet
         List<User> users = new ArrayList<>();
 
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         for (Row row : sheet) {
             if (row.getRowNum() == 0) {
                 // skip the header row
@@ -153,7 +160,26 @@ public class UserIMP implements IServiceUser {
             user.setLastname(row.getCell(3).getStringCellValue());
             user.setCin((int) row.getCell(4).getNumericCellValue());
             user.setDob(row.getCell(5).getDateCellValue());
-            user.setPassword(row.getCell(6).getStringCellValue());
+            user.setPassword(passwordEncoder.encode(row.getCell(6).getStringCellValue()));
+
+            Role role = roleRepo.findByRolename(RoleType.CANDIDATE);
+
+            if (row.getCell(7) == null) {
+                user.getRoles().add(role);
+
+            } else {
+                List<String> roles = Arrays.asList(row.getCell(7).getStringCellValue().split("\\s*,\\s*"));
+                roles.forEach(rolee -> {
+                    for (RoleType r : RoleType.values()) {
+
+                        if (r.name().equals(rolee)) {
+                            Role rol = roleRepo.findByRolename(r);
+                            user.getRoles().add(rol);
+                            break;
+                        }
+                    }
+                });
+            }
 
             users.add(user);
         }
