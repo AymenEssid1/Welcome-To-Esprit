@@ -11,4 +11,5 @@ public interface IServiceEvent {
     public  List<Event> getAllEvent() ;
     public  boolean deleteEvent(Long idEvent) ;
     public Event updateEvent (Long idEvent , EventDTO eventDTO) ;
+    public String assignTeamsToEvent(Long idEvent, Long idTeam);
 }

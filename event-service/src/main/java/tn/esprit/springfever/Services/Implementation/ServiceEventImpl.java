@@ -15,11 +15,14 @@ import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.EventRepository;
+import tn.esprit.springfever.repositories.TeamsRepository;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -27,6 +30,9 @@ public class ServiceEventImpl implements IServiceEvent{
 
     @Autowired
     EventRepository eventRepository ;
+
+    @Autowired
+    private TeamsRepository teamsRepository;
     @Autowired
     EventMapper eventMapper;
 
@@ -91,6 +97,39 @@ public class ServiceEventImpl implements IServiceEvent{
         return  event;
 
     }
+
+
+    @Override
+    public String assignTeamsToEvent(Long idEvent, Long idTeam) {
+
+            Teams teams =teamsRepository.findById(idTeam).orElse(null);
+            Event event = eventRepository.findById(idEvent).orElse(null);
+            if(teams!=null && event!=null){
+                event.setTeams(teams);
+                eventRepository.save(event);
+                return "teams is Affeced To event";
+            }
+            return "teams Or event Are not found";
+
+
+            /*         affect teams to event where event=app0
+            if (teams != null && event != null) {
+            if ("APP0".equals(event.getTypeEvent())) { // Check if typeEvent is equal to "APP0"
+                event.setTeams(teams);
+                eventRepository.save(event);
+                return "Teams is assigned to event with id " + idEvent;
+            } else {
+                return "Event with id " + idEvent + " is not of type APP0";
+            }
+        } else {
+            return "Teams or Event not found";
+        }
+            */
+
+        }
+
+
+
 
 
 }

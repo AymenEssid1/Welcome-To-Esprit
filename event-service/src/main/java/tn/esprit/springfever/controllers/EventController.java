@@ -55,7 +55,10 @@ public class EventController {
     public  boolean deleteEvent(@PathVariable Long idEvent)  {return  iServiceEvent.deleteEvent(idEvent);}
 
 
-
+    @PutMapping("AssignTeamsToEvent/{idEvent}/{idTeam}")
+    public String assignTeamsToEvent(@PathVariable Long idEvent, @PathVariable Long idTeam) {
+        return iServiceEvent.assignTeamsToEvent(idEvent , idTeam);
+    }
 
 
 }
