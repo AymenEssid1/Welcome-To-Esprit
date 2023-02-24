@@ -21,7 +21,7 @@ public class AdViews implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-    private String user;
+    private Long user;
     @ManyToOne
     @JsonIgnore
     private Ad ad;

@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -13,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
 @EnableEurekaClient
 @EnableScheduling
-@EnableCaching
+
 public class ForumService {
     public static void main(String[] args) {
         SpringApplication.run(ForumService.class, args);

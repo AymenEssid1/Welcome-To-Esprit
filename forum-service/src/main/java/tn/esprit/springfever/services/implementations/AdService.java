@@ -65,7 +65,6 @@ public class AdService implements IAdService {
     @Cacheable("ad")
     public List<Ad> getAllLazy(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        rabbitMQMessageSender.sendMessage("Get Ad");
         return pagerepo.findAll(pageable).getContent();
     }
 }

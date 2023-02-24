@@ -25,6 +25,8 @@ public class Post implements Serializable {
     private String title;
     private String content;
 
+    private String topic;
+
     private Long user;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")

@@ -28,12 +28,14 @@ services:
       - ./mysql-data:/var/lib/mysql
 
 ## MySQL UI Container
-  adminer:
-    container_name: adminer
-    image: adminer
+  phpmyadmin:
+    image: phpmyadmin
     restart: always
+    container_name: "phpmyadmin"
     ports:
-      - "8080:8080"
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
 
 ## Redis Container
   redis:

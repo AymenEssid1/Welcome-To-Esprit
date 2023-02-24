@@ -1,6 +1,9 @@
 package tn.esprit.springfever.services.interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.security.UserPrincipal;
 
@@ -9,7 +12,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface IPostService {
-    public Post addPost(Post post);
+    public Post addPost(String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException;
     public Post updatePost(Long id,Post post);
     public String deletePost(Long post);
     public Post getSinglePost(Long id);

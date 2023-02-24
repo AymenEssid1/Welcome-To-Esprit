@@ -1,5 +1,6 @@
 package tn.esprit.springfever.payload.request;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.*;
@@ -14,7 +15,7 @@ public class SignUpRequest {
     @Email
     private String email;
 
-    private Set<String> role;
+    private List<String> role;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -44,11 +45,11 @@ public class SignUpRequest {
         this.password = password;
     }
 
-    public Set<String> getRole() {
+    public List<String> getRole() {
         return this.role;
     }
 
-    public void setRole(Set<String> role) {
+    public void setRole(List<String> role) {
         this.role = role;
     }
 }

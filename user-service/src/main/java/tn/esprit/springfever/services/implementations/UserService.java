@@ -1,5 +1,10 @@
 package tn.esprit.springfever.services.implementations;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.annotation.*;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.http.HttpHeaders;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.UserRepository;
 import tn.esprit.springfever.security.jwt.JwtUtils;
@@ -25,6 +30,8 @@ public class UserService implements IUserService {
     UserRepository userRepository;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    private RabbitTemplate amqpTemplate;
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -41,6 +48,12 @@ public class UserService implements IUserService {
     public User getuserfromtoken(String header) {
         return userRepository.findByUsername(getusernamefromtoken(header)).orElse(null);
     }
+
+    public User getUserFromUserName(String username){
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
+
 
 
 }
