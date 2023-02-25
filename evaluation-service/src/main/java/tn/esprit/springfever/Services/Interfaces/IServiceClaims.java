@@ -3,6 +3,7 @@ package tn.esprit.springfever.Services.Interfaces;
 
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.entities.Claim;
+import weka.core.Instances;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface IServiceClaims {
  public Claim findById(Long id) ;
  public Claim treatClaim( Long id , String descision);
  public long getTimeTreatmentClaim(Long id );
- public long predicateTreatmetnClaim() ;
+ public long predicateTreatmetnClaim(Long id ) ;
 
 
 

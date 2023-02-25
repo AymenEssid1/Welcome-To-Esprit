@@ -4,6 +4,7 @@ package tn.esprit.springfever.Controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
@@ -66,6 +67,11 @@ public class ClaimController {
         return iServiceClaims.getTimeTreatmentClaim(id);
     }
 
+    @GetMapping("predictTreatmentPeriod/{id}")
+    public ResponseEntity<Long> predictTreatmentPeriod(@PathVariable Long id) {
+        Long predictedPeriod = iServiceClaims.predicateTreatmetnClaim(id);
+        return ResponseEntity.ok(predictedPeriod);
+    }
 }
 
 

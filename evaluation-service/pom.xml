@@ -177,11 +177,6 @@
 
 
 
-        <dependency>
-            <groupId>com.openai</groupId>
-            <artifactId>openai-api-java</artifactId>
-            <version>0.4.4</version>
-        </dependency>
 
 
 
@@ -299,6 +294,15 @@
             <artifactId>chatgpt-spring-boot-starter</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+
+
+
 
     </dependencies>
 

@@ -12,9 +12,17 @@ import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.entities.Claim;
 import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
- import java.io.IOException;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.FastVector;
+import weka.core.Instances;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -23,40 +31,43 @@ import java.util.List;
 public class ServiceClaimsImpl implements IServiceClaims {
 
     @Autowired
-    UserRepository userRepository ;
+    UserRepository userRepository;
     @Autowired
-    ClaimRepository claimRepository ;
+    ClaimRepository claimRepository;
     @Autowired
     ClaimMapper claimMapper;
     @Autowired
     JavaMailSender javaMailSender;
 
-     @Override
+    @Override
     public Claim addClaim(Claim claim) throws IOException {
-             // Send email notification to user
-         SimpleMailMessage message = new SimpleMailMessage();
-         message.setSubject("New claim submitted");
-         message.setText("A new claim has been submitted.");
-         message.setTo("springforfever@gmail.com\n");
-         javaMailSender.send(message);
-          log.info("claim was successfully added !");
-         claimRepository.save(claim);
+        // Send email notification to user
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("New claim submitted");
+        message.setText("A new claim has been submitted.");
+        message.setTo("springforfever@gmail.com\n");
+        javaMailSender.send(message);
+        log.info("claim was successfully added !");
+        claimRepository.save(claim);
         return claim;
-     }
+    }
 
     @Override
-    public List<Claim> getAllClaims() {return claimRepository.findAll();}
+    public List<Claim> getAllClaims() {
+        return claimRepository.findAll();
+    }
 
 
     @Override
     public boolean deleteClaim(Long idclaim) {
-         Claim existingClaim = claimRepository.findById(idclaim).orElse(null);
-         if(existingClaim!=null) {
-             claimRepository.delete(existingClaim);
-             log.info("claim deleted");
-             return true ;
-         }
-      else {log.info(" this claim is not existing");}
+        Claim existingClaim = claimRepository.findById(idclaim).orElse(null);
+        if (existingClaim != null) {
+            claimRepository.delete(existingClaim);
+            log.info("claim deleted");
+            return true;
+        } else {
+            log.info(" this claim is not existing");
+        }
         return false;
     }
 
@@ -81,23 +92,23 @@ public class ServiceClaimsImpl implements IServiceClaims {
             claimMapper.updateClaimFromDto(claimDto, claim);
             claimRepository.save(claim);
             log.info("claim was successfully updated !");
-        }
-        else {
+        } else {
             log.info("claim not found !");
-         }
+        }
         return claim;
     }
 
     @Override
-    public List<Claim> getClaimsByUser(String username ) {
-        User existingUser = userRepository.findByUsername(username).orElse(null) ;
-        if(existingUser!=null) {
-            log.info("claims list of the user  : " + existingUser.getUsername() );
+    public List<Claim> getClaimsByUser(String username) {
+        User existingUser = userRepository.findByUsername(username).orElse(null);
+        if (existingUser != null) {
+            log.info("claims list of the user  : " + existingUser.getUsername());
             return claimRepository.getClaimByUserUsername(username);
+        } else {
+            log.info("user not found ");
         }
-        else {log.info("user not found ");}
 
-        return  null ;
+        return null;
     }
 
 
@@ -110,14 +121,13 @@ public class ServiceClaimsImpl implements IServiceClaims {
     @Override
     public Claim treatClaim(Long id, String descision) {
         Claim claim = claimRepository.findById(id).orElse(null);
-        if(claim!=null) {
+        if (claim != null) {
             claim.setDecision(descision);
             claim.setDateTreatingClaim(new Date());
             claimRepository.save(claim);
             log.info("claim was treated ");
 
-        }
-        else {
+        } else {
             log.info("claim not found ");
         }
         return claim;
@@ -129,12 +139,23 @@ public class ServiceClaimsImpl implements IServiceClaims {
         // Calculate the period between the two dates
         long diffMillis = claim.getDateTreatingClaim().getTime() - claim.getDateSendingClaim().getTime();
         long diffDays = diffMillis / (24 * 60 * 60 * 1000);
-         return diffMillis;
+        return diffMillis;
     }
 
     @Override
-    public long predicateTreatmetnClaim() {
-        return 0;
+    public long predicateTreatmetnClaim(Long  id ) {
+        Claim claim = claimRepository.findById(id).orElse(null);
+        List<Claim> claims = claimRepository.findAllByClaimSubjectAndClaimStatus(claim.getClaimSubject(), ClaimStatus.treated);
+        long estimatedPeriod =0 ;
+        for(Claim c : claims) {
+             estimatedPeriod += (c.getDateTreatingClaim().getTime() - c.getDateSendingClaim().getTime())/(60*60*1000) ;
+          }
+        long avg = estimatedPeriod/claims.size();
+        return avg ;
+
     }
+
+
+
 }
 
