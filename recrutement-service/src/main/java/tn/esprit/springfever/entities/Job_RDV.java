@@ -9,6 +9,7 @@ import tn.esprit.springfever.enums.RDV_Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -25,16 +26,18 @@ public class Job_RDV implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "Candidate_ID")
-    private User user;
+    private User Candidate;
 
     @ManyToOne
     @JoinColumn(name = "Jury_ID")
-    private User user2;
+    private User Jury;
 
-    private Date date_Rdv ;
+    //private Date date_Rdv ;
     private String salle_Rdv ;
     @Enumerated(EnumType.STRING)
     private RDV_Type Type_RDV;
+    @Column(name = "appointment_date")
+    private LocalDateTime appointmentDate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Id_Job_Application")
@@ -45,6 +48,7 @@ public class Job_RDV implements Serializable {
     @JoinColumn(name = "entretien_id")
     @JsonIgnore
     private Entretien entretien;
+
 
 
 

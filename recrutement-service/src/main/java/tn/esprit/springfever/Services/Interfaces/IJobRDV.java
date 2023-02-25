@@ -1,9 +1,13 @@
 package tn.esprit.springfever.Services.Interfaces;
 
+import com.netflix.discovery.shared.Pair;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
+import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_Offer;
 import tn.esprit.springfever.entities.Job_RDV;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface IJobRDV {
@@ -16,5 +20,12 @@ public interface IJobRDV {
 
     public String AssignJobApplicationToRDV(Long Id_Job_Application ,Long ID_Job_DRV);
     //public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto);
+    public String AssignCandidateToJobRDV(Long ID_Job_DRV , Long Id_Job_Application );
+    public String AssignJuryToJobRDV(Long ID_Job_DRV , Long id );
+    public List<LocalDateTime> getDisponibilites(Long userId);
+    public Disponibilites AddDispo(Disponibilites disponibilites);
+    public String AssignUserToDisponibilities(Long idDispo, Long idUser );
+    public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury,
+                                                    int interviewDuration);
 
 }
