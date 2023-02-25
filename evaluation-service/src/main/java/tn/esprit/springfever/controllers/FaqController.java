@@ -90,15 +90,15 @@ public class FaqController {
         return ResponseEntity.ok(faqs);
     }
 
-    @GetMapping("/getreponse")
+    @GetMapping("/getOtherResponse")
     public ResponseEntity<String> getreponse(@RequestParam("sentence") String sentence) {
-        String responseMessage = chatgptService.sendMessage(" reformule this sentence :" + sentence);
-         return ResponseEntity.ok(responseMessage);
+          return ResponseEntity.ok(faqService.reformuleResponse(sentence));
     }
 
-
-
-
+    @GetMapping("/tellmesomething")
+    public ResponseEntity<String> tellme(@RequestParam("sentence") String sentence) {
+        return ResponseEntity.ok(chatgptService.sendMessage(sentence));
+    }
 
 
 

@@ -15,6 +15,7 @@ import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
  import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -104,6 +105,36 @@ public class ServiceClaimsImpl implements IServiceClaims {
     @Override
     public Claim findById(Long id) {
         return claimRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Claim treatClaim(Long id, String descision) {
+        Claim claim = claimRepository.findById(id).orElse(null);
+        if(claim!=null) {
+            claim.setDecision(descision);
+            claim.setDateTreatingClaim(new Date());
+            claimRepository.save(claim);
+            log.info("claim was treated ");
+
+        }
+        else {
+            log.info("claim not found ");
+        }
+        return claim;
+    }
+
+    @Override
+    public long getTimeTreatmentClaim(Long id) {
+        Claim claim = claimRepository.findById(id).orElse(null);
+        // Calculate the period between the two dates
+        long diffMillis = claim.getDateTreatingClaim().getTime() - claim.getDateSendingClaim().getTime();
+        long diffDays = diffMillis / (24 * 60 * 60 * 1000);
+         return diffMillis;
+    }
+
+    @Override
+    public long predicateTreatmetnClaim() {
+        return 0;
     }
 }
 

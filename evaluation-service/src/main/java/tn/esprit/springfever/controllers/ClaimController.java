@@ -56,7 +56,15 @@ public class ClaimController {
       return  iServiceClaims.getClaimsByUser(username);
     }
 
+    @PutMapping("treatClaim/{id}")
+    public Claim treatClaim(@PathVariable Long id, @RequestParam String decision) {
+        return iServiceClaims.treatClaim(id, decision);
+    }
 
+    @GetMapping("getTimeTreatmentClaim/{id}")
+    public long getTimeTreatmentClaim(@PathVariable Long id) {
+        return iServiceClaims.getTimeTreatmentClaim(id);
+    }
 
 }
 

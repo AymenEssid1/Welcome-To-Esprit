@@ -21,6 +21,7 @@ public interface IServiceFaq {
  public List<Faq> search(String query) ;
  public List<String> topSearchedQueries() ;
  public  List<Faq> getDfaultFaqs() ;
+ public String reformuleResponse(String response);
 
 
 

@@ -2,6 +2,7 @@ package tn.esprit.springfever.Services.Implementation;
 
 
 
+  import io.github.flashvayne.chatgpt.service.ChatgptService;
   import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -28,9 +29,6 @@ import java.util.ArrayList;
   import java.util.function.Function;
   import java.util.stream.Collectors;
 
-
-
-
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 @Service
@@ -43,6 +41,8 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
     FaqRepository faqRepository;
     @Autowired
     FaqCategoryRepository faqCategoryRepository;
+    @Autowired
+    ChatgptService chatgptService ;
 
 
     @Override
@@ -230,6 +230,11 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
         );
 
             return defaultFaqs ;
+    }
+
+    @Override
+    public String reformuleResponse(String response) {
+         return chatgptService.sendMessage(" return another new whole sentence having the same meaning as this one < :" + response + ">");
     }
 
 

@@ -14,8 +14,11 @@ import  tn.esprit.springfever.enums.ClaimStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @ToString
@@ -27,18 +30,33 @@ public class Claim implements Serializable {
     @Getter
     @Setter
 
+    @NotNull
+    @Positive
     private Long idClaim;
+
     @Enumerated(EnumType.STRING)
     @NotBlank
     private ClaimSubject claimSubject ;
+
     @NotBlank
-    @Size(max = 500)
+    @NotNull
+    @Size(min = 1, max = 500)
     private String description;
+
     @Enumerated(EnumType.STRING)
     private ClaimStatus claimStatus ;
+
+    @NotNull
+    @Size(max = 500)
     private String decision ;
+
     @Enumerated(EnumType.STRING)
     private ClaimRate claimRate ;
+
+    private Date dateSendingClaim ;
+
+    private Date dateTreatingClaim ;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     private User user ;
