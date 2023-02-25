@@ -57,7 +57,7 @@ public class CommentController {
         CommentDTO commentDTO = objectMapper.readValue(comment, CommentDTO.class);
         Comment c = new Comment();
         c.setContent(commentDTO.getContent());
-        c.setPost(postService.getSinglePost(postId));
+        c.setPost(postService.getSinglePost(postId, null));
         Comment newP = service.addComment(c);
         if (images != null) {
             for (MultipartFile image : images) {

@@ -1,10 +1,13 @@
 package tn.esprit.springfever.entities;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -28,6 +31,10 @@ public class Post implements Serializable {
     private String topic;
 
     private Long user;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
+    private LocalDateTime createdAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
+    private LocalDateTime updatedAt;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<PostLike> likes;

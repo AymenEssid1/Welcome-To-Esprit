@@ -25,8 +25,7 @@ public class PostMedia implements Serializable {
     @Lob
     @JsonIgnore
     byte[] content;
-    @Enumerated(EnumType.STRING)
-    private MediaType type;
+    private String type;
 
     @ManyToOne
     @JsonIgnore
@@ -37,5 +36,13 @@ public class PostMedia implements Serializable {
         this.location = location;
         this.post = post;
         this.content = content;
+    }
+
+    public PostMedia(String name, String location, Post post, byte[] content, String type) {
+        this.name = name;
+        this.location = location;
+        this.post = post;
+        this.content = content;
+        this.type= type;
     }
 }

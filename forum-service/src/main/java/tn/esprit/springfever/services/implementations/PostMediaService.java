@@ -25,7 +25,7 @@ public class PostMediaService implements IPostMediaService {
 
     public PostMedia save(MultipartFile file, Post post) throws Exception {
         String location = fileSystemRepository.save(file);
-        return repo.save(new PostMedia(file.getOriginalFilename(), location, post, file.getBytes()));
+        return repo.save(new PostMedia(file.getOriginalFilename(), location, post, file.getBytes(),file.getContentType()));
     }
     @Cacheable("postMedia")
     public FileSystemResource find(Long imageId) {
