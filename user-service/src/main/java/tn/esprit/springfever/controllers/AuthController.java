@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.springfever.entities.UserIntrests;
+import tn.esprit.springfever.services.implementations.UserInterestService;
 import tn.esprit.springfever.services.implementations.UserService;
 import tn.esprit.springfever.security.jwt.JwtUtils;
 import tn.esprit.springfever.security.services.UserDetailsImpl;
@@ -51,6 +53,9 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    UserInterestService userInterestService;
 
 
 
@@ -101,6 +106,7 @@ public class AuthController {
 
         List<String> strRoles = signUpRequest.getRole();
         List<Role> roles = new ArrayList<>();
+        userInterestService.save(signUpRequest.getInterests());
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)

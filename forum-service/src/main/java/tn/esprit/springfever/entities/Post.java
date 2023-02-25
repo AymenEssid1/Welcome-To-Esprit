@@ -38,10 +38,12 @@ public class Post implements Serializable {
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<PostLike> likes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<Comment> comments;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<PostMedia> media;
+    @Transient
+    private double similarity;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<PostViews> views;

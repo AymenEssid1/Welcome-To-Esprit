@@ -3,9 +3,7 @@ package tn.esprit.springfever.dto;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class UserDTO {
@@ -14,6 +12,7 @@ public class UserDTO {
     private String email;
     private String password;
     private List<RoleDTO> roles = new ArrayList<>();
+    private List<String> interests;
 
     public UserDTO() {
 

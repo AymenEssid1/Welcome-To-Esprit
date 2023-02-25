@@ -1,6 +1,6 @@
 package tn.esprit.springfever.services.interprocess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
@@ -10,15 +10,12 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import tn.esprit.springfever.UserService;
 import tn.esprit.springfever.entities.Role;
 import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserIntrests;
 import tn.esprit.springfever.security.jwt.JwtUtils;
-import tn.esprit.springfever.services.interfaces.IUserService;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -38,13 +35,18 @@ public class RabbitMQMessageReceiver {
         token = token.substring(1, token.length() - 1);
         User user = jwtUtils.getUserFromUserName(jwtUtils.getUserNameFromJwtToken(token));
         JSONObject obj = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
+        JSONArray jsonRoles = new JSONArray();
+        JSONArray jsonIntrests = new JSONArray();
         obj.put("id", user.getId());
         obj.put("username", user.getUsername());
-        for (Role role : user.getRoles()) {
-            jsonArray.add(role.getName());
+        for (UserIntrests interests : user.getIntrests()){
+            jsonIntrests.add(interests.getName());
         }
-        obj.put("roles", jsonArray);
+        for (Role role : user.getRoles()) {
+            jsonRoles.add(role.getName());
+        }
+        obj.put("roles", jsonRoles);
+        obj.put("interests", jsonIntrests);
         StringWriter out = new StringWriter();
         obj.writeJSONString(out);
         String jsonText = out.toString();
