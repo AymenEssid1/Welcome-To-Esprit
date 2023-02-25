@@ -1,6 +1,7 @@
 package tn.esprit.springfever.Services.Interfaces;
 import tn.esprit.springfever.DTO.NoteDTO;
 import tn.esprit.springfever.entities.Note;
+import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.User;
 
 import java.io.FileNotFoundException;
@@ -11,4 +12,5 @@ public interface IServiceNote {
     public  List<Note> getAllNote() ;
     public  boolean deleteNote(Long idNote) ;
     public Note updateNote (Long idNote , NoteDTO noteDTO) ;
+    public String assignNoteToProject(Long idNote, Long idProject);
 }

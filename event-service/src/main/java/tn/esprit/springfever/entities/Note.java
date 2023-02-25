@@ -25,18 +25,29 @@ public class Note implements Serializable{
 
     private Long idNote;
     @NotBlank
-    private float ProjectNote ;
+    private float softskillsNote ;
     @NotBlank
-    private float PresentationNote;
+    private float hardskillsNote;
     @NotBlank
-    private float SoftSkillsNote ;
+    private float presentationNote ;
+    @NotBlank
+    private float consistencyNote;
+    @NotBlank
+    private float originalityNote ;
+    @NotBlank
+    private float contentNote;
+    @NotBlank
+    private float relevanceNote ;
     @NotBlank
     private String comment ;
     @NotBlank
     private Date submitDate ;
+    @NotBlank
+    private float projectNote ;
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="note")
+    @JsonIgnore
     private java.util.Set<Project> project;
 
 

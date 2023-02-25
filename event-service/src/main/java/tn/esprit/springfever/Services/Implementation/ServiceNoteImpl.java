@@ -1,22 +1,18 @@
 package tn.esprit.springfever.Services.Implementation;
 
 import lombok.extern.slf4j.Slf4j;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.NoteDTO;
-import tn.esprit.springfever.DTO.ProjectDTO;
-import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.NoteMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceNote;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.NoteRepository;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import tn.esprit.springfever.repositories.ProjectRepository;
+
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -24,6 +20,8 @@ import java.util.List;
 public class ServiceNoteImpl implements IServiceNote {
     @Autowired
     NoteRepository noteRepository ;
+    @Autowired
+    ProjectRepository projectRepository ;
     @Autowired
     NoteMapper noteMapper;
 
@@ -86,5 +84,45 @@ public class ServiceNoteImpl implements IServiceNote {
 
     }
 
+
+    /*
+    public Note addNoteToProject(Long projectId, Note note) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NoSuchElementException("Project with id " + projectId + " not found"));
+        note.setProject(project);
+
+        Double projectNote = (note.getSoftskillsNote() + note.getHardskillsNote() + note.getPresentationNote() +
+                note.getConsistencyNote() + note.getOriginalityNote() + note.getContentNote() +
+                note.getRelevanceNote()) / 7.0;
+
+        note.setProjectNote(projectNote);
+
+        noteRepository.save(note);
+        return note;
+    }*/
+
+@Override
+    public String assignNoteToProject(Long idNote, Long idProject) {
+        Note note = noteRepository.findById(idNote).orElse(null);
+        Project project = projectRepository.findById(idProject).orElse(null);
+
+    if (note != null && project != null) {
+        // Calculate the project note
+        float projectNote = (note.getSoftskillsNote() + note.getHardskillsNote() + note.getPresentationNote() +
+                note.getConsistencyNote() + note.getOriginalityNote() + note.getContentNote() + note.getRelevanceNote()) / 7;
+        note.setProjectNote(projectNote);
+
+        // Assign project note to project
+
+        Note notes = project.getNote();
+        project.setNote(notes);
+
+    }
+       // note.setProject( project);           hedhy lzm na7eha maach comm bch njm nsavi f project ama feha erreur !!!
+        noteRepository.save(note);
+        projectRepository.save(project);
+        return "note is Affeced To project";
+
+    }
 
 }
