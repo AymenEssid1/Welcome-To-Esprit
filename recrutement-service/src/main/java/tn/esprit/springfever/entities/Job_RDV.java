@@ -29,7 +29,7 @@ public class Job_RDV implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "Candidate_ID")
-    private User Candidate;
+    private User candidate;
 
     @ManyToOne
     @JoinColumn(name = "Jury_ID")
@@ -41,8 +41,8 @@ public class Job_RDV implements Serializable {
     @NotNull(message = "Le type de RDV ne peut pas être vide.")
     @Enumerated(EnumType.STRING)
     private RDV_Type Type_RDV;
-    @NotNull(message = "La date de rendez-vous ne peut pas être vide.")
-    @FutureOrPresent(message = "La date de rendez-vous doit être dans le futur ou le présent.")
+    //@NotNull(message = "La date de rendez-vous ne peut pas être vide.")
+    //@FutureOrPresent(message = "La date de rendez-vous doit être dans le futur ou le présent.")
     @Column(name = "appointment_date")
     private LocalDateTime appointmentDate;
 

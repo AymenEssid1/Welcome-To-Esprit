@@ -13,10 +13,7 @@ import tn.esprit.springfever.repositories.*;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -162,7 +159,7 @@ public class JobRdvService implements IJobRDV {
         }
         return "Not OK";
     }
-    public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury,
+    /*public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury,
                                                     int interviewDuration) {
         Disponibilites disponiblityCandidate=disponiblitiesRepository.findById(dispoCandidate).orElse(null);
         Disponibilites disponiblityJury=disponiblitiesRepository.findById(dispoJury).orElse(null);
@@ -209,7 +206,58 @@ public class JobRdvService implements IJobRDV {
         int randomIndex = rand.nextInt(possibleStartTimes.size());
         return possibleStartTimes.get(randomIndex);
 
+    }*/
+
+
+    public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury, int interviewDuration) {
+        Disponibilites disponiblityCandidate = disponiblitiesRepository.findById(dispoCandidate).orElse(null);
+        Long idCandadte = disponiblityCandidate.getUser().getId();
+        Job_RDV jobRdv=jobRdvRepository.findJob_RDVByCandidate_Id(idCandadte);
+        Disponibilites disponiblityJury = disponiblitiesRepository.findById(dispoJury).orElse(null);
+        LocalDateTime candidatePreferredDateTime = disponiblityCandidate.getPreferDateTime();
+        LocalDateTime juryPreferredDateTime = disponiblityJury.getPreferDateTime();
+
+        List<LocalDateTime> candidateAvailability = Arrays.asList(disponiblityCandidate.getStart_date(), disponiblityCandidate.getEnd_date());
+        List<LocalDateTime> juryAvailability = Arrays.asList(disponiblityJury.getStart_date(), disponiblityJury.getEnd_date());
+
+        // Trouver la première plage horaire disponible qui est suffisamment longue pour l'entretien
+        LocalDateTime firstAvailableDateTime = null;
+        for (LocalDateTime candidateStart : candidateAvailability) {
+            LocalDateTime candidateEnd = candidateStart.plusMinutes(interviewDuration);
+            if (candidateAvailability.contains(candidateStart) && candidateAvailability.contains(candidateEnd)) {
+                for (LocalDateTime juryStart : juryAvailability) {
+                    LocalDateTime juryEnd = juryStart.plusMinutes(interviewDuration);
+                    if (juryAvailability.contains(juryStart) && juryAvailability.contains(juryEnd)) {
+
+                        // Vérifier que la plage horaire correspond aux préférences du candidat et du jury
+                        if (candidateStart.isEqual(candidatePreferredDateTime) && juryStart.isEqual(juryPreferredDateTime)) {
+                            jobRdv.setAppointmentDate(candidateStart);
+                            jobRdvRepository.save(jobRdv);
+                            return candidateStart;
+                        }
+
+                        // Si c'est la première plage horaire disponible pour l'entretien, la sauvegarder
+                        if (firstAvailableDateTime == null || juryStart.isBefore(firstAvailableDateTime)) {
+                            firstAvailableDateTime = juryStart;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Si aucune plage horaire disponible n'est trouvée, retourner la première plage horaire disponible du jury
+        if (firstAvailableDateTime != null) {
+            jobRdv.setAppointmentDate(firstAvailableDateTime);
+            jobRdvRepository.save(jobRdv);
+            return firstAvailableDateTime;
+
+        } else {
+            jobRdv.setAppointmentDate(juryAvailability.get(0));
+            jobRdvRepository.save(jobRdv);
+            return juryAvailability.get(0);
+        }
     }
+
 
 
 

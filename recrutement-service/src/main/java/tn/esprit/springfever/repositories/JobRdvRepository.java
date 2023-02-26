@@ -8,5 +8,7 @@ import java.util.Date;
 
 @EnableJpaRepositories
 public interface JobRdvRepository extends JpaRepository<Job_RDV,Long> {
-Job_RDV findJob_RDVByAppointmentDate(Date dateRDV);
+    Job_RDV findJob_RDVByAppointmentDate(Date dateRDV);
+
+    Job_RDV findJob_RDVByCandidate_Id(Long candidateId);
 }

@@ -27,5 +27,6 @@ public interface IJobRDV {
     public String AssignUserToDisponibilities(Long idDispo, Long idUser );
     public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury,
                                                     int interviewDuration);
+    //public String AssignRDVdATETordv(Long dispoCandidate, Long dispoJury,int interviewDuration );
 
 }
