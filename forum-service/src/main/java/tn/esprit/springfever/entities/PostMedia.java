@@ -2,7 +2,6 @@ package tn.esprit.springfever.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import tn.esprit.springfever.enums.MediaType;
 
 import javax.persistence.*;
 import java.io.Serializable;

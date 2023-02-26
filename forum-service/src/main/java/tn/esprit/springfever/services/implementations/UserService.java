@@ -42,9 +42,6 @@ public class UserService implements IUserService {
         if (response != null && response.getBody() != null && response.getBody().length > 0) {
             String jsonResponse = (String)amqpTemplate.getMessageConverter().fromMessage(response);
             userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
-            for(RoleDTO role : userDetails.getRoles()){
-                log.warn(role.getName());
-            };
         }
         return userDetails;
     }

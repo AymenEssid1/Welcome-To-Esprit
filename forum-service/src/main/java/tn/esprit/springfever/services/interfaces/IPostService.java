@@ -23,5 +23,5 @@ public interface IPostService {
     public List<Post> getAllLazy(int skip, int take, HttpServletRequest request) ;
     public List<Post> getByUserLazy(int skip, int take, Long id, HttpServletRequest request);
     public String rssFeed() throws FeedException;
-    public List<Post> searchPosts(String searchString,int page, int size, HttpServletRequest request);
+    public List<Post> searchPosts(String searchString,int page, int size, HttpServletRequest request) throws IOException;
 }

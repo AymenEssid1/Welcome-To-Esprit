@@ -5,6 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
 import org.springframework.amqp.core.Message;
@@ -12,14 +23,15 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.*;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -34,50 +46,63 @@ import tn.esprit.springfever.repositories.PostPagingRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.repositories.PostViewsRepository;
 import tn.esprit.springfever.services.interfaces.IPostService;
-import org.springframework.security.core.userdetails.UserDetails;
 import tn.esprit.springfever.services.interfaces.IUserService;
 import tn.esprit.springfever.services.interprocess.RabbitMQMessageSender;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 import tn.esprit.springfever.utils.PostMediaComparator;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @Slf4j
 public class PostService implements IPostService {
-
     @Autowired
     private PostRepository repo;
+
     @Autowired
     private PostPagingRepository pagerepo;
+
     @Autowired
     private PostViewsRepository viewsRepository;
+
     private RestTemplate restTemplate = new RestTemplate();
+
     @Autowired
     private PostMediaService mediaService;
+
     @Autowired
     private IUserService userService;
+
     @Autowired
     private MatchingService matchingService;
 
     @Autowired
     private ProfanitiesService profanitiesService;
 
-
     @Override
-    public ResponseEntity<?> addPost(String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException {
-        if (profanitiesService.containsBannedWords(topic) || profanitiesService.containsBannedWords(content) || profanitiesService.containsBannedWords(title)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
-        } else if (authentication == null || authentication.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+    public ResponseEntity<?> addPost(
+            String title,
+            String content,
+            String topic,
+            HttpServletRequest authentication,
+            List<MultipartFile> images
+    )
+            throws JsonProcessingException {
+        if (
+                profanitiesService.containsBannedWords(topic) ||
+                        profanitiesService.containsBannedWords(content) ||
+                        profanitiesService.containsBannedWords(title)
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            "{\"Message\": \"Please check your post! We do not allow bad language\"}"
+                    );
+        } else if (
+                authentication == null ||
+                        authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("{\"Message\": \"Login or sign up to post!\"}");
         } else {
             Post p = new Post();
             p.setTitle(title);
@@ -85,7 +110,15 @@ public class PostService implements IPostService {
             p.setTopic(topic);
             p.setCreatedAt(LocalDateTime.now());
             p.setUpdatedAt(LocalDateTime.now());
-            p.setUser(Long.valueOf(userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION)).getId()));
+            p.setUser(
+                    Long.valueOf(
+                            userService
+                                    .getUserDetailsFromToken(
+                                            authentication.getHeader(HttpHeaders.AUTHORIZATION)
+                                    )
+                                    .getId()
+                    )
+            );
             repo.save(p);
             if (images != null) {
                 for (MultipartFile image : images) {
@@ -100,23 +133,53 @@ public class PostService implements IPostService {
             }
             return ResponseEntity.status(HttpStatus.CREATED).body(p);
         }
-
     }
 
     @Override
     @CachePut("post")
-    public ResponseEntity<?> updatePost(Long id, String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws IOException {
-        if (profanitiesService.containsBannedWords(topic) || profanitiesService.containsBannedWords(content) || profanitiesService.containsBannedWords(title)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
-        } else if (authentication == null || authentication.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+    public ResponseEntity<?> updatePost(
+            Long id,
+            String title,
+            String content,
+            String topic,
+            HttpServletRequest authentication,
+            List<MultipartFile> images
+    )
+            throws IOException {
+        if (
+                profanitiesService.containsBannedWords(topic) ||
+                        profanitiesService.containsBannedWords(content) ||
+                        profanitiesService.containsBannedWords(title)
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            "{\"Message\": \"Please check your post! We do not allow bad language\"}"
+                    );
+        } else if (
+                authentication == null ||
+                        authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("{\"Message\": \"Login or sign up to post!\"}");
         } else {
             Post p = repo.findById(Long.valueOf(id)).orElse(null);
             UserDTO user = null;
-            if (authentication != null && authentication.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-                user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
+            if (
+                    authentication != null &&
+                            authentication.getHeader(HttpHeaders.AUTHORIZATION) != null
+            ) {
+                user =
+                        userService.getUserDetailsFromToken(
+                                authentication.getHeader(HttpHeaders.AUTHORIZATION)
+                        );
                 if (p != null) {
-                    if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
+                    if (
+                            user.getId() == p.getUser() ||
+                                    user.getRoles().contains("FORUM_ADMIN") ||
+                                    user.getRoles().contains("SUPER_ADMIN")
+                    ) {
                         p.setUpdatedAt(LocalDateTime.now());
                         List<PostMedia> mediaList = p.getMedia();
                         if (mediaList != null && images != null) {
@@ -130,7 +193,6 @@ public class PostService implements IPostService {
                                         break;
                                     }
                                 }
-
                             }
                             for (PostMedia m : mediaList) {
                                 mediaService.delete(m.getId());
@@ -148,7 +210,6 @@ public class PostService implements IPostService {
                                     }
                                 }
                             }
-
                         }
                         if (title != null) {
                             p.setTitle(title);
@@ -162,27 +223,37 @@ public class PostService implements IPostService {
                         repo.save(p);
                         return ResponseEntity.ok().body(p);
                     } else {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"That's not yours to edit!\"}");
+                        return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body("{\"Message\": \"That's not yours to edit!\"}");
                     }
                 } else {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 }
-
             } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .body("{\"Message\": \"Login or sign up to post!\"}");
             }
         }
     }
 
     @Override
     @CacheEvict("post")
-    public String deletePost(Long post, HttpServletRequest authentication) throws IOException {
+    public String deletePost(Long post, HttpServletRequest authentication)
+            throws IOException {
         Post p = repo.findById(Long.valueOf(post)).orElse(null);
 
         if (authentication != null) {
-            UserDTO user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
+            UserDTO user = userService.getUserDetailsFromToken(
+                    authentication.getHeader(HttpHeaders.AUTHORIZATION)
+            );
             if (p != null) {
-                if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
+                if (
+                        user.getId() == p.getUser() ||
+                                user.getRoles().contains("FORUM_ADMIN") ||
+                                user.getRoles().contains("SUPER_ADMIN")
+                ) {
                     if (p.getMedia() != null) {
                         for (PostMedia m : p.getMedia()) {
                             mediaService.delete(m.getId());
@@ -199,8 +270,6 @@ public class PostService implements IPostService {
         } else {
             return "Log in to delete th post!";
         }
-
-
     }
 
     @Override
@@ -210,30 +279,50 @@ public class PostService implements IPostService {
         List<Post> list = new ArrayList<>();
         list.add(post);
         incrementViews(request, list);
+        matchingService.addInterestsFromPost(request, post);
         return post;
     }
 
     @Override
     @Cacheable("post")
     public List<Post> getAllLazy(int page, int size, HttpServletRequest request) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        List<Post> list = new ArrayList<>();
-        if (request == null && request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            list = pagerepo.findAll(pageable).getContent();
+        PageRequest pageable = PageRequest.of(
+                page,
+                size
+        );
+
+        if (
+                request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            return pagerepo.findAll(pageable).getContent();
         } else {
-            list = matchingService.getPostsByUserInterests(pageable, request).getContent();
+            List<Post> list = matchingService.getPostsByUserInterests(pageable, request);
             this.incrementViews(request, list);
+            for (Post p : list) {
+                matchingService.addInterestsFromPost(request, p);
+            }
+            return list;
         }
-        return list;
 
     }
 
     @Override
     @Cacheable("post")
-    public List<Post> getByUserLazy(int page, int size, Long id, HttpServletRequest request) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+    public List<Post> getByUserLazy(
+            int page,
+            int size,
+            Long id,
+            HttpServletRequest request
+    ) {
+        PageRequest pageable = PageRequest.of(
+                page,
+                size
+        );
         List<Post> list = pagerepo.findByUser(pageable, id).getContent();
         this.incrementViews(request, list);
+        for (Post p : list) {
+            matchingService.addInterestsFromPost(request, p);
+        }
         return list;
     }
 
@@ -259,7 +348,9 @@ public class PostService implements IPostService {
             List<SyndEnclosure> enclosures = new ArrayList<>();
             for (PostMedia postMedia : post.getMedia()) {
                 SyndEnclosure enclosure = new SyndEnclosureImpl();
-                enclosure.setUrl("https://www.myforum.com/posts/media/" + postMedia.getId());
+                enclosure.setUrl(
+                        "https://www.myforum.com/posts/media/" + postMedia.getId()
+                );
                 enclosure.setType(postMedia.getType());
                 enclosure.setLength(postMedia.getContent().length);
                 enclosures.add(enclosure);
@@ -277,13 +368,18 @@ public class PostService implements IPostService {
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader != null) {
                 try {
-                    String user = (String) userService.getUserDetailsFromToken(authHeader).getUsername();
-                    list.forEach(post -> {
-                        if (viewsRepository.findByPostAndUser(post, user) == null) {
-                            viewsRepository.save(new PostViews(user, post, LocalDateTime.now()));
-                        }
-                        matchingService.addInterestsFromPost(request,post);
-                    });
+                    String user = (String) userService
+                            .getUserDetailsFromToken(authHeader)
+                            .getUsername();
+                    list.forEach(
+                            post -> {
+                                if (viewsRepository.findByPostAndUser(post, user) == null) {
+                                    viewsRepository.save(
+                                            new PostViews(user, post, LocalDateTime.now())
+                                    );
+                                }
+                            }
+                    );
                 } catch (JsonProcessingException ex) {
                     log.error("Error calling user service1: {}", ex.getMessage());
                 }
@@ -293,23 +389,39 @@ public class PostService implements IPostService {
 
     @Override
     @Cacheable("post")
-    public List<Post> searchPosts(String searchString, int page, int size, HttpServletRequest request) {
+    public List<Post> searchPosts(
+            String searchString,
+            int page,
+            int size,
+            HttpServletRequest request
+    ) throws IOException {
         List<Post> posts = repo.findAll();
         List<Post> matchingPosts = new ArrayList<>();
-        if (request == null && request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        if (
+                request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            PageRequest pageable = PageRequest.of(
+                    page,
+                    size,
+                    Sort.by("id").descending()
+            );
             for (Post post : posts) {
-                if (post.getTitle().contains(searchString) || post.getContent().contains(searchString)) {
+                if (
+                        post.getTitle().contains(searchString) ||
+                                post.getContent().contains(searchString)
+                ) {
                     matchingPosts.add(post);
                 }
             }
         } else {
-            matchingPosts = matchingService.getPostsByAdvancedSearch(searchString, page, size);
+            matchingPosts =
+                    matchingService.getPostsByAdvancedSearch(searchString, page, size);
+            for (Post p : matchingPosts) {
+                matchingService.addInterestsFromPost(request, p);
+            }
             incrementViews(request, matchingPosts);
         }
 
         return matchingPosts;
     }
-
-
 }

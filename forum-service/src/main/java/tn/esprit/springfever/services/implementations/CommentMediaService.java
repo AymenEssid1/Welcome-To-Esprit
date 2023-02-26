@@ -25,7 +25,7 @@ public class CommentMediaService implements ICommentMediaService {
 
     public CommentMedia save(MultipartFile file, Comment comment) throws Exception {
         String location = fileSystemRepository.save(file);
-        return repo.save(new CommentMedia(file.getOriginalFilename(), location, comment, file.getBytes()));
+        return repo.save(new CommentMedia(file.getOriginalFilename(), location, comment, file.getBytes(), file.getContentType()));
     }
     @Cacheable("commentMedia")
     public FileSystemResource find(Long imageId) {

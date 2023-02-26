@@ -90,7 +90,7 @@ public class PostController {
 
     @GetMapping(value = "/search")
     public ResponseEntity<List<Post>> search(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String keyword, HttpServletRequest request){
+                                             @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String keyword, HttpServletRequest request) throws IOException {
         return ResponseEntity.ok().body(service.searchPosts(keyword,page,size,request));
 
     }

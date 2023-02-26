@@ -1,5 +1,6 @@
 package tn.esprit.springfever.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -43,9 +44,8 @@ public class Post implements Serializable {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<PostMedia> media;
     @Transient
+    @JsonIgnore
     private double similarity;
-    @Transient
-    private int relevance;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<PostViews> views;

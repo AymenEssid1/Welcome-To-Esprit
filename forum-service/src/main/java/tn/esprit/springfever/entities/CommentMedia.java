@@ -30,17 +30,17 @@ public class CommentMedia implements Serializable {
     @Lob
     @JsonIgnore
     byte[] content;
-    @Enumerated(EnumType.STRING)
-    private MediaType type;
+    private String type;
 
     @ManyToOne
     @JsonIgnore
     private Comment comment;
 
-    public CommentMedia(String name, String location, Comment comment, byte[] content) {
+    public CommentMedia(String name, String location, Comment comment, byte[] content, String type) {
         this.name = name;
         this.location = location;
         this.comment = comment;
         this.content = content;
+        this.type=type;
     }
 }

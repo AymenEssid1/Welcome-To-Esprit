@@ -24,7 +24,7 @@ public class AdMediaService implements IAdMediaService {
     @Override
     public AdMedia save(MultipartFile file, Ad ad) throws Exception {
         String location = fileSystemRepository.save(file);
-        return repo.save(new AdMedia(file.getOriginalFilename(), location, ad, file.getBytes()));
+        return repo.save(new AdMedia(file.getOriginalFilename(), location, ad, file.getBytes(),file.getContentType()));
     }
 
     @Override
