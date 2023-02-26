@@ -1,6 +1,5 @@
 package tn.esprit.springfever.payload.request;
 
-import tn.esprit.springfever.entities.UserIntrests;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ public class SignUpRequest {
     private String email;
 
     private List<String> role;
-    private List<UserIntrests> interests;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -49,9 +47,6 @@ public class SignUpRequest {
 
     public List<String> getRole() {
         return this.role;
-    }
-    public List<UserIntrests> getInterests() {
-        return this.interests;
     }
 
     public void setRole(List<String> role) {

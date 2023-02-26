@@ -1,6 +1,7 @@
 package tn.esprit.springfever.controllers;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +27,7 @@ import tn.esprit.springfever.utils.CommentMediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 import tn.esprit.springfever.services.interfaces.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,8 +42,6 @@ public class CommentController {
     @Autowired
     private ICommentService service;
     @Autowired
-    private IPostService postService;
-    @Autowired
     private ICommentLikeService likeService;
     @Autowired
     private ICommentMediaService mediaService;
@@ -52,91 +52,30 @@ public class CommentController {
     @ApiOperation(value = "This method is used to add a post ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Comment> addPost(@RequestParam String comment, @RequestParam(name = "file", required = false) List<MultipartFile> images, Long postId) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        CommentDTO commentDTO = objectMapper.readValue(comment, CommentDTO.class);
-        Comment c = new Comment();
-        c.setContent(commentDTO.getContent());
-        c.setPost(postService.getSinglePost(postId, null));
-        Comment newP = service.addComment(c);
-        if (images != null) {
-            for (MultipartFile image : images) {
-                if (!image.isEmpty()) {
-                    try {
-                        CommentMedia savedImageData = mediaService.save(image, newP);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
-            }
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(newP);
+    public ResponseEntity<?> addPost(@RequestParam String comment, @RequestParam(name = "file", required = false) List<MultipartFile> images, @RequestParam Long postId, HttpServletRequest request) throws IOException {
+        return service.addComment(comment,images,postId,request);
     }
 
     @ApiOperation(value = "This method is used to delete a post ")
     @DeleteMapping(value = "/")
     @ResponseBody
-    public ResponseEntity<String> deletePost(Long id) {
-        Comment p = service.getSingleComment(id);
-        if (p != null) {
-            if (p.getMedia() != null) {
-                for (CommentMedia m : p.getMedia()) {
-                    mediaService.delete(m.getId());
-                }
-            }
-            service.deleteComment(p.getId());
-            return ResponseEntity.ok().body("Post deleted!");
+    public ResponseEntity<String> deletePost(Long id, HttpServletRequest authentication) throws JsonProcessingException {
+        String response = service.deleteComment(id, authentication);
+        if (response.equals("Comment deleted successfully")) {
+            return ResponseEntity.ok().body(response);
+        } else if (response.equals("Comment not found!")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
-        return ResponseEntity.notFound().build();
 
     }
 
     @ApiOperation(value = "This method is used to update a post ")
     @PutMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> updatePost(Long id, @RequestParam String post, @RequestParam(name = "file", required = false) List<MultipartFile> images) throws IOException {
-        Comment p = service.getSingleComment(id);
-        ObjectMapper objectMapper = new ObjectMapper();
-        PostDTO postDTO = objectMapper.readValue(post, PostDTO.class);
-        if (p != null) {
-            List<CommentMedia> mediaList = p.getMedia();
-            if (mediaList != null && images != null) {
-                Collections.sort(images, new MultipartFileSizeComparator());
-                Collections.sort(mediaList, new CommentMediaComparator());
-                for (CommentMedia m : new ArrayList<>(mediaList)) {
-                    for (MultipartFile f : new ArrayList<>(images)) {
-                        if (m.getContent().length == f.getBytes().length) {
-                            images.remove(f);
-                            mediaList.remove(m);
-                            break;
-                        }
-                    }
-
-                }
-                for (CommentMedia m : mediaList) {
-                    mediaService.delete(m.getId());
-                }
-            }
-            if (images != null) {
-                if (!images.isEmpty()) {
-                    for (MultipartFile image : images) {
-                        if (!image.isEmpty()) {
-                            try {
-                                CommentMedia savedImageData = mediaService.save(image, p);
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }
-                    }
-                }
-
-            }
-            p.setContent(postDTO.getContent());
-            service.updateComment(p.getId(), p);
-            return ResponseEntity.ok().body("Post updated!");
-        }
-        return ResponseEntity.notFound().build();
-
+    public ResponseEntity<?> updatePost(Long id, @RequestParam String comment, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest request) throws IOException {
+        return service.updateComment(id, comment, images, request);
     }
 
     @GetMapping(value = "/{id}")

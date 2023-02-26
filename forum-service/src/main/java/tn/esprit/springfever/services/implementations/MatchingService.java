@@ -36,13 +36,14 @@ public class MatchingService {
     private IUserService userService;
     @Autowired
     private InterestRepository interestRepository;
-    private static final String TOKENIZER_MODEL_PATH = "en-token.bin";
-    private static final String POS_MODEL_PATH = "en-pos-maxent.bin";
+    private static final String TOKENIZER_MODEL_PATH = "opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
+    private static final String POS_MODEL_PATH = "opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
     private static Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
     private static POSTaggerME posTagger;
-    static {
-        try (InputStream tokenizerModelStream = MatchingService.class.getResourceAsStream(TOKENIZER_MODEL_PATH);
-             InputStream posModelStream = MatchingService.class.getResourceAsStream(POS_MODEL_PATH)) {
+    private ClassLoader classLoader = getClass().getClassLoader();
+    public MatchingService(){
+        try (InputStream tokenizerModelStream = classLoader.getResourceAsStream(TOKENIZER_MODEL_PATH);
+             InputStream posModelStream = classLoader.getResourceAsStream(POS_MODEL_PATH)) {
             TokenizerModel tokenizerModel = new TokenizerModel(tokenizerModelStream);
             POSModel posModel = new POSModel(posModelStream);
             posTagger = new POSTaggerME(posModel);
@@ -71,13 +72,12 @@ public class MatchingService {
         if (request!=null && request.getHeader(HttpHeaders.AUTHORIZATION)!=null){
             UserDTO user = this.getLoggedInUSer(request);
             for (String topic : postTopics) {
-                Optional<UserInterest> userInterestOpt = interestRepository.findByUserAndTopic(user.getId(),topic);
-                if (userInterestOpt.isPresent()) {
+                UserInterest userInterest1 = interestRepository.findByUserAndTopic(user.getId(),topic);
+                if (userInterest1 !=null) {
                     // User already has an interest in this topic, update the weight
-                    UserInterest userInterest = userInterestOpt.get();
-                    double weightIncrement = calculateWeightIncrement(post, userInterest);
-                    userInterest.setWeight(userInterest.getWeight() + weightIncrement);
-                    interestRepository.save(userInterest);
+                    double weightIncrement = calculateWeightIncrement(post, userInterest1);
+                    userInterest1.setWeight(userInterest1.getWeight() + weightIncrement);
+                    interestRepository.save(userInterest1);
                 } else {
                     // User does not have an interest in this topic, create a new interest
                     UserInterest userInterest = new UserInterest();
@@ -263,7 +263,7 @@ public class MatchingService {
                 .collect(Collectors.toList());
 
         // Apply pagination
-        int fromIndex = (pageNumber - 1) * pageSize;
+        int fromIndex = pageNumber * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, sortedPosts.size());
         List<Post> pagePosts = sortedPosts.subList(fromIndex, toIndex);
 

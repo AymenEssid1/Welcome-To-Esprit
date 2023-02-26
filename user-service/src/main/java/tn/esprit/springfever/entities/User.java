@@ -47,10 +47,6 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "user")
-    private List<UserIntrests> intrests;
-
-
     public User() {
 
     }

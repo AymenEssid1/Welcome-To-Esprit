@@ -33,8 +33,6 @@ public class ProfanitiesService {
         // Add misspellings
         variations.addAll(generateMisspellings(word));
         Set<String> bannedWordsSet = new HashSet<String>(bannedWords.getBadWords());
-        // Add common replacements
-        variations.addAll(generateReplacements(word, bannedWordsSet,10));
         // Add acronyms
         variations.addAll(generateAcronyms(word,10));
 
@@ -72,6 +70,11 @@ public class ProfanitiesService {
         replacements.put('o', "0");
         replacements.put('s', "5");
         replacements.put('t', "7");
+        replacements.put('v', "u");
+        replacements.put('u', "v");
+        for (char j = 'a'; j <= 'z'; j++) {
+            replacements.put(j,"*");
+        }
         for (int i = 0; i < word.length(); i++) {
             char c = word.charAt(i);
             if (replacements.containsKey(c)) {
@@ -108,23 +111,6 @@ public class ProfanitiesService {
         return new ArrayList<>(misspellings);
     }
 
-
-
-    public List<String> generateReplacements(String word, Set<String> dictionary, int maxReplacements) {
-        List<String> replacements = new ArrayList<>();
-        for (int i = 0; i < word.length(); i++) {
-            for (char c = 'a'; c <= 'z'; c++) {
-                String replacement = word.substring(0, i) + c + word.substring(i + 1);
-                if (dictionary.contains(replacement)) {
-                    replacements.add(replacement);
-                    if (replacements.size() >= maxReplacements) {
-                        return replacements;
-                    }
-                }
-            }
-        }
-        return replacements;
-    }
 
     public List<String> generateAcronyms(String word, int maxAcronyms) {
         List<String> acronyms = new ArrayList<>();

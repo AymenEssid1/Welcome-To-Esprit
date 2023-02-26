@@ -282,6 +282,7 @@ public class PostService implements IPostService {
                         if (viewsRepository.findByPostAndUser(post, user) == null) {
                             viewsRepository.save(new PostViews(user, post, LocalDateTime.now()));
                         }
+                        matchingService.addInterestsFromPost(request,post);
                     });
                 } catch (JsonProcessingException ex) {
                     log.error("Error calling user service1: {}", ex.getMessage());

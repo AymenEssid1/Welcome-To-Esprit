@@ -14,7 +14,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import tn.esprit.springfever.entities.Role;
 import tn.esprit.springfever.entities.User;
-import tn.esprit.springfever.entities.UserIntrests;
 import tn.esprit.springfever.security.jwt.JwtUtils;
 
 import java.io.IOException;
@@ -39,9 +38,6 @@ public class RabbitMQMessageReceiver {
         JSONArray jsonIntrests = new JSONArray();
         obj.put("id", user.getId());
         obj.put("username", user.getUsername());
-        for (UserIntrests interests : user.getIntrests()){
-            jsonIntrests.add(interests.getName());
-        }
         for (Role role : user.getRoles()) {
             jsonRoles.add(role.getName());
         }
