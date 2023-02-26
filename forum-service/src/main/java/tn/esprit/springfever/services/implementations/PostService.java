@@ -65,94 +65,112 @@ public class PostService implements IPostService {
     private PostMediaService mediaService;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private MatchingService matchingService;
+
+    @Autowired
+    private ProfanitiesService profanitiesService;
 
 
     @Override
-    public Post addPost(String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException {
-        Post p = new Post();
-        p.setTitle(title);
-        p.setContent(content);
-        p.setTopic(topic);
-        p.setCreatedAt(LocalDateTime.now());
-        p.setUpdatedAt(LocalDateTime.now());
-        p.setUser(Long.valueOf(userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION)).getId()));
-        repo.save(p);
-        if (images != null) {
-            for (MultipartFile image : images) {
-                if (!image.isEmpty()) {
-                    try {
-                        PostMedia savedImageData = mediaService.save(image, p);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
+    public ResponseEntity<?> addPost(String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException {
+        if (profanitiesService.containsBannedWords(topic) || profanitiesService.containsBannedWords(content) || profanitiesService.containsBannedWords(title)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
+        } else if (authentication == null || authentication.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+        } else {
+            Post p = new Post();
+            p.setTitle(title);
+            p.setContent(content);
+            p.setTopic(topic);
+            p.setCreatedAt(LocalDateTime.now());
+            p.setUpdatedAt(LocalDateTime.now());
+            p.setUser(Long.valueOf(userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION)).getId()));
+            repo.save(p);
+            if (images != null) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        try {
+                            PostMedia savedImageData = mediaService.save(image, p);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                 }
             }
+            return ResponseEntity.status(HttpStatus.CREATED).body(p);
         }
-        return p;
+
     }
 
     @Override
     @CachePut("post")
-    public Post updatePost(Long id, String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws IOException {
-        Post p = repo.findById(Long.valueOf(id)).orElse(null);
-        UserDTO user = null;
-        if (authentication != null && authentication.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-            user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
-            if (p != null) {
-                if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
-                    p.setUpdatedAt(LocalDateTime.now());
-                    List<PostMedia> mediaList = p.getMedia();
-                    if (mediaList != null && images != null) {
-                        Collections.sort(images, new MultipartFileSizeComparator());
-                        Collections.sort(mediaList, new PostMediaComparator());
-                        for (PostMedia m : new ArrayList<>(mediaList)) {
-                            for (MultipartFile f : new ArrayList<>(images)) {
-                                if (m.getContent().length == f.getBytes().length) {
-                                    images.remove(f);
-                                    mediaList.remove(m);
-                                    break;
+    public ResponseEntity<?> updatePost(Long id, String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws IOException {
+        if (profanitiesService.containsBannedWords(topic) || profanitiesService.containsBannedWords(content) || profanitiesService.containsBannedWords(title)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
+        } else if (authentication == null || authentication.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+        } else {
+            Post p = repo.findById(Long.valueOf(id)).orElse(null);
+            UserDTO user = null;
+            if (authentication != null && authentication.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+                user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
+                if (p != null) {
+                    if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
+                        p.setUpdatedAt(LocalDateTime.now());
+                        List<PostMedia> mediaList = p.getMedia();
+                        if (mediaList != null && images != null) {
+                            Collections.sort(images, new MultipartFileSizeComparator());
+                            Collections.sort(mediaList, new PostMediaComparator());
+                            for (PostMedia m : new ArrayList<>(mediaList)) {
+                                for (MultipartFile f : new ArrayList<>(images)) {
+                                    if (m.getContent().length == f.getBytes().length) {
+                                        images.remove(f);
+                                        mediaList.remove(m);
+                                        break;
+                                    }
                                 }
-                            }
 
+                            }
+                            for (PostMedia m : mediaList) {
+                                mediaService.delete(m.getId());
+                            }
                         }
-                        for (PostMedia m : mediaList) {
-                            mediaService.delete(m.getId());
-                        }
-                    }
-                    if (images != null) {
-                        if (!images.isEmpty()) {
-                            for (MultipartFile image : images) {
-                                if (!image.isEmpty()) {
-                                    try {
-                                        PostMedia savedImageData = mediaService.save(image, p);
-                                    } catch (Exception e) {
-                                        System.out.println(e.getMessage());
+                        if (images != null) {
+                            if (!images.isEmpty()) {
+                                for (MultipartFile image : images) {
+                                    if (!image.isEmpty()) {
+                                        try {
+                                            PostMedia savedImageData = mediaService.save(image, p);
+                                        } catch (Exception e) {
+                                            System.out.println(e.getMessage());
+                                        }
                                     }
                                 }
                             }
+
                         }
-
+                        if (title != null) {
+                            p.setTitle(title);
+                        }
+                        if (content != null) {
+                            p.setContent(content);
+                        }
+                        if (topic != null) {
+                            p.setTopic(topic);
+                        }
+                        repo.save(p);
+                        return ResponseEntity.ok().body(p);
+                    } else {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"That's not yours to edit!\"}");
                     }
-                    if (title != null) {
-                        p.setTitle(title);
-                    }
-                    if (content != null) {
-                        p.setContent(content);
-                    }
-                    if (topic != null) {
-                        p.setTopic(topic);
-                    }
-                    repo.save(p);
-                    return p;
                 } else {
-                    return null;
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 }
-            } else {
-                return null;
-            }
 
-        } else {
-            return null;
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+            }
         }
     }
 
@@ -161,26 +179,26 @@ public class PostService implements IPostService {
     public String deletePost(Long post, HttpServletRequest authentication) throws IOException {
         Post p = repo.findById(Long.valueOf(post)).orElse(null);
 
-            if (authentication != null) {
-                UserDTO user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
-                if (p != null) {
-                    if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
-                        if (p.getMedia() != null) {
-                            for (PostMedia m : p.getMedia()) {
-                                mediaService.delete(m.getId());
-                            }
+        if (authentication != null) {
+            UserDTO user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
+            if (p != null) {
+                if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
+                    if (p.getMedia() != null) {
+                        for (PostMedia m : p.getMedia()) {
+                            mediaService.delete(m.getId());
                         }
-                        repo.delete(p);
-                        return "Post deleted successfully";
-                    } else {
-                        return "You can't delete this post!";
                     }
+                    repo.delete(p);
+                    return "Post deleted successfully";
                 } else {
-                    return "Post not found!";
+                    return "You can't delete this post!";
                 }
             } else {
-                return "Log in to delete th post!";
+                return "Post not found!";
             }
+        } else {
+            return "Log in to delete th post!";
+        }
 
 
     }
@@ -199,8 +217,13 @@ public class PostService implements IPostService {
     @Cacheable("post")
     public List<Post> getAllLazy(int page, int size, HttpServletRequest request) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        List<Post> list = pagerepo.findAll(pageable).getContent();
-        this.incrementViews(request, list);
+        List<Post> list = new ArrayList<>();
+        if (request == null && request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            list = pagerepo.findAll(pageable).getContent();
+        } else {
+            list = matchingService.getPostsByUserInterests(pageable, request).getContent();
+            this.incrementViews(request, list);
+        }
         return list;
 
     }
@@ -265,6 +288,26 @@ public class PostService implements IPostService {
                 }
             }
         }
+    }
+
+    @Override
+    @Cacheable("post")
+    public List<Post> searchPosts(String searchString, int page, int size, HttpServletRequest request) {
+        List<Post> posts = repo.findAll();
+        List<Post> matchingPosts = new ArrayList<>();
+        if (request == null && request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            for (Post post : posts) {
+                if (post.getTitle().contains(searchString) || post.getContent().contains(searchString)) {
+                    matchingPosts.add(post);
+                }
+            }
+        } else {
+            matchingPosts = matchingService.getPostsByAdvancedSearch(searchString, page, size);
+            incrementViews(request, matchingPosts);
+        }
+
+        return matchingPosts;
     }
 
 

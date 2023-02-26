@@ -44,6 +44,8 @@ public class Post implements Serializable {
     private List<PostMedia> media;
     @Transient
     private double similarity;
+    @Transient
+    private int relevance;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<PostViews> views;

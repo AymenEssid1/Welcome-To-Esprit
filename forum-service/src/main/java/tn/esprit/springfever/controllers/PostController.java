@@ -53,13 +53,7 @@ public class PostController {
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> addPost(@RequestParam String title, @RequestParam String content, @RequestParam String topic, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
-
-        if (authentication.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(service.addPost(title, content, topic, authentication, images));
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
-        }
-
+        return service.addPost(title, content, topic, authentication, images);
     }
 
     @ApiOperation(value = "This method is used to delete a post ")
@@ -81,12 +75,7 @@ public class PostController {
     @PutMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> updatePost(Long id, @RequestParam(required = false) String title, @RequestParam(required = false) String content, @RequestParam(required = false) String topic, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
-        Post p = service.updatePost(id, title, content, topic, authentication, images);
-        if (p == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } else {
-            return ResponseEntity.ok().body(p);
-        }
+        return service.updatePost(id, title, content, topic, authentication, images);
     }
 
     @GetMapping(value = "/")
@@ -97,6 +86,13 @@ public class PostController {
         } else {
             return ResponseEntity.ok().body(service.getAllLazy(page, size, request));
         }
+    }
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<List<Post>> search(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String keyword, HttpServletRequest request){
+        return ResponseEntity.ok().body(service.searchPosts(keyword,page,size,request));
+
     }
 
     @GetMapping(value = "/{id}")
