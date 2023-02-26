@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Entity
@@ -19,7 +20,9 @@ public class Job_Application implements Serializable  {
 
 
     private Long Id_Job_Application ;
+    //@NotBlank(message = "Le champ 'location_Cv' ne peut pas être vide.")
      private String location_Cv ;
+    //@NotBlank(message = "Le champ 'location_LettreMotivation' ne peut pas être vide.")
     private String location_LettreMotivation;
 
     @Lob

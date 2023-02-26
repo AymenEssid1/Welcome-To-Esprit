@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,6 +20,9 @@ public class Job_Offer implements Serializable {
     @Getter
     @Setter
     private Long Id_Job_Offer ;
+    @NotBlank(message = "Le titre ne peut pas être vide.")
+    private String Title ;
+    @NotBlank(message = "Le sujet ne peut pas être vide.")
     private String Subject ;
 
     @ManyToOne

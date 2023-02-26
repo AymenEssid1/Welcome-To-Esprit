@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
@@ -29,7 +30,7 @@ public class JobRdvController {
 
 
     @PostMapping("addJobRDV/")
-    public Job_RDV addJobRDV(@RequestBody Job_RDV job_rdv){
+    public Job_RDV addJobRDV(@Validated @RequestBody Job_RDV job_rdv){
         return iJobRDV.addJobRDV(job_rdv);
 
     }

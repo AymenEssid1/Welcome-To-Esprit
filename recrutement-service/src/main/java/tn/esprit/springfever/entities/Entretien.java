@@ -7,6 +7,7 @@ import lombok.ToString;
 import tn.esprit.springfever.enums.Entretien_Res;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 @Entity
 @ToString
@@ -18,8 +19,14 @@ public class Entretien implements Serializable {
     @Setter
 
     private Long ID_Job_Entretien ;
+    @NotNull(message = "La note ne peut pas être nulle.")
+    @Min(value = 0, message = "La note doit être supérieure ou égale à 0.")
+    @Max(value = 20, message = "La note doit être inférieure ou égale à 20.")
     private Long Note;
+    @NotBlank(message = "L'appréciation ne peut pas être vide.")
+    @Size(max = 255, message = "L'appréciation ne peut pas dépasser {max} caractères.")
     private String Appreciation ;
+    @NotNull(message = "Le résultat ne peut pas être nul.")
     @Enumerated(EnumType.STRING)
     private Entretien_Res Resultat ;
     @ManyToOne

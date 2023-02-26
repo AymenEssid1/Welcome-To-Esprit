@@ -1,6 +1,7 @@
 package tn.esprit.springfever.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.Services.Interfaces.IEntretien;
 import tn.esprit.springfever.entities.Entretien;
@@ -16,7 +17,7 @@ public class EntretienController {
 
 
     @PostMapping("addEntretien/")
-    public Entretien AddEntretien(@RequestBody Entretien entretien){
+    public Entretien AddEntretien(@Validated @RequestBody Entretien entretien){
         return iEntretien.AddEntretien(entretien);
 
 

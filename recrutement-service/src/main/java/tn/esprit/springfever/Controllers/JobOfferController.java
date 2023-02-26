@@ -4,6 +4,7 @@ import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.Services.Interfaces.IJobOffer;
 import tn.esprit.springfever.entities.Job_Offer;
@@ -15,7 +16,7 @@ public class JobOfferController  {
     @Autowired
     IJobOffer iJobOffer;
     @PostMapping("addJobOffer/")
-    public Job_Offer addJobOffer(@RequestBody Job_Offer job_offer){
+    public Job_Offer addJobOffer(@Validated @RequestBody Job_Offer job_offer){
         return iJobOffer.addJobOffer(job_offer);
 
     }

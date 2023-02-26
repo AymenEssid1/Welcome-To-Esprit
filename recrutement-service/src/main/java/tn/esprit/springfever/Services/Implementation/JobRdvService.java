@@ -200,6 +200,7 @@ public class JobRdvService implements IJobRDV {
             }
         }
         if (possibleStartTimes.isEmpty()) {
+
             return juryPreferredDateTime;
         }
 
