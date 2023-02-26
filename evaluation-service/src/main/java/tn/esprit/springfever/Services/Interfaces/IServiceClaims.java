@@ -7,6 +7,7 @@ import weka.core.Instances;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface IServiceClaims {
 
@@ -19,8 +20,7 @@ public interface IServiceClaims {
  public Claim treatClaim( Long id , String descision);
  public long getTimeTreatmentClaim(Long id );
  public long predicateTreatmetnClaim(Long id ) ;
-
-
+ public String analyzeSentiment(String text) ;
 
 
 }

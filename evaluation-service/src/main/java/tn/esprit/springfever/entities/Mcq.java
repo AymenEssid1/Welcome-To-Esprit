@@ -14,6 +14,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +31,7 @@ public class Mcq implements Serializable {
     private int Duration ;
     @ManyToMany(cascade = CascadeType.ALL )
     @JsonIgnore
-    private List<Question> questions;
+     private List<Question> questions ;
 }
 
 

@@ -72,6 +72,12 @@ public class ClaimController {
         Long predictedPeriod = iServiceClaims.predicateTreatmetnClaim(id);
         return ResponseEntity.ok(predictedPeriod);
     }
+
+    @PostMapping("/sentiment")
+    public ResponseEntity<String> analyzeSentiment(@RequestBody String text) {
+        String sentiment = iServiceClaims.analyzeSentiment(text);
+        return ResponseEntity.ok(sentiment);
+    }
 }
 
 

@@ -13,6 +13,7 @@ public interface IServiceMcq {
         Mcq updateMcq(Long idMcq, Mcq mcq);
         Mcq getMcq(Long idMcq);
         Mcq generateMcq(String diplomaTitle) throws IOException ;
+       // Mcq generateMcq(String diplomaTitle) throws IOException ;
 
 }
 

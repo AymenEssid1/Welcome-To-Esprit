@@ -15,7 +15,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findAllByMcqsIdMcq(Long mcqs_idMcq) ;
     @Query("SELECT q FROM Question q WHERE q.ennonce LIKE %:keyword% OR q.option1 LIKE %:keyword% OR q.option2 LIKE %:keyword% OR q.option3 LIKE %:keyword% OR q.answer LIKE %:keyword%")
-    List<Question> findByKeywords(@Param("keyword") String[] keywords);
+    List<Question> findByKeywords(@Param("keyword") String keywords);
 
  
 }

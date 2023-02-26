@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import   tn.esprit.springfever.Services.Interfaces.*;
 import tn.esprit.springfever.entities.Mcq;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -45,7 +46,11 @@ public class McqController {
         return ResponseEntity.ok(mcqService.deleteMcq(idMcq));
     }
 
-    
+    @PostMapping("/generate/{diplomaTitle}")
+    public Mcq generateMcq(@PathVariable String diplomaTitle) throws IOException {
+        return mcqService.generateMcq(diplomaTitle);
+    }
+
 
 
 }

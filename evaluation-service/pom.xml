@@ -301,10 +301,22 @@
             <version>3.8.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>4.5.1</version>
+        </dependency>
 
 
+        <dependency>
+            <groupId>com.github.apanimesh061</groupId>
+            <artifactId>vader-sentiment-analyzer</artifactId>
+            <version>1.0</version>
+        </dependency>
 
-    </dependencies>
+
+</dependencies>
 
     <build>
         <plugins>

@@ -15,6 +15,7 @@ import tn.esprit.springfever.repositories.QuestionRepository;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,18 +68,31 @@ public class ServiceMcqImpl implements IServiceMcq {
     @Override
     public Mcq generateMcq(String diplomaTitle) throws IOException {
         // Tokenize the diploma title
-        InputStream modelIn = new FileInputStream("en-token.bin");
+        InputStream modelIn = new FileInputStream("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\en-token.bin");
         TokenizerModel model = new TokenizerModel(modelIn);
         Tokenizer tokenizer = new TokenizerME(model);
         String[] tokens = tokenizer.tokenize(diplomaTitle);
 
+
+
         // Retrieve questions containing any of the keywords
-        List<Question> matchingQuestions = questionRepository.findByKeywords(tokens);
+        List<Question> matchingQuestions   =new ArrayList<>();
+        //= questionRepository.findByKeywords(tokens);
+
+        for(String s : tokens) {
+            List<Question> listeQuestionsFromS = questionRepository.findByKeywords(s) ;
+            for (Question q : listeQuestionsFromS) {
+                if(!((matchingQuestions.contains(q)))){
+                    matchingQuestions.add(q) ;
+                }
+            }
+        }
 
         // Randomly select up to 5 questions from the matching questions
         Collections.shuffle(matchingQuestions);
         int numQuestions = Math.min(5, matchingQuestions.size());
         List<Question> selectedQuestions = matchingQuestions.subList(0, numQuestions);
+
 
         // Create a new MCQ
         Mcq mcq = new Mcq();
@@ -87,9 +101,15 @@ public class ServiceMcqImpl implements IServiceMcq {
 
         // Add the selected questions to the MCQ
         mcq.setQuestions(selectedQuestions);
+// Set the MCQ for each selected question
+        for (Question question : selectedQuestions) {
+            question.getMcqs().add(mcq);
+         }
+        System.out.println("************* " +selectedQuestions.size());
+        mcqRepository.save(mcq) ;
 
         // Save the MCQ to the database
-        return mcqRepository.save(mcq);
+        return mcq;
 
 
     }

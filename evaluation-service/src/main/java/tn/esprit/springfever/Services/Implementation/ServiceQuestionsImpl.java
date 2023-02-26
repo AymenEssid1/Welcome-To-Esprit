@@ -2,9 +2,14 @@ package tn.esprit.springfever.Services.Implementation;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Interfaces.IServiceQuestion;
 import tn.esprit.springfever.entities.Faq;
 import tn.esprit.springfever.entities.FaqCategory;
@@ -13,6 +18,8 @@ import tn.esprit.springfever.entities.Question;
 import tn.esprit.springfever.enums.Faq_Category_enum;
 import tn.esprit.springfever.repositories.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,6 +93,35 @@ public class ServiceQuestionsImpl implements IServiceQuestion {
 
 
         return false;
+    }
+
+    @Override
+    public List<Question> importQuestionsFromExcel(MultipartFile file) throws IOException {
+
+
+        List<Question> questions = new ArrayList<>();
+
+        // Load the Excel file using Apache POI
+        Workbook workbook = new  XSSFWorkbook(file.getInputStream()) {
+        };
+
+        // Get the first sheet of the workbook
+        Sheet sheet = workbook.getSheetAt(0);
+
+        // Loop through the rows of the sheet
+        for (Row row : sheet) {
+            Question question = new Question();
+            // Set the properties of the Question object based on the cell values in the row
+            question.setEnnonce(row.getCell(0).getStringCellValue());
+            question.setOption1(row.getCell(1).getStringCellValue());
+            question.setOption2(row.getCell(2).getStringCellValue());
+            question.setOption3(row.getCell(3).getStringCellValue());
+            question.setAnswer(row.getCell(4).getStringCellValue());
+            questions.add(question);
+        }
+        // Save the list of questions to the database
+        questionRepository.saveAll(questions);
+        return questions ;
     }
 
 

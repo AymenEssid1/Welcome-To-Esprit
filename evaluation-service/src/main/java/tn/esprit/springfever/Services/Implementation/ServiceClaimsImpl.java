@@ -1,30 +1,52 @@
 package tn.esprit.springfever.Services.Implementation;
 
 
+
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+
+ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.CoreMap;
 import lombok.extern.slf4j.Slf4j;
+import java.lang.System ;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
+import tn.esprit.springfever.analyzer.SentimentAnalyzer;
+import tn.esprit.springfever.analyzer.SentimentPolarities;
 import tn.esprit.springfever.entities.Claim;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
+import edu.stanford.nlp.sentiment.SentimentTraining ;
+
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instances;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStream;
+import java.util.*;
+
+import java.util.Properties;
+
 
 @Service
 @Slf4j
@@ -39,6 +61,22 @@ public class ServiceClaimsImpl implements IServiceClaims {
     @Autowired
     JavaMailSender javaMailSender;
 
+
+@Override
+    public String analyzeSentiment(String text) {
+    final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(
+            text);
+    System.out.println(sentimentPolarities);
+        return "PositivePolarity: " + sentimentPolarities.getPositivePolarity() +
+                "NegativePolarity: " + sentimentPolarities.getNegativePolarity()+
+                "NeutralPolarity: " + sentimentPolarities.getNeutralPolarity() +
+                "CompoundPolarity: " + sentimentPolarities.getCompoundPolarity() ;
+    }
+
+
+
+
+
     @Override
     public Claim addClaim(Claim claim) throws IOException {
         // Send email notification to user
@@ -52,9 +90,13 @@ public class ServiceClaimsImpl implements IServiceClaims {
         return claim;
     }
 
+
+    // pagination
     @Override
     public List<Claim> getAllClaims() {
-        return claimRepository.findAll();
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        Page<Claim> claimPage = claimRepository.findAll(pageRequest);
+        return claimPage.getContent();
     }
 
 
@@ -154,6 +196,11 @@ public class ServiceClaimsImpl implements IServiceClaims {
         return avg ;
 
     }
+
+
+
+
+
 
 
 
