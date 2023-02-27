@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ICommentService {
-    public ResponseEntity<?> addComment(String comment, List<MultipartFile> images, Long postId, HttpServletRequest request);
+    public ResponseEntity<?> addComment(String comment, List<MultipartFile> images, Long postId, HttpServletRequest request) throws JsonProcessingException;
     public ResponseEntity<?> updateComment(Long id, String comment, List<MultipartFile> images, HttpServletRequest authentication) throws IOException;
     public String deleteComment(Long comment, HttpServletRequest request) throws JsonProcessingException;
     public Comment getSingleComment(Long id);

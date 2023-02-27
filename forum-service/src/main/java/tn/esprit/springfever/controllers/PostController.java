@@ -80,7 +80,7 @@ public class PostController {
     @GetMapping(value = "/search")
     public ResponseEntity<List<Post>> search(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String keyword, HttpServletRequest request) throws IOException {
-        return ResponseEntity.ok().body(service.searchPosts(keyword,page,size,request));
+        return ResponseEntity.ok().body(service.searchPosts(keyword, page, size, request));
 
     }
 
@@ -112,27 +112,23 @@ public class PostController {
     @PostMapping(value = "/like")
     @ResponseBody
     public ResponseEntity<?> like(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
-        Object response = service.likePost(reaction,post,request);
-        if (response.getClass() == String.class){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }else{
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
+        Object response = service.likePost(reaction, post, request);
+        return ResponseEntity.ok().body(response);
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
     @DeleteMapping(value = "/like")
-    public ResponseEntity<String> dislike(Long id, HttpServletRequest request) throws JsonProcessingException {
-        return ResponseEntity.ok().body(service.deleteReaction(id, request));
+    public ResponseEntity<String> dislike(Long post, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteReaction(post, request));
     }
 
     @PutMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<?> change(Long id,Long reaction, HttpServletRequest request) {
-        Object response = service.changeReaction(id,reaction,request);
-        if (response.getClass() == String.class){
+    public ResponseEntity<?> change(Long post, Long reaction, HttpServletRequest request) {
+        Object response = service.changeReaction(post, reaction, request);
+        if (response.getClass() == String.class) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
     }

@@ -115,16 +115,18 @@ public class PostService implements IPostService {
                     )
             );
             if (images != null) {
+                List<Media> listM = new ArrayList<>();
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         try {
                             Media savedImageData = mediaService.save(image);
-                            p.getMedia().add(savedImageData);
+                            listM.add(savedImageData);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
                     }
                 }
+                p.setMedia(listM);
             }
             repo.save(p);
             return ResponseEntity.status(HttpStatus.CREATED).body(p);
@@ -422,56 +424,58 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Object likePost (Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
-        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION)!=null){
+    public Object likePost(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             UserDTO user = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
             Likes like = new Likes();
             like.setUser(user.getId());
+            like.setCreatedAt(LocalDateTime.now());
+            like.setUpdatedAt(LocalDateTime.now());
             like.setType(reactionRepository.findById(reaction).orElse(null));
             boolean liked = false;
             Post p = repo.findById(post).orElse(null);
-            for (Likes pl : p.getLikes()){
-                if(pl.getUser() == user.getId()){
+            for (Likes pl : p.getLikes()) {
+                if (pl.getUser() == user.getId()) {
                     liked = true;
                 }
                 log.warn("already liked!");
             }
-            if (!liked){
+            if (!liked) {
 
-                if (p!=null){
+                if (p != null) {
                     p.getLikes().add(like);
                     repo.save(p);
-                    return likesService.addLike(like);
-                }else{
+                    return "Liked!";
+                } else {
                     return "The post you're trying to react to is not found!";
                 }
-            }else{
+            } else {
                 return "You already reacted to this post!";
             }
-        }else{
+        } else {
             return "You have to login to react to a post";
         }
 
     }
 
     @Override
-    public Object changeReaction (Long id,Long reaction, HttpServletRequest request){
+    public Object changeReaction(Long id, Long reaction, HttpServletRequest request) {
         Object ret = null;
         try {
-            if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION)!=null)
-            ret = likesService.updatePostLike(id, reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
-        }catch (Exception e){
+            if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null)
+                ret = likesService.updatePostLike(repo.findById(id).orElse(null), reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        } catch (Exception e) {
             ret = "Error";
         }
         return ret;
     }
 
     @Override
-    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException {
-        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION)==null){
+    public String deleteReaction(Long postId, HttpServletRequest request) throws JsonProcessingException {
+        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
             return "You have to login";
-        }else{
-            return  likesService.deletePostLike(id, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        } else {
+            return likesService.deletePostLike(repo.findById(postId).orElse(null), userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
         }
     }
 }

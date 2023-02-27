@@ -52,49 +52,91 @@ public class CommentService implements ICommentService {
     private CommentPagingRepository pagingRepository;
 
     @Override
-    public ResponseEntity<?> addComment(String comment, List<MultipartFile> images, Long postId, HttpServletRequest request) {
-        if (profanitiesService.containsBannedWords(comment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
-        } else if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+    public ResponseEntity<?> addComment(String comment, List<MultipartFile> images, Long postId, HttpServletRequest authentication) throws JsonProcessingException {
+        if (
+                profanitiesService.containsBannedWords(comment)
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            "{\"Message\": \"Please check your post! We do not allow bad language\"}"
+                    );
+        } else if (
+                authentication == null ||
+                        authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("{\"Message\": \"Login or sign up to post!\"}");
         } else {
-            Comment c = new Comment();
-            c.setContent(comment);
-            c.setPost(postService.getSinglePost(postId, null));
-            c.setCreatedAt(LocalDateTime.now());
-            c.setUpdatedAt(LocalDateTime.now());
-            Comment newC = repo.save(c);
+            Comment p = new Comment();
+            p.setContent(comment);
+            p.setCreatedAt(LocalDateTime.now());
+            p.setPost(postService.getSinglePost(postId,authentication));
+            p.setUpdatedAt(LocalDateTime.now());
+            p.setUser(
+                    Long.valueOf(
+                            userService
+                                    .getUserDetailsFromToken(
+                                            authentication.getHeader(HttpHeaders.AUTHORIZATION)
+                                    )
+                                    .getId()
+                    )
+            );
             if (images != null) {
+                List<Media> listM = new ArrayList<>();
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         try {
                             Media savedImageData = mediaService.save(image);
-                            newC.getMedia().add(savedImageData);
+                            listM.add(savedImageData);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
                     }
                 }
+                p.setMedia(listM);
             }
-            repo.save(newC);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newC);
+            repo.save(p);
+            return ResponseEntity.status(HttpStatus.CREATED).body(p);
         }
     }
 
     @Override
     @CachePut("comment")
     public ResponseEntity<?> updateComment(Long id, String comment, List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
-        if (profanitiesService.containsBannedWords(comment)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Please check your post! We do not allow bad language\"}");
-        } else if (authentication == null || authentication.getHeader(HttpHeaders.AUTHORIZATION) == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+        if (
+                profanitiesService.containsBannedWords(comment)
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            "{\"Message\": \"Please check your post! We do not allow bad language\"}"
+                    );
+        } else if (
+                authentication == null ||
+                        authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("{\"Message\": \"Login or sign up to post!\"}");
         } else {
             Comment p = repo.findById(Long.valueOf(id)).orElse(null);
             UserDTO user = null;
-            if (authentication != null && authentication.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-                user = userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION));
+            if (
+                    authentication != null &&
+                            authentication.getHeader(HttpHeaders.AUTHORIZATION) != null
+            ) {
+                user =
+                        userService.getUserDetailsFromToken(
+                                authentication.getHeader(HttpHeaders.AUTHORIZATION)
+                        );
                 if (p != null) {
-                    if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
+                    if (
+                            user.getId() == p.getUser() ||
+                                    user.getRoles().contains("FORUM_ADMIN") ||
+                                    user.getRoles().contains("SUPER_ADMIN")
+                    ) {
                         p.setUpdatedAt(LocalDateTime.now());
                         List<Media> mediaList = p.getMedia();
                         if (mediaList != null && images != null) {
@@ -126,7 +168,6 @@ public class CommentService implements ICommentService {
                                     }
                                 }
                             }
-
                         }
                         if (comment != null) {
                             p.setContent(comment);
@@ -134,14 +175,17 @@ public class CommentService implements ICommentService {
                         repo.save(p);
                         return ResponseEntity.ok().body(p);
                     } else {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"That's not yours to edit!\"}");
+                        return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body("{\"Message\": \"That's not yours to edit!\"}");
                     }
                 } else {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 }
-
             } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"Message\": \"Login or sign up to post!\"}");
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .body("{\"Message\": \"Login or sign up to post!\"}");
             }
         }
     }
@@ -185,21 +229,31 @@ public class CommentService implements ICommentService {
             UserDTO user = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
             Likes like = new Likes();
             like.setUser(user.getId());
+            like.setCreatedAt(LocalDateTime.now());
+            like.setUpdatedAt(LocalDateTime.now());
             like.setType(reactionRepository.findById(reaction).orElse(null));
-            if (!likesService.findByUser(user.getId()).contains(like)) {
-                Comment p = repo.findById(comment).orElse(null);
+            boolean liked = false;
+            Comment p = repo.findById(comment).orElse(null);
+            for (Likes pl : p.getLikes()) {
+                if (pl.getUser() == user.getId()) {
+                    liked = true;
+                }
+                log.warn("already liked!");
+            }
+            if (!liked) {
+
                 if (p != null) {
                     p.getLikes().add(like);
                     repo.save(p);
-                    return likesService.addLike(like);
+                    return "Liked!";
                 } else {
-                    return "The comment you're trying to react to is not found!";
+                    return "The post you're trying to react to is not found!";
                 }
             } else {
-                return "You already reacted to this comment!";
+                return "You already reacted to this post!";
             }
         } else {
-            return "You have to login to react to a comment";
+            return "You have to login to react to a post";
         }
     }
 
@@ -208,7 +262,7 @@ public class CommentService implements ICommentService {
         Object ret = null;
         try {
             if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null)
-                ret = likesService.updatePostLike(id, reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+                ret = likesService.updateCommentLike(repo.findById(id).orElse(null), reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
         } catch (Exception e) {
             ret = "Error";
         }
@@ -216,11 +270,11 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException {
+    public String deleteReaction(Long commentId, HttpServletRequest request) throws JsonProcessingException {
         if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
             return "You have to login";
         } else {
-            return likesService.deletePostLike(id, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+            return likesService.deleteCommentLike(repo.findById(commentId).orElse(null), userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
         }
     }
 

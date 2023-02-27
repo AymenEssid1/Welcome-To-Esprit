@@ -97,23 +97,19 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> like(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
         Object response = service.likeComment(reaction,post,request);
-        if (response.getClass() == String.class){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }else{
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
+        return ResponseEntity.ok().body(response);
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
     @DeleteMapping(value = "/like")
-    public ResponseEntity<String> dislike(Long id, HttpServletRequest request) throws JsonProcessingException {
-        return ResponseEntity.ok().body(service.deleteReaction(id, request));
+    public ResponseEntity<String> dislike(Long comment, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteReaction(comment, request));
     }
 
     @PutMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<?> change(Long id,Long reaction, HttpServletRequest request) {
-        Object response = service.changeReaction(id,reaction,request);
+    public ResponseEntity<?> change(Long comment,Long reaction, HttpServletRequest request) {
+        Object response = service.changeReaction(comment,reaction,request);
         if (response.getClass() == String.class){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }else{
