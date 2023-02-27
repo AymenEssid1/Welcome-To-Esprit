@@ -2,7 +2,6 @@ package tn.esprit.springfever.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,20 +16,12 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.springfever.dto.CommentDTO;
-import tn.esprit.springfever.dto.PostDTO;
 import tn.esprit.springfever.entities.Comment;
-import tn.esprit.springfever.entities.CommentLike;
-import tn.esprit.springfever.entities.CommentMedia;
-import tn.esprit.springfever.services.interfaces.*;
-import tn.esprit.springfever.utils.CommentMediaComparator;
-import tn.esprit.springfever.utils.MultipartFileSizeComparator;
+import tn.esprit.springfever.entities.Likes;
 import tn.esprit.springfever.services.interfaces.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -41,10 +32,9 @@ import java.util.List;
 public class CommentController {
     @Autowired
     private ICommentService service;
+
     @Autowired
-    private ICommentLikeService likeService;
-    @Autowired
-    private ICommentMediaService mediaService;
+    private IMediaService mediaService;
 
     @Autowired
     private IReactionService reactionService;
@@ -101,27 +91,34 @@ public class CommentController {
     /**
      * The Likes part is implemented here
      **/
+
     @ApiOperation(value = "This method is used to like a post ")
     @PostMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<CommentLike> like(Long user, Long postId, Long reaction) {
-        CommentLike pl = new CommentLike();
-        pl.setType(reactionService.getById(reaction));
-        pl.setComment(service.getSingleComment(postId));
-        pl.setUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(likeService.addCommentLike(pl));
+    public ResponseEntity<?> like(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
+        Object response = service.likeComment(reaction,post,request);
+        if (response.getClass() == String.class){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
-    @DeleteMapping(value = "/dislike")
-    public ResponseEntity<String> dislike(Long id) {
-        return ResponseEntity.ok().body(likeService.deleteCommentLike(id));
+    @DeleteMapping(value = "/like")
+    public ResponseEntity<String> dislike(Long id, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteReaction(id, request));
     }
 
     @PutMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<CommentLike> change(Long id, Long reaction) {
-        return ResponseEntity.ok().body(likeService.updateCommentLike(id, reaction));
+    public ResponseEntity<?> change(Long id,Long reaction, HttpServletRequest request) {
+        Object response = service.changeReaction(id,reaction,request);
+        if (response.getClass() == String.class){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
     }
 
 

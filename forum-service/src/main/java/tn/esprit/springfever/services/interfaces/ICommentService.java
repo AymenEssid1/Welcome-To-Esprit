@@ -14,4 +14,7 @@ public interface ICommentService {
     public ResponseEntity<?> updateComment(Long id, String comment, List<MultipartFile> images, HttpServletRequest authentication) throws IOException;
     public String deleteComment(Long comment, HttpServletRequest request) throws JsonProcessingException;
     public Comment getSingleComment(Long id);
+    public Object likeComment (Long reaction, Long comment, HttpServletRequest request) throws JsonProcessingException;
+    public Object changeReaction (Long id,Long reaction, HttpServletRequest request);
+    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException;
 }

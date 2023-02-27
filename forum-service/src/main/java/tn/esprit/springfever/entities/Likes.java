@@ -2,11 +2,12 @@ package tn.esprit.springfever.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "PostLike")
+@Table(name = "Likes")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,18 +15,14 @@ import java.io.Serializable;
 @ToString
 @Data
 @EqualsAndHashCode
-public class PostLike implements Serializable {
+public class Likes implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private int user;
+    @Column(name = "like_id")
+    private Long likeId;
     @ManyToOne
-    @JoinColumn(name = "reaction_type")
+    @JoinColumn(name = "reaction_id")
     private Reaction type;
-    @ManyToOne
-    @JsonIgnore
-    private Post post;
 
-
+    private Long user;
 }

@@ -12,18 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.UserDTO;
-import tn.esprit.springfever.entities.Comment;
-import tn.esprit.springfever.entities.CommentMedia;
-import tn.esprit.springfever.entities.Post;
-import tn.esprit.springfever.entities.PostMedia;
+import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.CommentPagingRepository;
 import tn.esprit.springfever.repositories.CommentRepository;
-import tn.esprit.springfever.services.interfaces.ICommentMediaService;
+import tn.esprit.springfever.repositories.ReactionRepository;
 import tn.esprit.springfever.services.interfaces.ICommentService;
+import tn.esprit.springfever.services.interfaces.ILikesService;
+import tn.esprit.springfever.services.interfaces.IMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
-import tn.esprit.springfever.utils.CommentMediaComparator;
+import tn.esprit.springfever.utils.MediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
-import tn.esprit.springfever.utils.PostMediaComparator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -40,11 +38,15 @@ public class CommentService implements ICommentService {
     @Autowired
     private IPostService postService;
     @Autowired
-    private ICommentMediaService mediaService;
+    private IMediaService mediaService;
     @Autowired
     private ProfanitiesService profanitiesService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ILikesService likesService;
+    @Autowired
+    private ReactionRepository reactionRepository;
 
     @Autowired
     private CommentPagingRepository pagingRepository;
@@ -66,13 +68,15 @@ public class CommentService implements ICommentService {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         try {
-                            CommentMedia savedImageData = mediaService.save(image, newC);
+                            Media savedImageData = mediaService.save(image);
+                            newC.getMedia().add(savedImageData);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
                     }
                 }
             }
+            repo.save(newC);
             return ResponseEntity.status(HttpStatus.CREATED).body(newC);
         }
     }
@@ -92,11 +96,11 @@ public class CommentService implements ICommentService {
                 if (p != null) {
                     if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
                         p.setUpdatedAt(LocalDateTime.now());
-                        List<CommentMedia> mediaList = p.getMedia();
+                        List<Media> mediaList = p.getMedia();
                         if (mediaList != null && images != null) {
                             Collections.sort(images, new MultipartFileSizeComparator());
-                            Collections.sort(mediaList, new CommentMediaComparator());
-                            for (CommentMedia m : new ArrayList<>(mediaList)) {
+                            Collections.sort(mediaList, new MediaComparator());
+                            for (Media m : new ArrayList<>(mediaList)) {
                                 for (MultipartFile f : new ArrayList<>(images)) {
                                     if (m.getContent().length == f.getBytes().length) {
                                         images.remove(f);
@@ -105,8 +109,8 @@ public class CommentService implements ICommentService {
                                     }
                                 }
                             }
-                            for (CommentMedia m : mediaList) {
-                                mediaService.delete(m.getId());
+                            for (Media m : mediaList) {
+                                mediaService.delete(m.getMediaId());
                             }
                         }
                         if (images != null) {
@@ -114,7 +118,8 @@ public class CommentService implements ICommentService {
                                 for (MultipartFile image : images) {
                                     if (!image.isEmpty()) {
                                         try {
-                                            CommentMedia savedImageData = mediaService.save(image, p);
+                                            Media savedImageData = mediaService.save(image);
+                                            p.getMedia().add(savedImageData);
                                         } catch (Exception e) {
                                             System.out.println(e.getMessage());
                                         }
@@ -151,8 +156,8 @@ public class CommentService implements ICommentService {
             if (p != null) {
                 if (user.getId() == p.getUser() || user.getRoles().contains("FORUM_ADMIN") || user.getRoles().contains("SUPER_ADMIN")) {
                     if (p.getMedia() != null) {
-                        for (CommentMedia m : p.getMedia()) {
-                            mediaService.delete(m.getId());
+                        for (Media m : p.getMedia()) {
+                            mediaService.delete(m.getMediaId());
                         }
                     }
                     repo.delete(p);
@@ -172,6 +177,51 @@ public class CommentService implements ICommentService {
     @Cacheable("comment")
     public Comment getSingleComment(Long id) {
         return repo.findById(id).orElse(null);
+    }
+
+    @Override
+    public Object likeComment(Long reaction, Long comment, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            UserDTO user = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            Likes like = new Likes();
+            like.setUser(user.getId());
+            like.setType(reactionRepository.findById(reaction).orElse(null));
+            if (!likesService.findByUser(user.getId()).contains(like)) {
+                Comment p = repo.findById(comment).orElse(null);
+                if (p != null) {
+                    p.getLikes().add(like);
+                    repo.save(p);
+                    return likesService.addLike(like);
+                } else {
+                    return "The comment you're trying to react to is not found!";
+                }
+            } else {
+                return "You already reacted to this comment!";
+            }
+        } else {
+            return "You have to login to react to a comment";
+        }
+    }
+
+    @Override
+    public Object changeReaction(Long id, Long reaction, HttpServletRequest request) {
+        Object ret = null;
+        try {
+            if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null)
+                ret = likesService.updatePostLike(id, reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        } catch (Exception e) {
+            ret = "Error";
+        }
+        return ret;
+    }
+
+    @Override
+    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException {
+        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            return "You have to login";
+        } else {
+            return likesService.deletePostLike(id, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        }
     }
 
 }

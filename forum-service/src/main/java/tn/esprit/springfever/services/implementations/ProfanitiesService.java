@@ -19,7 +19,7 @@ public class ProfanitiesService {
             for (String variation : wordVariations) {
                 // Account for hidden characters and concatenated words
                 String regex = ".*(?:\\b|[^a-zA-Z0-9])" + Pattern.quote(variation) + "(?:\\b|[^a-zA-Z0-9]).*";
-                if (postContent.matches(regex)) {
+                        if (postContent.matches(regex)) {
                     return true;
                 }
             }

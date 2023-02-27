@@ -67,12 +67,10 @@ public class User implements Serializable {
     private Badge badge;
 
 
-    //////////////////////////////////////////
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Ban ban;
 
-    //////////////////////////////////////////
 
 
 

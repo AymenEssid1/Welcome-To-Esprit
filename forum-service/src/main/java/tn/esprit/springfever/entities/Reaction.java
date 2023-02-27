@@ -19,7 +19,8 @@ import java.io.Serializable;
 public class Reaction implements Serializable {
     @Id
     @GeneratedValue
-    private Long id;
+    @Column(name = "reaction_id")
+    private Long reactionId;
     private String name;
     private String location;
     @Lob

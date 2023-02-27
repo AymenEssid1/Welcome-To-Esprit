@@ -2,8 +2,8 @@ package tn.esprit.springfever.dto;
 
 import lombok.Data;
 import tn.esprit.springfever.entities.Comment;
-import tn.esprit.springfever.entities.PostLike;
-import tn.esprit.springfever.entities.PostMedia;
+import tn.esprit.springfever.entities.Likes;
+import tn.esprit.springfever.entities.Media;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -19,10 +19,10 @@ public class PostDTO {
 
     private Long user;
 
-    private List<PostLike> likes;
+    private List<Likes> likes;
 
     private List<Comment> comments;
-    private List<PostMedia> media;
+    private List<Media> media;
 
 
 

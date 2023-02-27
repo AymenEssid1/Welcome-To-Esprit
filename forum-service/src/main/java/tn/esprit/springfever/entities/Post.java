@@ -27,6 +27,7 @@ public class Post implements Serializable {
     @NotBlank
     @Size(max = 200)
     private String title;
+    @Lob
     private String content;
 
     private String topic;
@@ -37,12 +38,14 @@ public class Post implements Serializable {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
     private LocalDateTime updatedAt;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
-    private List<PostLike> likes;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private List<Likes> likes;
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<Comment> comments;
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
-    private List<PostMedia> media;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private List<Media> media;
     @Transient
     @JsonIgnore
     private double similarity;

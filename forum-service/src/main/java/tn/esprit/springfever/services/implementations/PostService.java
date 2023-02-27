@@ -17,39 +17,28 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.entity.ContentType;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.UserDTO;
-import tn.esprit.springfever.entities.Post;
-import tn.esprit.springfever.entities.PostMedia;
-import tn.esprit.springfever.entities.PostViews;
+import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.PostPagingRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.repositories.PostViewsRepository;
+import tn.esprit.springfever.repositories.ReactionRepository;
+import tn.esprit.springfever.services.interfaces.ILikesService;
+import tn.esprit.springfever.services.interfaces.IMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
 import tn.esprit.springfever.services.interfaces.IUserService;
-import tn.esprit.springfever.services.interprocess.RabbitMQMessageSender;
+import tn.esprit.springfever.utils.MediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
-import tn.esprit.springfever.utils.PostMediaComparator;
 
 @Service
 @Slf4j
@@ -66,7 +55,10 @@ public class PostService implements IPostService {
     private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
-    private PostMediaService mediaService;
+    private IMediaService mediaService;
+
+    @Autowired
+    private ILikesService likesService;
 
     @Autowired
     private IUserService userService;
@@ -76,6 +68,9 @@ public class PostService implements IPostService {
 
     @Autowired
     private ProfanitiesService profanitiesService;
+
+    @Autowired
+    private ReactionRepository reactionRepository;
 
     @Override
     public ResponseEntity<?> addPost(
@@ -119,18 +114,19 @@ public class PostService implements IPostService {
                                     .getId()
                     )
             );
-            repo.save(p);
             if (images != null) {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         try {
-                            PostMedia savedImageData = mediaService.save(image, p);
+                            Media savedImageData = mediaService.save(image);
+                            p.getMedia().add(savedImageData);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
                     }
                 }
             }
+            repo.save(p);
             return ResponseEntity.status(HttpStatus.CREATED).body(p);
         }
     }
@@ -181,11 +177,11 @@ public class PostService implements IPostService {
                                     user.getRoles().contains("SUPER_ADMIN")
                     ) {
                         p.setUpdatedAt(LocalDateTime.now());
-                        List<PostMedia> mediaList = p.getMedia();
+                        List<Media> mediaList = p.getMedia();
                         if (mediaList != null && images != null) {
                             Collections.sort(images, new MultipartFileSizeComparator());
-                            Collections.sort(mediaList, new PostMediaComparator());
-                            for (PostMedia m : new ArrayList<>(mediaList)) {
+                            Collections.sort(mediaList, new MediaComparator());
+                            for (Media m : new ArrayList<>(mediaList)) {
                                 for (MultipartFile f : new ArrayList<>(images)) {
                                     if (m.getContent().length == f.getBytes().length) {
                                         images.remove(f);
@@ -194,8 +190,8 @@ public class PostService implements IPostService {
                                     }
                                 }
                             }
-                            for (PostMedia m : mediaList) {
-                                mediaService.delete(m.getId());
+                            for (Media m : mediaList) {
+                                mediaService.delete(m.getMediaId());
                             }
                         }
                         if (images != null) {
@@ -203,7 +199,8 @@ public class PostService implements IPostService {
                                 for (MultipartFile image : images) {
                                     if (!image.isEmpty()) {
                                         try {
-                                            PostMedia savedImageData = mediaService.save(image, p);
+                                            Media savedImageData = mediaService.save(image);
+                                            p.getMedia().add(savedImageData);
                                         } catch (Exception e) {
                                             System.out.println(e.getMessage());
                                         }
@@ -255,8 +252,8 @@ public class PostService implements IPostService {
                                 user.getRoles().contains("SUPER_ADMIN")
                 ) {
                     if (p.getMedia() != null) {
-                        for (PostMedia m : p.getMedia()) {
-                            mediaService.delete(m.getId());
+                        for (Media m : p.getMedia()) {
+                            mediaService.delete(m.getMediaId());
                         }
                     }
                     repo.delete(p);
@@ -346,10 +343,10 @@ public class PostService implements IPostService {
             description.setValue(post.getContent());
             entry.setDescription(description);
             List<SyndEnclosure> enclosures = new ArrayList<>();
-            for (PostMedia postMedia : post.getMedia()) {
+            for (Media postMedia : post.getMedia()) {
                 SyndEnclosure enclosure = new SyndEnclosureImpl();
                 enclosure.setUrl(
-                        "https://www.myforum.com/posts/media/" + postMedia.getId()
+                        "https://www.myforum.com/posts/media/" + postMedia.getMediaId()
                 );
                 enclosure.setType(postMedia.getType());
                 enclosure.setLength(postMedia.getContent().length);
@@ -402,13 +399,12 @@ public class PostService implements IPostService {
         ) {
             PageRequest pageable = PageRequest.of(
                     page,
-                    size,
-                    Sort.by("id").descending()
+                    size
             );
             for (Post post : posts) {
                 if (
                         post.getTitle().contains(searchString) ||
-                                post.getContent().contains(searchString)
+                                post.getContent().contains(searchString) || post.getTitle().contains(searchString)
                 ) {
                     matchingPosts.add(post);
                 }
@@ -423,5 +419,59 @@ public class PostService implements IPostService {
         }
 
         return matchingPosts;
+    }
+
+    @Override
+    public Object likePost (Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION)!=null){
+            UserDTO user = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            Likes like = new Likes();
+            like.setUser(user.getId());
+            like.setType(reactionRepository.findById(reaction).orElse(null));
+            boolean liked = false;
+            Post p = repo.findById(post).orElse(null);
+            for (Likes pl : p.getLikes()){
+                if(pl.getUser() == user.getId()){
+                    liked = true;
+                }
+                log.warn("already liked!");
+            }
+            if (!liked){
+
+                if (p!=null){
+                    p.getLikes().add(like);
+                    repo.save(p);
+                    return likesService.addLike(like);
+                }else{
+                    return "The post you're trying to react to is not found!";
+                }
+            }else{
+                return "You already reacted to this post!";
+            }
+        }else{
+            return "You have to login to react to a post";
+        }
+
+    }
+
+    @Override
+    public Object changeReaction (Long id,Long reaction, HttpServletRequest request){
+        Object ret = null;
+        try {
+            if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION)!=null)
+            ret = likesService.updatePostLike(id, reaction, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        }catch (Exception e){
+            ret = "Error";
+        }
+        return ret;
+    }
+
+    @Override
+    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException {
+        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION)==null){
+            return "You have to login";
+        }else{
+            return  likesService.deletePostLike(id, userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
+        }
     }
 }

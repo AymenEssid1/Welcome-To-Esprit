@@ -2,15 +2,12 @@ package tn.esprit.springfever.services.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.Span;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
@@ -24,13 +21,10 @@ import tn.esprit.springfever.entities.UserInterest;
 import tn.esprit.springfever.repositories.InterestRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.services.interfaces.IUserService;
-
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,24 +38,17 @@ public class MatchingService {
     private InterestRepository interestRepository;
     private static final String TOKENIZER_MODEL_PATH = "opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
     private static final String POS_MODEL_PATH = "opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
-    private static final String NAMEFINDER_MODEL_PATH = "en-ner-person.bin";
     private static Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
     private static POSTaggerME posTagger;
-
-    private static NameFinderME nameFinder;
-
     private ClassLoader classLoader = getClass().getClassLoader();
 
     public MatchingService() {
         try (InputStream tokenizerModelStream = classLoader.getResourceAsStream(TOKENIZER_MODEL_PATH);
-             InputStream posModelStream = classLoader.getResourceAsStream(POS_MODEL_PATH);
-             InputStream modelIn = classLoader.getResourceAsStream("en-ner-person.bin")) {
+             InputStream posModelStream = classLoader.getResourceAsStream(POS_MODEL_PATH)) {
             TokenizerModel tokenizerModel = new TokenizerModel(tokenizerModelStream);
             POSModel posModel = new POSModel(posModelStream);
-            TokenNameFinderModel nameFinderModel= new TokenNameFinderModel(modelIn);
             posTagger = new POSTaggerME(posModel);
             tokenizer = new TokenizerME(tokenizerModel);
-            nameFinder = new NameFinderME(nameFinderModel);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -96,7 +83,7 @@ public class MatchingService {
             if (isNumeric(topic)) {
                 continue;
             }
-            UserInterest userInterest = interestRepository.findByUserAndTopic(user.getId(), topic);
+            UserInterest userInterest = findUserInterest(user.getId(), topic);
             double weightIncrement = calculateWeightIncrement(post, userInterest);
             double initialWeight = calculateInitialWeight(post, user);
             double newWeight = (initialWeight + weightIncrement); // Scale weight between 0 and 10
@@ -137,7 +124,7 @@ public class MatchingService {
             if (isNumeric(topic)) {
                 continue;
             }
-            UserInterest userInterest = interestRepository.findByUserAndTopic(user.getId(), topic);
+            UserInterest userInterest = findUserInterest(user.getId(), topic);
             if (userInterest != null) {
                 initialWeight += userInterest.getWeight();
             }
@@ -159,13 +146,13 @@ public class MatchingService {
     public List<Post> getPostsByUserInterests(Pageable pageable, HttpServletRequest request) {
         // Get user's interests
         Long userId = getLoggedInUser(request).getId();
-        Set<UserInterest> interests = new HashSet<UserInterest>(interestRepository.findByUser(userId));
+        Set<UserInterest> interests = new HashSet<UserInterest>(findUserInterests(userId));
         List<String> userInterests = interests.stream()
                 .map(UserInterest::getTopic)
                 .collect(Collectors.toList());
 
         // Get posts by interests
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = findAll();
         List<Double> userInterestVector = getVector(userInterests);
         for (Post p : posts) {
             List<String> t = extractTopicsFromPost(p.getTopic() + " " + p.getContent() + " " + p.getTitle());
@@ -178,9 +165,7 @@ public class MatchingService {
         int startIndex = pageSize * pageNumber;
         int endIndex = Math.min(startIndex + pageSize, posts.size());
         List<Post> pagePosts = posts.subList(startIndex, endIndex);
-        for (Post post : posts) {
-            System.out.println(post.getSimilarity() + " - " + post.getTitle());
-        }
+
         return new PageImpl<>(pagePosts, PageRequest.of(pageNumber, pageSize), posts.size()).getContent();
     }
 
@@ -212,18 +197,6 @@ public class MatchingService {
         }
         return vector;
     }
-
-
-    @Cacheable("intrests")
-    public List<String> getAllTopics() {
-        List<String> topics = new ArrayList<>();
-        for (UserInterest topic : interestRepository.findAll()) {
-            topics.add(topic.getTopic());
-        }
-        return topics;
-    }
-
-
     private boolean isNumeric(String str) {
         if (str == null) {
             return false;
@@ -238,7 +211,7 @@ public class MatchingService {
 
     public List<Post> getPostsByAdvancedSearch(String searchQuery, int pageNumber, int pageSize) throws IOException {
         // Extract topics from query
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = findAll();
         for (Post p : posts) {
             p.setSimilarity(calculateRelevance(p,searchQuery));
             System.out.println(p.getSimilarity()+"-"+p.getTitle());
@@ -262,31 +235,43 @@ public class MatchingService {
         for (String query : text) {
             String regex = ".*(?:\\b|[^a-zA-Z0-9]) " + query + " (?:\\b|[^a-zA-Z0-9]).*";
 
-            if (postTopic.toLowerCase().matches(regex.toLowerCase())) {
+            if (postTopic.toLowerCase().matches(query.toLowerCase())||postTopic.toLowerCase().matches(searchQuery.toLowerCase())) {
                 relevance += 20;
             }
             // Check if search query is present in post content or title
-            if (postContent.toLowerCase().matches(regex.toLowerCase())) {
+            if (postContent.toLowerCase().contains(query.toLowerCase())||postContent.toLowerCase().contains(searchQuery.toLowerCase())) {
                 relevance += 10;
             }
-            if (postTitle.toLowerCase().contains(regex.toLowerCase())) {
+            if (postTitle.toLowerCase().contains(query.toLowerCase())||postTitle.toLowerCase().contains(searchQuery.toLowerCase())) {
                 relevance += 15;
             }
             for(String topic : topics){
-                String tregex = ".*(?:\\b|[^a-zA-Z0-9])" + topic + "(?:\\b|[^a-zA-Z0-9]).*";
-                if (topic.toLowerCase().matches(regex.toLowerCase())){
+                if (topic.toLowerCase().contains(query.toLowerCase())||topic.toLowerCase().contains(searchQuery.toLowerCase())){
                     relevance+=5;
                 }
-                if (query.toLowerCase().matches(tregex.toLowerCase())){
-                    relevance+=5;
-                }
-
             }
 
         }
 
 
         return relevance;
+    }
+
+    @Cacheable("matching")
+    public List<Post> findAll(){
+        return postRepository.findAll();
+    }
+    @Cacheable("matching")
+    public UserInterest findUserInterest(Long id, String topic){
+        return interestRepository.findByUserAndTopic(id, topic);
+    }
+    @Cacheable("matching")
+    public List<UserInterest> findAllInterests(){
+        return interestRepository.findAll();
+    }
+    @Cacheable("matching")
+    public List<UserInterest> findUserInterests(Long id){
+        return interestRepository.findByUser(id);
     }
 
 }

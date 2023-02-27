@@ -10,27 +10,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.springfever.dto.RoleDTO;
-import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.Post;
-import tn.esprit.springfever.entities.PostLike;
-import tn.esprit.springfever.entities.PostMedia;
-import tn.esprit.springfever.services.interfaces.IPostLikeService;
-import tn.esprit.springfever.utils.MultipartFileSizeComparator;
-import tn.esprit.springfever.utils.PostMediaComparator;
-import tn.esprit.springfever.services.interfaces.IPostMediaService;
+import tn.esprit.springfever.services.interfaces.IMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
 import tn.esprit.springfever.services.interfaces.IReactionService;
 
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -41,13 +31,12 @@ import java.util.List;
 public class PostController {
     @Autowired
     private IPostService service;
-    @Autowired
-    private IPostLikeService likeService;
-    @Autowired
-    private IPostMediaService mediaService;
 
     @Autowired
     private IReactionService reactionService;
+
+    @Autowired
+    private IMediaService mediaService;
 
     @ApiOperation(value = "This method is used to add a post ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
@@ -122,24 +111,30 @@ public class PostController {
     @ApiOperation(value = "This method is used to like a post ")
     @PostMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<PostLike> like(@RequestBody int user, @RequestBody Long postId,
-                                         @RequestBody Long reaction) {
-        PostLike pl = new PostLike();
-        pl.setType(reactionService.getById(reaction));
-        pl.setPost(service.getSinglePost(postId, null));
-        return ResponseEntity.status(HttpStatus.CREATED).body(likeService.addPostLike(pl));
+    public ResponseEntity<?> like(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
+        Object response = service.likePost(reaction,post,request);
+        if (response.getClass() == String.class){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
     }
 
     @ApiOperation(value = "This method is used to unlike a post")
-    @DeleteMapping(value = "/dislike")
-    public ResponseEntity<String> dislike(Long id) {
-        return ResponseEntity.ok().body(likeService.deletePostLike(id));
+    @DeleteMapping(value = "/like")
+    public ResponseEntity<String> dislike(Long id, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteReaction(id, request));
     }
 
     @PutMapping(value = "/like")
     @ResponseBody
-    public ResponseEntity<PostLike> change(Long id, PostLike pl) {
-        return ResponseEntity.ok().body(likeService.updatePostLike(id, pl));
+    public ResponseEntity<?> change(Long id,Long reaction, HttpServletRequest request) {
+        Object response = service.changeReaction(id,reaction,request);
+        if (response.getClass() == String.class){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
     }
 
     @GetMapping(value = "/rss")

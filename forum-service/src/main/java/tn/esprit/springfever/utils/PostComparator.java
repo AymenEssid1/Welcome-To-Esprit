@@ -2,7 +2,6 @@ package tn.esprit.springfever.utils;
 
 import lombok.SneakyThrows;
 import tn.esprit.springfever.entities.Post;
-import tn.esprit.springfever.entities.PostMedia;
 
 import java.util.Comparator;
 

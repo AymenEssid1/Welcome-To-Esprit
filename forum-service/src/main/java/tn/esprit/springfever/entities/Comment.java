@@ -24,8 +24,9 @@ public class Comment implements Serializable {
     private Long id;
     private String content;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "comment")
-    private List<CommentLike> likes;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "comment_id")
+    private List<Likes> likes;
 
     @ManyToOne
     @JsonIgnore
@@ -35,8 +36,9 @@ public class Comment implements Serializable {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
     private LocalDateTime updatedAt;
 
-    @OneToMany (cascade = CascadeType.ALL, mappedBy = "comment")
-    private List<CommentMedia> media;
+    @OneToMany (cascade = CascadeType.ALL)
+    @JoinColumn(name = "comment_id")
+    private List<Media> media;
 
     private Long user;
 

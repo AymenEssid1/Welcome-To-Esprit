@@ -24,4 +24,7 @@ public interface IPostService {
     public List<Post> getByUserLazy(int skip, int take, Long id, HttpServletRequest request);
     public String rssFeed() throws FeedException;
     public List<Post> searchPosts(String searchString,int page, int size, HttpServletRequest request) throws IOException;
+    public Object likePost (Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException;
+    public Object changeReaction (Long id,Long reaction, HttpServletRequest request);
+    public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException;
 }

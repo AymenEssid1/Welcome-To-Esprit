@@ -1,19 +1,13 @@
 package tn.esprit.springfever.entities;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import tn.esprit.springfever.enums.MediaType;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "CommentMedia")
+@Table(name = "Media")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,10 +15,11 @@ import java.io.Serializable;
 @ToString
 @Data
 @EqualsAndHashCode
-public class CommentMedia implements Serializable {
+public class Media implements Serializable {
     @Id
     @GeneratedValue
-    private Long id;
+    @Column(name = "media_id")
+    private Long mediaId;
     private String name;
     private String location;
     @Lob
@@ -32,14 +27,9 @@ public class CommentMedia implements Serializable {
     byte[] content;
     private String type;
 
-    @ManyToOne
-    @JsonIgnore
-    private Comment comment;
-
-    public CommentMedia(String name, String location, Comment comment, byte[] content, String type) {
+    public Media(String name, String location, byte[] content, String type) {
         this.name = name;
         this.location = location;
-        this.comment = comment;
         this.content = content;
         this.type=type;
     }
