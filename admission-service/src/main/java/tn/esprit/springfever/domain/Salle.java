@@ -4,26 +4,29 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Set;
-
 
 @Entity
 @Getter
 @Setter
-public class User {
+public class Salle {
 
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userID;
+    private Long idsalle;
 
     @Column
-    private String etatuser;
+    private Integer numSalle;
 
-    @OneToOne
-    private DemandeAdmission demandeAdmission;
+    @Column
+    private String etat;
 
-    @OneToMany(mappedBy = "rDVuser")
-    private Set<RDV> rDVuserRDVs;
+
+    @OneToMany(mappedBy = "rDVsalle")
+    private Set<RDV> rDVsalleRDVs;
+
+
 
 }

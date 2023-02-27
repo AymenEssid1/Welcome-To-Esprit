@@ -38,6 +38,7 @@ public class UserService {
     public Long create( UserDTO userDTO) {
          User user = new User();
         mapToEntity(userDTO, user);
+        user.setEtatuser("disponible");
         return userRepository.save(user).getUserID();
     }
 
@@ -58,6 +59,7 @@ public class UserService {
     }
 
     private User mapToEntity( UserDTO userDTO,  User user) {
+        user.setEtatuser(userDTO.getEtatUser());
         return user;
     }
 

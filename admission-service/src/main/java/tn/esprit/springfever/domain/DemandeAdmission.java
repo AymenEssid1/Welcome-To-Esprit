@@ -3,10 +3,11 @@ package tn.esprit.springfever.domain;
 import tn.esprit.springfever.model.Cursus;
 import tn.esprit.springfever.model.Diplome;
 import tn.esprit.springfever.model.Niveau;
-import tn.esprit.springfever.model.Status;
+
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import tn.esprit.springfever.model.TypeDemande;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -22,16 +23,17 @@ public class DemandeAdmission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAdmission;
 
-    @Column
+    @Column(name = "date_admission")
     private LocalDate dateAdmission;
 
     @Column
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private TypeDemande typeDemande;
 
     @Column
     @Enumerated(EnumType.STRING)
     private Diplome diplome;
+
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -47,8 +49,7 @@ public class DemandeAdmission {
     @Column(name = "\"option\"")
     private String option;
 
-    @Column
-    private String frais;
+
 
     @Column
     private String nomParent;
@@ -62,11 +63,17 @@ public class DemandeAdmission {
     @Column
     private String telParent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "demande_user_id")
-    private User demandeUser;
 
-    @OneToMany(mappedBy = "demandeSpecialite")
-    private Set<Specialite> demandeSpecialiteSpecialites;
+    @PrePersist
+    public void setDateAdmission() {
+        this.dateAdmission = LocalDate.now();
+    }
 
+    @OneToOne
+    @JoinColumn(name = "user_user_id")
+    private User user;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "demandeRdv")
+    private RDV rdvDemande;
 }

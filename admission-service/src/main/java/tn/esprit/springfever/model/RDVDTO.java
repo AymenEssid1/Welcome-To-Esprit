@@ -14,12 +14,13 @@ public class RDVDTO {
 
     private Long idRDV;
 
-    @Size(max = 255)
-    private String salle;
+
 
     private LocalDate date;
 
     @JsonProperty("rDVuser")
     private Long rDVuser;
+
+    private Long demandeRdv;
 
 }

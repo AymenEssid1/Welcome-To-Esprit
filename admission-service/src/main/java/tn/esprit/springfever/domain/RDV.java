@@ -17,8 +17,6 @@ public class RDV {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idRDV;
 
-    @Column
-    private String salle;
 
     @Column
     private LocalDate date;
@@ -26,5 +24,13 @@ public class RDV {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rdvuser_id")
     private User rDVuser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rdvsalle_id")
+    private Salle rDVsalle;
+
+    @OneToOne(cascade ={CascadeType.ALL} )
+    @JoinColumn(name = "rdvDemande")
+    private DemandeAdmission demandeRdv;
 
 }

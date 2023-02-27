@@ -3,6 +3,7 @@ package tn.esprit.springfever.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import tn.esprit.springfever.domain.RDV;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public class DemandeAdmissionDTO {
 
     private LocalDate dateAdmission;
 
-    private Status status;
+    private TypeDemande typeDemande;
 
     private Diplome diplome;
 
@@ -30,8 +31,6 @@ public class DemandeAdmissionDTO {
     @Size(max = 255)
     private String option;
 
-    @Size(max = 255)
-    private String frais;
 
     @Size(max = 255)
     private String nomParent;
@@ -45,6 +44,8 @@ public class DemandeAdmissionDTO {
     @Size(max = 255)
     private String telParent;
 
-    private Long demandeUser;
+    private Long user;
+    private Long rdvDemande;
+
 
 }

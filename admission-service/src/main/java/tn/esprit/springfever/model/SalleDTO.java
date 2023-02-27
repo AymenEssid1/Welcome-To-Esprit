@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDTO {
+public class SalleDTO {
 
-    private Long userID;
-    private String etatUser;
-
+    private Long id;
+    private Integer numSalle;
+    private String etat;
 
 }
