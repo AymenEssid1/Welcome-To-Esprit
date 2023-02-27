@@ -141,6 +141,10 @@ public class JobApplicationController {
     public String extractTextFromPdf(@PathVariable("id") Long Id) {
         return iJobApplication.extractTextFromPdf(Id);
     }
+    @GetMapping(value = "/pdf-text-testNLP/{id}")
+    public String extractTextFromPdf2(@PathVariable("id") Long Id) throws IOException {
+        return iJobApplication.extractTextFromPdf2(Id);
+    }
 
 
     @GetMapping(value = "/FilterCv/{id}")
@@ -182,6 +186,11 @@ public class JobApplicationController {
 
 
         }
+    @GetMapping(value = "/FilterCvCompetences/{id}")
+    public String extractSkills(@PathVariable("id") Long id) throws IOException{
+        return iJobApplication.extractSkills(id);
+
+    }
 
 }
 

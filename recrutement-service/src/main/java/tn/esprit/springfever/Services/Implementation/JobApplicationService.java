@@ -1,8 +1,23 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.itextpdf.text.Annotation;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.StringUtils;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.process.CoreLabelTokenFactory;
+import edu.stanford.nlp.process.PTBTokenizer;
+import edu.stanford.nlp.util.CoreMap;
 import lombok.extern.slf4j.Slf4j;
+import opennlp.tools.chunker.Chunker;
+import opennlp.tools.sentdetect.SentenceDetector;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.tokenize.*;
+import opennlp.tools.util.Span;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -19,11 +34,28 @@ import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.JobApplicationRepository;
 import tn.esprit.springfever.repositories.JobApplicatonPdfRepository;
 
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+
+import opennlp.tools.chunker.ChunkerME;
+import opennlp.tools.chunker.ChunkerModel;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
+
+import java.io.IOException;
+import java.util.Properties;
+
+
+
+
 
 @Service
 @Slf4j
@@ -161,7 +193,192 @@ public class JobApplicationService implements IJobApplication {
         message.setText(body);
         mailSender.send(message);
     }
+
+    public  String extractTextFromPdf2(Long id) throws IOException {
+        Job_Application job_application=jobApplicationRepository.findById(id).orElse(null);
+        File file = new File(job_application.getLocation_LettreMotivation());
+        PDDocument document = PDDocument.load(file);
+        PDFTextStripper stripper = new PDFTextStripper();
+        String text = stripper.getText(document);
+        document.close();
+        return text;
     }
+
+
+
+    //Bonne Code
+
+    public String extractSkills(Long id) throws IOException {
+        String text=extractTextFromPdf2(id);
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        String sentenceModelPath = "C:/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
+
+        String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
+        String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
+        String chunkerModelPath = "/en-chunker.bin";
+
+
+        // Load the model for sentence detection
+        SentenceModel sentenceModel = new SentenceModel(new FileInputStream(sentenceModelPath));
+        SentenceDetectorME sentenceDetector = new SentenceDetectorME(sentenceModel);
+
+// Load the model for tokenization
+        TokenizerModel tokenizerModel = new TokenizerModel(new FileInputStream(tokenizerModelPath));
+        TokenizerME tokenizer = new TokenizerME(tokenizerModel);
+
+// Load the model for POS tagging
+        POSModel posModel = new POSModel(new FileInputStream(posModelPath));
+        POSTaggerME posTagger = new POSTaggerME(posModel);
+
+// Load the model for chunking
+        ChunkerModel chunkerModel = new ChunkerModel(new FileInputStream(chunkerModelPath));
+        ChunkerME chunker = new ChunkerME(chunkerModel);
+        // Split the text into sentences
+        String[] sentences = sentenceDetector.sentDetect(text);
+
+        // Extract the skills from each sentence
+        for (String sentence : sentences) {
+
+            // Tokenize the sentence
+            String[] tokens = tokenizer.tokenize(sentence);
+
+            // Tag the parts of speech of each token
+            String[] tags = posTagger.tag(tokens);
+
+            // Chunk the tagged tokens to extract noun phrases
+            Span[] chunks = chunker.chunkAsSpans(tokens, tags);
+
+            // Extract the noun phrases that represent skills
+            for (Span chunk : chunks) {
+                String chunkText = "";
+                for (int i = chunk.getStart(); i < chunk.getEnd(); i++) {
+                    chunkText += tokens[i] + " ";
+                }
+                chunkText = chunkText.trim();
+                if (chunk.getType().equals("NP") && isSkill(chunkText)) {
+                    System.out.println(chunkText);
+                    return chunkText;
+                }
+
+            }
+        }
+        if (text == null || text.trim().isEmpty()) {
+            return "Aucun texte n'a été extrait du PDF";
+        }
+
+        return "chaima";
+
+
+    }
+
+
+
+    /*public String extractSkills(Long id) throws IOException {
+        String text=extractTextFromPdf2(id);
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        String sentenceModelPath = "C:/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
+
+        String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
+        String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
+        String chunkerModelPath = "/en-chunker.bin";
+
+
+        // Load the model for sentence detection
+        SentenceModel sentenceModel = new SentenceModel(new FileInputStream(sentenceModelPath));
+        SentenceDetectorME sentenceDetector = new SentenceDetectorME(sentenceModel);
+
+        // Load the model for tokenization
+        TokenizerModel tokenizerModel = new TokenizerModel(new FileInputStream(tokenizerModelPath));
+        TokenizerME tokenizer = new TokenizerME(tokenizerModel);
+
+        // Load the model for POS tagging
+        POSModel posModel = new POSModel(new FileInputStream(posModelPath));
+        POSTaggerME posTagger = new POSTaggerME(posModel);
+
+        // Load the model for chunking
+        ChunkerModel chunkerModel = new ChunkerModel(new FileInputStream(chunkerModelPath));
+        ChunkerME chunker = new ChunkerME(chunkerModel);
+
+        // Split the text into sentences
+        String[] sentences = sentenceDetector.sentDetect(text);
+
+        // Extract the skills from each sentence
+        String extractedSkills = "";
+        for (String sentence : sentences) {
+
+            // Tokenize the sentence
+            String[] tokens = tokenizer.tokenize(sentence);
+
+            // Tag the parts of speech of each token
+            String[] tags = posTagger.tag(tokens);
+
+            // Chunk the tagged tokens to extract noun phrases
+            Span[] chunks = chunker.chunkAsSpans(tokens, tags);
+
+            // Extract the noun phrases that represent skills
+            for (Span chunk : chunks) {
+                String chunkText = "";
+                for (int i = chunk.getStart(); i < chunk.getEnd(); i++) {
+                    chunkText += tokens[i] + " ";
+                }
+                chunkText = chunkText.trim();
+                if (chunk.getType().equals("NP") && isSkill(chunkText)) {
+                    extractedSkills += chunkText + ", ";
+                }
+            }
+        }
+
+        if (extractedSkills.isEmpty()) {
+            return "Aucune compétence n'a été extraite du CV";
+        } else {
+            extractedSkills = extractedSkills.substring(0, extractedSkills.length() - 2); // Remove the last comma
+            return extractedSkills;
+        }
+    }*/
+
+
+
+
+
+
+
+    private  List<String> skillsList = Arrays.asList("Java", "Python", "JavaScript", "React", "Node.js","Html","test2");
+
+    public   boolean isSkill(String word) {
+
+
+
+        // Ajoutez ici la logique pour déterminer si un mot est une compétence
+        // Par exemple, vous pouvez utiliser une liste de compétences prédéfinie ou effectuer une analyse de fréquence
+        // pour identifier les compétences les plus courantes dans le texte.
+
+
+
+
+
+        // Split the text into words
+        String[] words = word.split(" ");
+
+        // Extract the skills
+        for (String a : words) {
+            if (skillsList.contains(a)) {
+                //System.out.println(a);
+                return true;
+            }
+        }
+
+
+        return false;
+    }
+
+
+
+
+
+
+}
 
 
 

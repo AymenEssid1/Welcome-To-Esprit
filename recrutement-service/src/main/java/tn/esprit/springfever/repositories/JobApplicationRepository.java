@@ -8,4 +8,5 @@ import tn.esprit.springfever.entities.Job_Application;
 @EnableJpaRepositories
 @Repository
 public interface JobApplicationRepository extends JpaRepository<Job_Application,Long> {
+
 }
