@@ -19,8 +19,9 @@ public interface IServiceClaims {
  public Claim findById(Long id) ;
  public Claim treatClaim( Long id , String descision);
  public long getTimeTreatmentClaim(Long id );
- public long predicateTreatmetnClaim(Long id ) ;
+ public long predicateTreatmentClaim(Long id ) ;
  public String analyzeSentiment(String text) ;
+ public String sentFeedback(Long idClaim,String feedback);
 
 
 }

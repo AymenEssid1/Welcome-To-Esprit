@@ -57,14 +57,17 @@ public class Claim implements Serializable {
 
     private Date dateTreatingClaim ;
 
+    @Size(max = 500)
+    private String feedback ;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     private User user ;
 
+
     public Claim(Long ClaimId, String test_claim) {
         this.idClaim=ClaimId ;
         this.description= test_claim ;
-
     }
 
     public Claim() {

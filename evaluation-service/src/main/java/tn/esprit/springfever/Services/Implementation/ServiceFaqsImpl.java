@@ -105,17 +105,12 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
     @Override
 
     public List<Faq> importFAQsFromExcel(MultipartFile file) throws IOException {
-
-
         List<Faq> faqs = new ArrayList<>();
-
         // Load the Excel file using Apache POI
         Workbook workbook = new  XSSFWorkbook(file.getInputStream()) {
          };
-
         // Get the first sheet of the workbook
         Sheet sheet = workbook.getSheetAt(0);
-
         // Loop through the rows of the sheet
         for (Row row : sheet) {
             Faq faq = new Faq();

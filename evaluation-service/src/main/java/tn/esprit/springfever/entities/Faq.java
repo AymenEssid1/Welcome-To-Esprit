@@ -32,6 +32,5 @@ public class Faq implements Serializable {
     private String response ;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<FaqCategory> faqCategories = new ArrayList<>();
 }

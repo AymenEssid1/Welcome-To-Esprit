@@ -72,13 +72,9 @@ public class ServiceMcqImpl implements IServiceMcq {
         TokenizerModel model = new TokenizerModel(modelIn);
         Tokenizer tokenizer = new TokenizerME(model);
         String[] tokens = tokenizer.tokenize(diplomaTitle);
-
-
-
         // Retrieve questions containing any of the keywords
         List<Question> matchingQuestions   =new ArrayList<>();
         //= questionRepository.findByKeywords(tokens);
-
         for(String s : tokens) {
             List<Question> listeQuestionsFromS = questionRepository.findByKeywords(s) ;
             for (Question q : listeQuestionsFromS) {
@@ -87,13 +83,10 @@ public class ServiceMcqImpl implements IServiceMcq {
                 }
             }
         }
-
         // Randomly select up to 5 questions from the matching questions
         Collections.shuffle(matchingQuestions);
         int numQuestions = Math.min(5, matchingQuestions.size());
         List<Question> selectedQuestions = matchingQuestions.subList(0, numQuestions);
-
-
         // Create a new MCQ
         Mcq mcq = new Mcq();
         mcq.setMcqTitle(diplomaTitle);
@@ -101,13 +94,12 @@ public class ServiceMcqImpl implements IServiceMcq {
 
         // Add the selected questions to the MCQ
         mcq.setQuestions(selectedQuestions);
-// Set the MCQ for each selected question
+        // Set the MCQ for each selected question
         for (Question question : selectedQuestions) {
             question.getMcqs().add(mcq);
          }
         System.out.println("************* " +selectedQuestions.size());
         mcqRepository.save(mcq) ;
-
         // Save the MCQ to the database
         return mcq;
 

@@ -73,6 +73,21 @@ public class ServiceClaimsImpl implements IServiceClaims {
                 "CompoundPolarity: " + sentimentPolarities.getCompoundPolarity() ;
     }
 
+    @Override
+    public String sentFeedback( Long idClaim, String feedback) {
+        Claim existingClaim = claimRepository.findById(idClaim).orElse(null);
+        if(existingClaim!=null) {
+            existingClaim.setFeedback(feedback);
+            log.info("feedback sent");
+            claimRepository.save(existingClaim);
+            return this.analyzeSentiment(feedback) ;
+        }
+        else {
+            log.info("claim not found");
+            return "claim not found" ;
+        }
+    }
+
 
 
 
@@ -83,7 +98,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject("New claim submitted");
         message.setText("A new claim has been submitted.");
-        message.setTo("springforfever@gmail.com\n");
+        message.setTo("springforfever@gmail.com");
         javaMailSender.send(message);
         log.info("claim was successfully added !");
         claimRepository.save(claim);
@@ -98,8 +113,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
         Page<Claim> claimPage = claimRepository.findAll(pageRequest);
         return claimPage.getContent();
     }
-
-
+    //////
     @Override
     public boolean deleteClaim(Long idclaim) {
         Claim existingClaim = claimRepository.findById(idclaim).orElse(null);
@@ -185,7 +199,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
     }
 
     @Override
-    public long predicateTreatmetnClaim(Long  id ) {
+    public long predicateTreatmentClaim(Long  id ) {
         Claim claim = claimRepository.findById(id).orElse(null);
         List<Claim> claims = claimRepository.findAllByClaimSubjectAndClaimStatus(claim.getClaimSubject(), ClaimStatus.treated);
         long estimatedPeriod =0 ;
@@ -194,7 +208,6 @@ public class ServiceClaimsImpl implements IServiceClaims {
           }
         long avg = estimatedPeriod/claims.size();
         return avg ;
-
     }
 
 

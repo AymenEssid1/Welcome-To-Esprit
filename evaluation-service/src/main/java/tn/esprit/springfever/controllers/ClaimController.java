@@ -69,7 +69,7 @@ public class ClaimController {
 
     @GetMapping("predictTreatmentPeriod/{id}")
     public ResponseEntity<Long> predictTreatmentPeriod(@PathVariable Long id) {
-        Long predictedPeriod = iServiceClaims.predicateTreatmetnClaim(id);
+        Long predictedPeriod = iServiceClaims.predicateTreatmentClaim(id);
         return ResponseEntity.ok(predictedPeriod);
     }
 
@@ -78,6 +78,15 @@ public class ClaimController {
         String sentiment = iServiceClaims.analyzeSentiment(text);
         return ResponseEntity.ok(sentiment);
     }
+
+    @PutMapping("/{id}/feedback")
+    public String sentFeedback(@PathVariable("id") Long idClaim, @RequestBody String feedback) {
+        return iServiceClaims.sentFeedback(idClaim,feedback);
+
+    }
+
+
+
 }
 
 
