@@ -5,6 +5,8 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ProjectDTO;
 import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.ProjectMapper;
@@ -14,10 +16,13 @@ import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.ProjectRepository;
+
+import javax.persistence.EntityNotFoundException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -89,5 +94,21 @@ public class ServiceProjectImpl implements IServiceProject{
 
     }
 
+@Override
+    public void uploadVideo(Long idProject,  MultipartFile video) throws IOException {
+        // Find the project with the given ID
+        Optional<Project> optionalProject = projectRepository.findById(idProject);
+        if (optionalProject.isEmpty()) {
+            throw new EntityNotFoundException("Project not found with ID " + idProject);
+        }
+        Project project = optionalProject.get();
+
+        // Store the video data in the project entity
+        project.setVideo(video.getBytes());
+        projectRepository.save(project);
+
+
+
+    }
 
 }

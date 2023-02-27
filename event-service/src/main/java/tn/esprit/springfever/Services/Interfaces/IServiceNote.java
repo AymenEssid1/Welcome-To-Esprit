@@ -13,4 +13,9 @@ public interface IServiceNote {
     public  boolean deleteNote(Long idNote) ;
     public Note updateNote (Long idNote , NoteDTO noteDTO) ;
     public String assignNoteToProject(Long idNote, Long idProject);
+    //public String analyzeSentiment(long idNote);
+
+    //public String getSentimentAnalysis(Long idNote);
+
+    public void displayNoteStatistics();
 }

@@ -21,6 +21,7 @@ import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.Video;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -52,6 +53,20 @@ public class ProjectController {
         return  new ResponseEntity<>(saveProject, HttpStatus.CREATED);
     }
 
+
+// let team uoload vd
+    @PostMapping(value = "/{idProject}/uploadvideo",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> uploadVideo(@PathVariable Long idProject, @RequestParam("video") MultipartFile video) {
+        try {
+
+            iServiceProject.uploadVideo(idProject, video);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 

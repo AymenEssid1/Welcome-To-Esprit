@@ -1,4 +1,6 @@
 package tn.esprit.springfever.Services.Interfaces;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ProjectDTO;
 import tn.esprit.springfever.entities.Project;
 
@@ -12,4 +14,5 @@ public interface IServiceProject {
     public  List<Project> getAllProject() ;
     public  String deleteProject(Long idProject) ;
     public Project updateProject (Long idProject , ProjectDTO projectDTO) ;
+    public void uploadVideo(Long idProject,MultipartFile video)throws IOException;
 }

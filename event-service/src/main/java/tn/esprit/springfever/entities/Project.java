@@ -33,6 +33,9 @@ public class Project implements Serializable{
     @NotBlank
     private LocalDateTime submitDate ;
 
+    @Lob
+    private byte[] video;
+
     @OneToOne(mappedBy="project")
     @JsonIgnore
     private Teams teams;

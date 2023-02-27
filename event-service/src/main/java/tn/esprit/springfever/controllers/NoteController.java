@@ -11,9 +11,12 @@ import tn.esprit.springfever.Services.Interfaces.IServiceNote;
 import tn.esprit.springfever.entities.Note;
 import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
+import tn.esprit.springfever.repositories.NoteRepository;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RequestMapping("/Note")
@@ -24,7 +27,8 @@ import java.util.List;
 
 public class NoteController {
 
-
+    @Autowired
+    NoteRepository noteRepository;
     @Autowired
     IServiceNote iServiceNote;
     /*
@@ -62,6 +66,42 @@ public class NoteController {
         return iServiceNote.assignNoteToProject(idNote, idProject);
     }
 
+/*
+    @GetMapping("/{id}/sentiment")
+    public ResponseEntity<String> getNoteSentiment(@PathVariable Long idNote) {
 
+
+        String sentiment = iServiceNote.getSentimentAnalysis(idNote);
+        if (sentiment == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(sentiment);
+        }
+    }
+*/
+
+
+    @GetMapping("statistiques/notes")
+    public ResponseEntity<Map<String, Float>> getNotesStatistics() {
+        Map<String, Float> statistics = new HashMap<>();
+
+        // Calculate the average of each note type
+        float softskillsNoteAverage = noteRepository.getAverageSoftskillsNote();
+        float presentationNoteAverage = noteRepository.getAveragePresentationNote();
+        float consistencyNoteAverage = noteRepository.getAverageConsistencyNote();
+        float originalityNoteAverage = noteRepository.getAverageOriginalityNote();
+        float contentNoteAverage = noteRepository.getAverageContentNote();
+        float relevanceNoteAverage = noteRepository.getAverageRelevanceNote();
+
+        // Add the averages to the map
+        statistics.put("softskillsNoteAverage", softskillsNoteAverage);
+        statistics.put("presentationNoteAverage", presentationNoteAverage);
+        statistics.put("consistencyNoteAverage", consistencyNoteAverage);
+        statistics.put("originalityNoteAverage", originalityNoteAverage);
+        statistics.put("contentNoteAverage", contentNoteAverage);
+        statistics.put("relevanceNoteAverage", relevanceNoteAverage);
+
+        return ResponseEntity.ok(statistics);
+    }
 
 }

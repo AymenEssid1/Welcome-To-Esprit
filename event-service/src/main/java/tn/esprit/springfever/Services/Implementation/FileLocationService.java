@@ -14,6 +14,7 @@ import tn.esprit.springfever.entities.ImageData;
 import tn.esprit.springfever.entities.Video;
 import tn.esprit.springfever.repositories.FileSystemRepository;
 import tn.esprit.springfever.repositories.ImageDataRepository;
+import tn.esprit.springfever.repositories.ProjectRepository;
 import tn.esprit.springfever.repositories.VideoRepository;
 
 
@@ -28,6 +29,8 @@ public class FileLocationService implements IFileLocationService {
     ImageDataRepository imageDataRepository;
     @Autowired
     VideoRepository videoRepository;
+    @Autowired
+    ProjectRepository projectRepository;
 
 
 

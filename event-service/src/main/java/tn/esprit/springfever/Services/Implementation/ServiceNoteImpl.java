@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Implementation;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import tn.esprit.springfever.repositories.ProjectRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Set;
 
 @Service
@@ -22,6 +24,7 @@ public class ServiceNoteImpl implements IServiceNote {
     NoteRepository noteRepository ;
     @Autowired
     ProjectRepository projectRepository ;
+
     @Autowired
     NoteMapper noteMapper;
 
@@ -124,5 +127,85 @@ public class ServiceNoteImpl implements IServiceNote {
         return "note is Affeced To project";
 
     }
+
+    /*
+@Override
+    public String analyzeSentiment(long idNote) {
+        Note note = noteRepository.getNoteById(idNote);
+        //Note note = getNoteById(noteId);
+        String comment = note.getComment();
+
+        Properties props = new Properties();
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,sentiment");
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+
+        Annotation document = new Annotation(comment);
+        pipeline.annotate(document);
+
+        for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+            String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
+            return sentiment;
+        }
+
+        return null; // No sentiment found.
+    }
+
+
+    @Override
+    public String analyzeSentiment(String comment) {
+
+        StanfordCoreNLP pipeline = new StanfordCoreNLP("StanfordCoreNLP.properties");
+        Annotation annotation = pipeline.process(comment);
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        String sentiment = "";
+        if (sentences != null) {
+            for (CoreMap sentence : sentences) {
+                Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
+                if (tree != null) {
+                    sentiment = tree.label().value();
+                }
+            }
+        }
+        return sentiment;
+    }
+
+    @Override
+    public String getSentimentAnalysis(Long idNote) {
+        Note note = noteRepository.getNoteById(idNote);
+        String sentiment = noteService.getSentimentAnalysis(Long.valueOf(note.getComment()));
+        return sentiment;
+    }
+
+*/
+
+@Override
+    public void displayNoteStatistics() {
+
+        // Calculate average softskills note
+        Float avgSoftskillsNote = noteRepository.getAverageSoftskillsNote();
+        System.out.println("Average softskills note: " + avgSoftskillsNote);
+
+        // Calculate average presentation note
+        Float avgPresentationNote = noteRepository.getAveragePresentationNote();
+        System.out.println("Average presentation note: " + avgPresentationNote);
+
+        // Calculate average consistency note
+        Float avgConsistencyNote = noteRepository.getAverageConsistencyNote();
+        System.out.println("Average consistency note: " + avgConsistencyNote);
+
+        // Calculate average originality note
+        Float avgOriginalityNote = noteRepository.getAverageOriginalityNote();
+        System.out.println("Average originality note: " + avgOriginalityNote);
+
+        // Calculate average content note
+        Float avgContentNote = noteRepository.getAverageContentNote();
+        System.out.println("Average content note: " + avgContentNote);
+
+        // Calculate average relevance note
+        Float avgRelevanceNote = noteRepository.getAverageRelevanceNote();
+        System.out.println("Average relevance note: " + avgRelevanceNote);
+
+    }
+
 
 }
