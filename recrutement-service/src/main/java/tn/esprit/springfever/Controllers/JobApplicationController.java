@@ -153,6 +153,11 @@ public class JobApplicationController {
 
     }
 
+    /*@GetMapping(value = "/FilterCv/{id}")
+    public Boolean FilterCv(@PathVariable("id") Long Id_Job_Application) throws IOException {
+        return iJobApplication.extractSkillsFromCv(Id_Job_Application);}*/
+
+
     @PostMapping("/send-email/{id}")
     public ResponseEntity<String> sendEmail(@PathVariable ("id")Long id) {
 

@@ -258,6 +258,14 @@ public class JobRdvService implements IJobRDV {
         }
     }
 
+    public String generateJitsiMeetLink() {
+        String roomName = "my-room-name"; // Remplacez "my-room-name" par un nom de salle de réunion valide.
+        String domain = "meet.jit.si"; // Remplacez "meet.jit.si" par le nom de domaine Jitsi Meet de votre choix.
+
+        String link = "https://" + domain + "/" + roomName;
+        return link;
+    }
+
 
 
 

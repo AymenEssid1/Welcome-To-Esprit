@@ -160,6 +160,7 @@ public class JobApplicationService implements IJobApplication {
 
     }
 
+
     public String extractTextFromPdf(Long id){
         String text = null;
         try {
@@ -273,7 +274,7 @@ public class JobApplicationService implements IJobApplication {
     }
 
 
-
+//Ce code est le meme sauf qu'il retourne toute une liste de skills
     /*public String extractSkills(Long id) throws IOException {
         String text=extractTextFromPdf2(id);
         ClassLoader classLoader = getClass().getClassLoader();
@@ -347,20 +348,8 @@ public class JobApplicationService implements IJobApplication {
     private  List<String> skillsList = Arrays.asList("Java", "Python", "JavaScript", "React", "Node.js","Html","test2");
 
     public   boolean isSkill(String word) {
-
-
-
-        // Ajoutez ici la logique pour déterminer si un mot est une compétence
-        // Par exemple, vous pouvez utiliser une liste de compétences prédéfinie ou effectuer une analyse de fréquence
-        // pour identifier les compétences les plus courantes dans le texte.
-
-
-
-
-
         // Split the text into words
         String[] words = word.split(" ");
-
         // Extract the skills
         for (String a : words) {
             if (skillsList.contains(a)) {

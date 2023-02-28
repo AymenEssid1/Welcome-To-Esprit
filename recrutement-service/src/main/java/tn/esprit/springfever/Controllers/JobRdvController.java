@@ -120,5 +120,15 @@ public class JobRdvController {
     }
 
 
+    @GetMapping("/jitsi-link")
+    public String generateJitsiMeetLink() {
+
+        return iJobRDV.generateJitsiMeetLink();
+    }
+
+
+
+
+
 
 }

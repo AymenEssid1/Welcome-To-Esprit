@@ -29,6 +29,7 @@ public interface IJobApplication {
     public  String extractTextFromPdf2(Long id) throws IOException ;
     public String extractSkills(Long id) throws IOException;
     public boolean isSkill(String word);
+    //public boolean extractSkillsFromCv(Long id) throws IOException;
 
 
 }
