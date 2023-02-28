@@ -120,10 +120,10 @@ public class JobRdvController {
     }
 
 
-    @GetMapping("/jitsi-link")
-    public String generateJitsiMeetLink() {
+    @GetMapping("/jitsi-link/{id}")
+    public String generateJitsiMeetLink(@PathVariable("id") Long id ) {
 
-        return iJobRDV.generateJitsiMeetLink();
+        return iJobRDV.generateJitsiMeetLink(id);
     }
 
 

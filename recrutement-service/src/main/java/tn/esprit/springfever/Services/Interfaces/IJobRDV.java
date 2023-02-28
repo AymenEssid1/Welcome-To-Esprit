@@ -28,6 +28,6 @@ public interface IJobRDV {
     public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury,
                                                     int interviewDuration);
     //public String AssignRDVdATETordv(Long dispoCandidate, Long dispoJury,int interviewDuration );
-    public String generateJitsiMeetLink();
+    public String generateJitsiMeetLink(Long id);
 
 }

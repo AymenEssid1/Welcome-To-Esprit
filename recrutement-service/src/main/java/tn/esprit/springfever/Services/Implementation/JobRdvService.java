@@ -8,6 +8,7 @@ import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.Services.Interfaces.JobMapper;
 import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.enums.RDV_Type;
 import tn.esprit.springfever.repositories.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -258,13 +259,20 @@ public class JobRdvService implements IJobRDV {
         }
     }
 
-    public String generateJitsiMeetLink() {
-        String roomName = "my-room-name"; // Remplacez "my-room-name" par un nom de salle de réunion valide.
-        String domain = "meet.jit.si"; // Remplacez "meet.jit.si" par le nom de domaine Jitsi Meet de votre choix.
+    public String generateJitsiMeetLink(Long id ) {
+        Job_RDV jobRdv=jobRdvRepository.findById(id).orElse(null);
+        if(jobRdv.getType_RDV()== RDV_Type.ONLIGNE){
+            String roomName = "my-room-name"; // Remplacez "my-room-name" par un nom de salle de réunion valide.
+            String domain = "meet.jit.si"; // Remplacez "meet.jit.si" par le nom de domaine Jitsi Meet de votre choix.
 
-        String link = "https://" + domain + "/" + roomName;
-        return link;
+            String link = "https://" + domain + "/" + roomName;
+            return link;
+
+        }
+        return "RDV n est pas en ligne ";
+
     }
+
 
 
 
