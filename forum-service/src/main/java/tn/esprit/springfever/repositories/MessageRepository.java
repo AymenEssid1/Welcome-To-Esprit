@@ -11,16 +11,16 @@ import java.util.List;
 
 @EnableJpaRepositories
 public interface MessageRepository extends JpaRepository<Message,Long> {
-    public List<Message> findBySenderOrReceiver(int sender, int receiver);
-    public List<Message> findBySenderAndReceiver(int sender, int receiver);
-    public List<Message> findBySender(int sender);
+    public List<Message> findBySenderOrReceiver(Long sender, Long receiver);
+    public List<Message> findBySenderAndReceiver(Long sender, Long receiver);
+    public List<Message> findBySender(Long sender);
     public List<Message> findByConvId(String id);
 
     @Query(value =
             "SELECT DISTINCT m.convId " +
                     "FROM Message m " +
                     "WHERE m.sender = :sender OR m.receiver = :receiver")
-    public List<String> findDistinctConversationsBySenderOrReceiver(@Param("sender") int sender, @Param("receiver") int receiver);
+    public List<String> findDistinctConversationsBySenderOrReceiver(@Param("sender") Long sender, @Param("receiver") Long receiver);
 
 
 }

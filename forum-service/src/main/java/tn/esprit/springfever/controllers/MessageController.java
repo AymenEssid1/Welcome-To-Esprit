@@ -1,5 +1,6 @@
 package tn.esprit.springfever.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.entities.Message;
 import tn.esprit.springfever.services.interfaces.IMessageService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,35 +25,34 @@ public class MessageController {
 
     @PostMapping(value="/")
     @ResponseBody
-    public ResponseEntity<Message> addMessage(Message m){
-        m.setTimestamps(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.addMessage(m));
+    public ResponseEntity<Message> addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.addMessage(message,rec,request));
     }
 
     @PutMapping(value="/")
     @ResponseBody
-    public ResponseEntity<Message> putMessage(Long id , Message m){
+    public ResponseEntity<Message> putMessage(Long id,String post, HttpServletRequest request) throws JsonProcessingException {
 
-        return ResponseEntity.ok().body(service.updateMessage(id, m));
+        return ResponseEntity.ok().body(service.updateMessage(id, post, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMessage(@PathVariable Long id){
-        return ResponseEntity.ok().body(service.deleteMessage(id));
+    public ResponseEntity<String> deleteMessage(@PathVariable Long id, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteMessage(id, request));
     }
-    @DeleteMapping("/convo/{id}/{user}")
-    public ResponseEntity<String> deleteConversation(@PathVariable String id, @PathVariable int user){
-        return ResponseEntity.ok().body(service.deleteConversation(id,user));
-    }
-
-    @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteMessageByUser(@PathVariable int id){
-        return ResponseEntity.ok().body(service.deleteMessageByUser(id));
+    @DeleteMapping("/convo/{id}")
+    public ResponseEntity<String> deleteConversation(@PathVariable String id, HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteConversation(id,request));
     }
 
-    @GetMapping(value="/{id}")
-    public ResponseEntity<List<Message>> getMessages(@PathVariable int id){
-        return ResponseEntity.ok().body(service.getMessageByUser(id));
+    @DeleteMapping("/user")
+    public ResponseEntity<String> deleteMessageByUser(HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.deleteMessageByUser(request));
+    }
+
+    @GetMapping(value="/")
+    public ResponseEntity<List<Message>> getMessages(HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.getMessageByUser(request));
     }
 
     @GetMapping(value="/convo/{id}")
@@ -70,8 +71,8 @@ public class MessageController {
     }
 
     @GetMapping(value = "user/convo/{id}")
-    public ResponseEntity<List<String>> getConvsByUser(int id){
-        return ResponseEntity.ok().body(service.getConvsByUser(id));
+    public ResponseEntity<List<String>> getConvsByUser(HttpServletRequest request) throws JsonProcessingException {
+        return ResponseEntity.ok().body(service.getConvsByUser(request));
     }
 
 

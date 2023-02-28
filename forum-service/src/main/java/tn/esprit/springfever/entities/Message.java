@@ -26,8 +26,8 @@ public class Message implements Serializable {
     @Size(max = 200)
     private String msg;
 
-    private int sender;
-    private int receiver;
+    private Long sender;
+    private Long receiver;
 
     private String convId;
 

@@ -1,16 +1,20 @@
 package tn.esprit.springfever.services.implementations;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Message;
 import tn.esprit.springfever.repositories.MessageRepository;
 import tn.esprit.springfever.services.ConvoGenerator;
 import tn.esprit.springfever.services.interfaces.IMessageService;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,75 +22,112 @@ import java.util.List;
 public class MessageService implements IMessageService {
     @Autowired
     private MessageRepository repo;
+    @Autowired
+    private UserService userService;
 
     @Override
-    public Message addMessage(Message msg) {
-        List<Message> list1 = repo.findBySenderAndReceiver(msg.getSender(), msg.getReceiver());
-        List<Message> list2 = repo.findBySenderAndReceiver(msg.getReceiver(), msg.getSender());
-        if (list1.isEmpty()) {
-            log.info("list1 is empty");
-            if (list2.isEmpty()) {
-                log.info("list2 is empty");
-                msg.setConvId(new ConvoGenerator().generate(null, null).toString());
+    public Message addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            List<Message> list1 = repo.findBySenderAndReceiver(sender, rec);
+            List<Message> list2 = repo.findBySenderAndReceiver(rec, sender);
+            Message msg = new Message();
+            msg.setSender(sender);
+            msg.setReceiver(rec);
+            msg.setTimestamps(LocalDateTime.now());
+            msg.setMsg(message);
+            if (list1.isEmpty()) {
+                if (list2.isEmpty()) {
+                    msg.setConvId(new ConvoGenerator().generate(null, null).toString());
+                } else {
+                    msg.setConvId(list2.get(0).getConvId());
+                }
             } else {
-                msg.setConvId(list2.get(0).getConvId());
+                msg.setConvId(list1.get(0).getConvId());
             }
+
+            return repo.save(msg);
         } else {
-            msg.setConvId(list1.get(0).getConvId());
+            return null;
         }
 
-        return repo.save(msg);
     }
 
     @Override
     @CachePut("msg")
-    public Message updateMessage(Long id, Message msg) {
-        Message p = repo.findById(Long.valueOf(id)).orElse(null);
-        if (p != null) {
-            msg.setId(p.getId());
-            repo.save(msg);
+    public Message updateMessage(Long id, String msg, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            Message p = repo.findById(Long.valueOf(id)).orElse(null);
+            if (p != null) {
+                p.setMsg(msg);
+                p.setTimestamps(LocalDateTime.now());
+                repo.save(p);
+            }
+            return p;
+        } else {
+            return null;
         }
-        return p;
     }
 
     @Override
     @CacheEvict("msg")
-    public String deleteMessage(Long message) {
-        Message p = repo.findById(Long.valueOf(message)).orElse(null);
-        if (p != null) {
-            repo.delete(p);
-            return "Message was successfully deleted !";
+    public String deleteMessage(Long message, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            Message p = repo.findById(Long.valueOf(message)).orElse(null);
+            if (p != null) {
+                if (p.getSender() == sender || p.getReceiver() == sender) {
+                    repo.delete(p);
+                    return "Message was successfully deleted !";
+                } else {
+                    return "You don't have the right to delete this message";
+                }
+            }
+            return "Not Found ! ";
+        } else {
+            return "You have to login!";
         }
-        return "Not Found ! ";
     }
 
     @Override
     @Cacheable("msg")
-    public List<Message> getAllMessages() {
-        return repo.findAll();
-    }
-
-    @Override
-    @Cacheable("msg")
-    public List<Message> getMessageByUser(int user) {
-        return repo.findBySenderOrReceiver(user, user);
-    }
-
-    @Override
-    @CacheEvict("msg")
-    public String deleteMessageByUser(int id) {
-        List<Message> msgs = repo.findBySenderOrReceiver(id, id);
-        deleteSequence(msgs, id);
-        return "deleted succefully!";
+    public List<Message> getMessageByUser(HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            return repo.findBySenderOrReceiver(sender, sender);
+        } else {
+            return null;
+        }
     }
 
     @Override
     @CacheEvict("msg")
-    public String deleteConversation(String id, int user) {
-        List<Message> msgs = repo.findByConvId(id);
-        log.info(String.valueOf(msgs.size()));
-        deleteSequence(msgs, user);
-        return "deleted succefully!";
+    public String deleteMessageByUser(HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            List<Message> msgs = repo.findBySenderOrReceiver(sender, sender);
+            deleteSequence(msgs, sender);
+            return "deleted succefully!";
+        } else {
+            return null;
+        }
+
+
+    }
+
+    @Override
+    @CacheEvict("msg")
+    public String deleteConversation(String id, HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            List<Message> msgs = repo.findByConvId(id);
+            log.info(String.valueOf(msgs.size()));
+            deleteSequence(msgs, sender);
+            return "deleted succefully!";
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -97,8 +138,13 @@ public class MessageService implements IMessageService {
 
     @Override
     @Cacheable("msg")
-    public List<String> getConvsByUser(int user) {
-        return repo.findDistinctConversationsBySenderOrReceiver(user, user);
+    public List<String> getConvsByUser(HttpServletRequest request) throws JsonProcessingException {
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            return repo.findDistinctConversationsBySenderOrReceiver(sender, sender);
+        }else{
+            return null;
+        }
     }
 
     @Override
@@ -106,12 +152,12 @@ public class MessageService implements IMessageService {
         return !repo.findByConvId(id).isEmpty();
     }
 
-    public void deleteSequence(List<Message> msgs, int user) {
+    public void deleteSequence(List<Message> msgs, Long user) {
         for (Message m : msgs) {
             if (m.getReceiver() == user) {
-                m.setReceiver(0);
+                m.setReceiver(0L);
             } else {
-                m.setSender(0);
+                m.setSender(0L);
             }
             if (m.getReceiver() == 0 && m.getReceiver() == 0) {
                 repo.delete(m);
