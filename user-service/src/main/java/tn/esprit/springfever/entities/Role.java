@@ -3,6 +3,7 @@ package tn.esprit.springfever.entities;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,6 @@ import javax.persistence.*;
 
 
 @Entity
-@ToString
 @Data
 public class Role implements Serializable {
 
@@ -32,6 +32,7 @@ public class Role implements Serializable {
     private RoleType rolename;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Collection<User> users;
 
     public Collection<User> getUsers() {

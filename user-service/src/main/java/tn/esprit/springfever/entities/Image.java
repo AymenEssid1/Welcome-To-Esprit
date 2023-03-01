@@ -4,12 +4,14 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 
 @Entity
 @Data
+@ToString
 public class Image implements Serializable {
 
     @Id

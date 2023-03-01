@@ -91,6 +91,7 @@ public class UserController {
             throws ResourceNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
+        System.out.println(user.toString());
         return ResponseEntity.ok().body(user);
     }
 

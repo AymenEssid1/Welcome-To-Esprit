@@ -54,91 +54,37 @@ import java.util.stream.Collectors;
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
-
     @Autowired
     UserRepo userRepository;
-
     @Autowired
     RoleRepo roleRepository;
-
     @Autowired
     PasswordEncoder encoder;
-
-    @Autowired
-    private BanRepository banRepository;
-
     @Autowired
     JwtUtils jwtUtils;
-
     @Autowired
     FileSystemRepository fileSystemRepository;
-
     @Autowired
     IServiceUser iServiceUser;
     @Autowired
     IFileLocationService iFileLocationService;
     @Autowired
     BadgeRepo badgeRepository;
-
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-
-
     @Autowired
     private MailConfiguration mailConfiguration;
 
 
-    @Autowired
-    private RequestUtils requestUtils;
-
-    @Autowired
-    private GeoIpService geoIpService;
-
-    @GetMapping("hello")
-    public String hello() {
-        return "hello" ;
-    }
-
-    @PostMapping("/signin")
-     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
-
-
-
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        //jwtUtils.setJwtSecret("404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970");
-          String jwt = jwtUtils.generateJwtToken(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
-    }
 
 
     @PostMapping("/signinV2")
     public ResponseEntity<?> authenticateUserV2(@Valid @RequestBody LoginRequest loginRequest) throws IOException, GeoIp2Exception {
 
-
-        User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
-        if (user != null && user.getBan() != null && user.getBan().getExpiryTime() != null &&
-                LocalDateTime.now().isBefore(user.getBan().getExpiryTime())) {
-            // User is banned, return error response
-            Duration remainingTime = Duration.between(LocalDateTime.now(), user.getBan().getExpiryTime());
-            String timeLeft = String.format("%d minutes, %d seconds", remainingTime.toMinutes(), remainingTime.getSeconds() % 60);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account is temporarily locked. Please try again in " + timeLeft + ".");}
+            User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+            String timeLeft=iServiceUser.checkBan(user);
+            if(timeLeft!="a")
+            {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account is temporarily locked. Please try again in " + timeLeft + ".");}
 
 
             try {
@@ -174,25 +120,8 @@ public class AuthController {
 
                     // Check if the user should be banned
                     if (failedAttempts >= 3) {
-                        Ban ban = new Ban();
-                        ban.setLastFailedLoginAttempt(LocalDateTime.now());
-                        ban.setExpiryTime(LocalDateTime.now().plusMinutes(100));
-                        ban.setUser(user);
-                        user.setBan(ban);
-                        banRepository.save(ban);
-                        userRepository.save(user);
-                        String ipAddress = requestUtils.getClientIpAddress();
-                        System.out.println("******************************"+ipAddress);
-                        String city = geoIpService.getCity(ipAddress);
-                        String country = geoIpService.getCountry(ipAddress);
-                        String emailBody = "someone signed in with 3 failed attempts from " +country +"," + city  + " from the IP adress "+ipAddress+"\n Your Account is temporarily locked. Please try again later.";
-                        SimpleMailMessage message = new SimpleMailMessage();
-                        message.setSubject("ACCOUNT SUSPENDED");
-                        message.setText(emailBody);
-                        message.setTo(user.getEmail());
-                        mailConfiguration.sendEmail(message);
 
-
+                        iServiceUser.timeoutuser(user);
                         // User is banned, return error response
                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account is temporarily locked. Please try again later.");
                     }
@@ -200,6 +129,98 @@ public class AuthController {
 
                 // Authentication failed, return error response
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @PostMapping(value="/signUpV2",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
+        User u = new User();
+        u.setFirstname(userDTO.getFirstname());
+        u.setCin(userDTO.getCin());
+        u.setLastname(userDTO.getLastname());
+        u.setDob(userDTO.getDob());
+        u.setEmail(userDTO.getEmail());
+        u.setPassword(encoder.encode(userDTO.getPassword()));
+        u.setUsername(userDTO.getUsername());
+        if(image!=null){
+            System.out.println(image.getOriginalFilename());
+            Image newImage = iFileLocationService.save(image);
+            u.setImage(newImage);
+        }
+        iServiceUser.addUserAndAssignRole(u,roleType);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(u);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestParam String resetPasswordRequest) {
+
+        User user = userRepository.findByUsername(resetPasswordRequest)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        String newPassword = generateRandomPassword();
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+
+        String emailBody = "Hello " + user.getFirstname() + ",\n\n" +
+                "Your password has been reset. Your new password is: " + newPassword + "\n\n" +
+                "Please change your password after logging in.\n\n" +
+                "Regards,\nThe Team";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("PASSWORD RESET");
+        message.setText(emailBody);
+        message.setTo(user.getEmail());
+        mailConfiguration.sendEmail(message);
+
+
+
+        return ResponseEntity.ok("Password reset successfully. Please check your email.");
+    }
+
+    private String generateRandomPassword() {
+        String password = RandomStringUtils.randomAlphanumeric(8);
+        return password;
+    }
+
+
+
+
+
+
+
+    /*
+
+    @PostMapping("/signin")
+     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
+
+
+
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        //jwtUtils.setJwtSecret("404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970");
+          String jwt = jwtUtils.generateJwtToken(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getEmail(),
+                roles));
+    }*/
 
 
 
@@ -261,80 +282,6 @@ public class AuthController {
     }
 
 */
-
-
-    @PostMapping(value="/signUpV2",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
-    @ResponseBody
-    public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
-        User u = new User();
-        u.setFirstname(userDTO.getFirstname());
-        u.setCin(userDTO.getCin());
-        u.setLastname(userDTO.getLastname());
-        u.setDob(userDTO.getDob());
-        u.setEmail(userDTO.getEmail());
-        u.setPassword(encoder.encode(userDTO.getPassword()));
-        u.setUsername(userDTO.getUsername());
-        if(image!=null){
-            System.out.println(image.getOriginalFilename());
-            Image newImage = iFileLocationService.save(image);
-            u.setImage(newImage);
-        }
-        iServiceUser.addUserAndAssignRole(u,roleType);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(u);
-    }
-
-
-
-
-
-
-    @PostMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(@RequestParam String resetPasswordRequest) {
-
-        User user = userRepository.findByUsername(resetPasswordRequest)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-        String newPassword = generateRandomPassword();
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-
-        userRepository.save(user);
-
-        String emailBody = "Hello " + user.getFirstname() + ",\n\n" +
-                "Your password has been reset. Your new password is: " + newPassword + "\n\n" +
-                "Please change your password after logging in.\n\n" +
-                "Regards,\nThe Team";
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("PASSWORD RESET");
-        message.setText(emailBody);
-        message.setTo(user.getEmail());
-        mailConfiguration.sendEmail(message);
-
-
-
-        return ResponseEntity.ok("Password reset successfully. Please check your email.");
-    }
-
-    private String generateRandomPassword() {
-        String password = RandomStringUtils.randomAlphanumeric(8);
-        return password;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -6,6 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -13,6 +14,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,18 +25,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
-import tn.esprit.springfever.Repositories.BadgeRepo;
-import tn.esprit.springfever.Repositories.ImageRepository;
-import tn.esprit.springfever.Repositories.RoleRepo;
-import tn.esprit.springfever.Repositories.UserRepo;
+import tn.esprit.springfever.Repositories.*;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
+import tn.esprit.springfever.configuration.GeoIpService;
+import tn.esprit.springfever.configuration.MailConfiguration;
+import tn.esprit.springfever.configuration.RequestUtils;
 import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.payload.Request.LoginRequest;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -48,6 +55,18 @@ public class UserIMP implements IServiceUser {
 
     @Autowired
     BadgeRepo badgeRepo;
+
+    @Autowired
+    private RequestUtils requestUtils;
+
+    @Autowired
+    private GeoIpService geoIpService;
+
+    @Autowired
+    private BanRepository banRepository;
+
+    @Autowired
+    private MailConfiguration mailConfiguration;
 
     @Override
     public User addUserAndAssignRole(User user, RoleType rolename) {
@@ -186,6 +205,46 @@ public class UserIMP implements IServiceUser {
 
         workbook.close();
         return users;
+    }
+
+    @Override
+    public void timeoutuser(User user) throws GeoIp2Exception, IOException {
+
+        Ban ban = new Ban();
+        ban.setLastFailedLoginAttempt(LocalDateTime.now());
+        ban.setExpiryTime(LocalDateTime.now().plusMinutes(100));
+        ban.setUser(user);
+        user.setBan(ban);
+        banRepository.save(ban);
+        userrepo.save(user);
+        String ipAddress = requestUtils.getClientIpAddress();
+        System.out.println("******************************" + ipAddress);
+        String city = geoIpService.getCity(ipAddress);
+        String country = geoIpService.getCountry(ipAddress);
+        String emailBody = "someone signed in with 3 failed attempts from " + country + "," + city + " from the IP adress " + ipAddress + "\n Your Account is temporarily locked. Please try again later.";
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("ACCOUNT SUSPENDED");
+        message.setText(emailBody);
+        message.setTo(user.getEmail());
+        mailConfiguration.sendEmail(message);
+
+
+    }
+
+
+    @Override
+    public String checkBan(User user) {
+
+
+        if (user != null && user.getBan() != null && user.getBan().getExpiryTime() != null &&
+                LocalDateTime.now().isBefore(user.getBan().getExpiryTime())) {
+            // User is banned, return error response
+            Duration remainingTime = Duration.between(LocalDateTime.now(), user.getBan().getExpiryTime());
+            String timeLeft = String.format("%d minutes, %d seconds", remainingTime.toMinutes(), remainingTime.getSeconds() % 60);
+            return timeLeft;
+
+        }
+        return "a";
     }
 
 }

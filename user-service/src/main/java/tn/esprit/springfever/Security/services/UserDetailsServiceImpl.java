@@ -31,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
 
-
+/*
     public List<GrantedAuthority> getAuthorities(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (Role role : user.getRoles()) {
@@ -39,6 +39,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return authorities;
 
-    }
+    }*/
 
 }

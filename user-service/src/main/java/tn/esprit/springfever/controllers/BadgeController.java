@@ -26,7 +26,7 @@ public class BadgeController {
     IServiceUser iServiceUser;
 
 
-    @PostMapping("/add badge/{id}")
+    @PostMapping("/addbadge/{id}")
     public Badge saveBadge( @PathVariable(value ="id" )Long userId) {
         User u=iServiceUser.getSingleUser(userId);
         Badge badge = new Badge();

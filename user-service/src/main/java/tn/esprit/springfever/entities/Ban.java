@@ -1,6 +1,7 @@
 package tn.esprit.springfever.entities;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@ToString
 public class Ban implements Serializable {
 
     @Id

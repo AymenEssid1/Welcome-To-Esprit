@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tn.esprit.springfever.entities.Role;
 import tn.esprit.springfever.entities.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -100,4 +102,14 @@ public class UserDetailsImpl implements UserDetails {
         UserDetailsImpl user = (UserDetailsImpl) o;
         return Objects.equals(id, user.id);
     }
+
+    public List<String> getAuthorities(User user) {
+        List<String> authorities = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            authorities.add(role.getRolename().name());
+        }
+        return authorities;
+
+    }
+
 }
