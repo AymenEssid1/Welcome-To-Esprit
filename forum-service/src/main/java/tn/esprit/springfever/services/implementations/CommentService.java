@@ -15,6 +15,7 @@ import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.CommentPagingRepository;
 import tn.esprit.springfever.repositories.CommentRepository;
+import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.repositories.ReactionRepository;
 import tn.esprit.springfever.services.interfaces.ICommentService;
 import tn.esprit.springfever.services.interfaces.ILikesService;
@@ -49,7 +50,7 @@ public class CommentService implements ICommentService {
     private ReactionRepository reactionRepository;
 
     @Autowired
-    private CommentPagingRepository pagingRepository;
+    private PostRepository postRepository;
 
     @Override
     public ResponseEntity<?> addComment(String comment, List<MultipartFile> images, Long postId, HttpServletRequest authentication) throws JsonProcessingException {
@@ -68,11 +69,15 @@ public class CommentService implements ICommentService {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body("{\"Message\": \"Login or sign up to post!\"}");
-        } else {
+        } else if(postRepository.findById(postId).orElse(null)== null){
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("{\"Message\": \"The post you're trying to comment on does not exist!!\"}");
+        }else {
             Comment p = new Comment();
             p.setContent(comment);
             p.setCreatedAt(LocalDateTime.now());
-            p.setPost(postService.getSinglePost(postId,authentication));
+            p.setPost(postRepository.findById(postId).orElse(null));
             p.setUpdatedAt(LocalDateTime.now());
             p.setUser(
                     Long.valueOf(

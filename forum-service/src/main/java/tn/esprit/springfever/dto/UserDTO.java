@@ -11,8 +11,9 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
+
+    private String image;
     private List<RoleDTO> roles = new ArrayList<>();
-    private List<String> interests;
 
     public UserDTO() {
 

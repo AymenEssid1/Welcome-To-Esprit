@@ -13,6 +13,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.dto.PostDTO;
 import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.services.interfaces.IMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
@@ -68,8 +69,8 @@ public class PostController {
     }
 
     @GetMapping(value = "/")
-    public ResponseEntity<List<Post>> getAll(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id, HttpServletRequest request) {
+    public ResponseEntity<List<PostDTO>> getAll(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Long id, HttpServletRequest request) throws JsonProcessingException {
         if (id != null) {
             return ResponseEntity.ok().body(service.getByUserLazy(page, size, id, request));
         } else {
@@ -78,14 +79,14 @@ public class PostController {
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<Post>> search(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<PostDTO>> search(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String keyword, HttpServletRequest request) throws IOException {
         return ResponseEntity.ok().body(service.searchPosts(keyword, page, size, request));
 
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Post> getById(@PathVariable Long id) {
+    public ResponseEntity<PostDTO> getById(@PathVariable Long id) throws JsonProcessingException {
         return ResponseEntity.ok().body(service.getSinglePost(id, null));
     }
 

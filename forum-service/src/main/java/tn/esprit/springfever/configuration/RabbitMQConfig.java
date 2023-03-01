@@ -1,6 +1,7 @@
 package tn.esprit.springfever.configuration;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -9,12 +10,13 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 
 @Configuration
-@ComponentScan("tn.esprit.springfever.*")
 public class RabbitMQConfig {
     @Value("${spring.rabbitmq.host}")
     private String rabbitmqHost;
@@ -28,11 +30,16 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.template.exchange}")
+    @Value("${spring.rabbitmq.template.exchange.forum}")
     private String rabbitmqExchange;
 
-    @Value("${spring.rabbitmq.template.routing-key}")
-    private String rabbitmqRoutingKey;
+    @Value("${spring.rabbitmq.template.routing-key.forum.token}")
+    private String rabbitmqRoutingForumKey;
+    @Value("${spring.rabbitmq.template.routing-key.forum.id}")
+    private String rabbitmqRoutingForumId;
+
+    @Value("${spring.rabbitmq.template.queue.forum}")
+    private String rabbitmqRoutingForumQueue;
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -48,8 +55,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue responseQueue() {
-        return new Queue("response_queue", false);
+    public Queue requestQueue() {
+        return new Queue(rabbitmqRoutingForumQueue, true);
     }
 
     @Bean
@@ -58,8 +65,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding(Queue responseQueue, DirectExchange exchange) {
-        return BindingBuilder.bind(responseQueue).to(exchange).with(rabbitmqRoutingKey);
+    public AmqpAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
     }
 
     @Bean
@@ -68,8 +75,29 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public AmqpTemplate amqpTemplate(RabbitTemplate rabbitTemplate, MessageConverter messageConverter) {
+    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory, MessageConverter messageConverter) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
+    }
+
+    @Bean
+    public Queue forumQueue() {
+        return QueueBuilder.durable(rabbitmqRoutingForumQueue).build();
+    }
+
+    @Bean
+    public DirectExchange forumExchange() {
+        return new DirectExchange(rabbitmqExchange);
+    }
+
+    @Bean
+    public Binding forumTokenBinding(Queue forumQueue, DirectExchange forumExchange) {
+        return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingForumKey);
+    }
+
+    @Bean
+    public Binding forumIdBinding(Queue forumQueue, DirectExchange forumExchange) {
+        return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingForumId);
     }
 }

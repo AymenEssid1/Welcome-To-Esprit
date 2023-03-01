@@ -170,7 +170,7 @@ public class MatchingService {
     }
 
 
-    private double getCosineSimilarity(List<Double> vecA, List<Double> vecB) {
+    public double getCosineSimilarity(List<Double> vecA, List<Double> vecB) {
         if (vecA == null || vecB == null) {
             return 0.0;
         }
@@ -190,7 +190,7 @@ public class MatchingService {
         return dotProduct / denom;
     }
 
-    private List<Double> getVector(List<String> topics) {
+    public List<Double> getVector(List<String> topics) {
         List<Double> vector = new ArrayList<>();
         for (String topic : topics) {
             vector.add((double) Collections.frequency(topics, topic));

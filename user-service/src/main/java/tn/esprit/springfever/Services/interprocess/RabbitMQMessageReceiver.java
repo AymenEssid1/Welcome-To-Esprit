@@ -8,10 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import tn.esprit.springfever.Repositories.UserRepo;
 import tn.esprit.springfever.entities.Role;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
@@ -26,33 +33,90 @@ public class RabbitMQMessageReceiver {
 
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private UserRepo userRepo;
+    @Autowired
+    private RabbitTemplate amqpTemplate;
 
-    @RabbitListener(queues = "${spring.rabbitmq.template.routing-key}")
-    public Message receiveMessage(@Payload Message message) throws IOException {
+    @Value("${spring.rabbitmq.template.routing-key.forum.id}")
+    private String routingKeyForumId;
+    @Value("${spring.rabbitmq.template.routing-key.forum.token}")
+    private String routingKeyForumToken;
+
+    @RabbitListener(bindings = {
+            @QueueBinding(value =
+            @Queue(value = "${spring.rabbitmq.template.queue.forum}"), exchange = @Exchange("${spring.rabbitmq.template.exchange.forum}"), key = "${spring.rabbitmq.template.routing-key.forum.token}")})
+    public Message receiveMessage(@Payload Message message, @Header("amqp_receivedRoutingKey") String routingKey) throws IOException {
+        if (routingKey.equals(routingKeyForumToken)) {
+            return getUserByToken(message);
+        }
+        if (routingKey.equals(routingKeyForumId)) {
+            return getUserById(message);
+        }
+        return null;
+    }
+
+
+    public Message getUserById(Message message) {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
-        User user = jwtUtils.getUserFromUserName(jwtUtils.getUserNameFromJwtToken(token));
-        JSONObject obj = new JSONObject();
-        JSONArray jsonRoles = new JSONArray();
-        JSONArray jsonIntrests = new JSONArray();
-        obj.put("id", user.getUserid());
-        obj.put("username", user.getUsername());
-        for (Role role : user.getRoles()) {
-            jsonRoles.add(role.getRolename());
+        Long id = Long.valueOf(1);
+        User user = userRepo.findById(id).orElse(null);
+        if (user != null) {
+            JSONObject obj = new JSONObject();
+            JSONArray jsonRoles = new JSONArray();
+            obj.put("id", user.getUserid());
+            obj.put("username", user.getUsername());
+            for (Role role : user.getRoles()) {
+                jsonRoles.add(role.getRolename());
+            }
+            obj.put("roles", jsonRoles);
+            if (user.getImage() != null) {
+                obj.put("image", user.getImage().getLocation());
+            } else {
+                obj.put("image", null);
+            }
+            String jsonText = obj.toJSONString();
+            MessageProperties messageProperties = new MessageProperties();
+            messageProperties.setContentType("application/json");
+            Message response = MessageBuilder
+                    .withBody(jsonText.getBytes())
+                    .andProperties(messageProperties)
+                    .build();
+            return response;
         }
-        obj.put("roles", jsonRoles);
-        obj.put("interests", jsonIntrests);
-        StringWriter out = new StringWriter();
-        obj.writeJSONString(out);
-        String jsonText = out.toString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(jsonText);
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setContentType("application/json");
-        Message response = MessageBuilder
-                .withBody(json.getBytes())
-                .andProperties(messageProperties)
-                .build();
-        return response;
+        return null;
+    }
+
+    public Message getUserByToken(Message message) {
+        String token = new String(message.getBody(), StandardCharsets.UTF_8);
+        token = token.substring(1, token.length() - 1);
+        try {
+            User user = jwtUtils.getUserFromUserName(jwtUtils.getUserNameFromJwtToken(token));
+            JSONObject obj = new JSONObject();
+            JSONArray jsonRoles = new JSONArray();
+            obj.put("id", user.getUserid());
+            obj.put("username", user.getUsername());
+            for (Role role : user.getRoles()) {
+                jsonRoles.add(role.getRolename());
+            }
+            obj.put("roles", jsonRoles);
+            if (user.getImage() != null) {
+                obj.put("image", user.getImage().getLocation());
+            } else {
+                obj.put("image", null);
+            }
+            String jsonText = obj.toJSONString();
+            MessageProperties messageProperties = new MessageProperties();
+            messageProperties.setContentType("application/json");
+            Message response = MessageBuilder
+                    .withBody(jsonText.getBytes())
+                    .andProperties(messageProperties)
+                    .build();
+            return response;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return null;
     }
 }

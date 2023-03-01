@@ -14,19 +14,23 @@ import tn.esprit.springfever.dto.RoleDTO;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.services.interfaces.IUserService;
 
+import java.nio.charset.StandardCharsets;
+
 @Service
 @Slf4j
 public class UserService implements IUserService {
-
-    @Value("${spring.rabbitmq.template.exchange}")
+    @Value("${spring.rabbitmq.template.exchange.forum}")
     private String rabbitmqExchange;
 
-    @Value("${spring.rabbitmq.template.routing-key}")
+
+    @Value("${spring.rabbitmq.template.routing-key.forum.token}")
     private String rabbitmqRoutingKey;
+    @Value("${spring.rabbitmq.template.routing-key.forum.id}")
+    private String rabbitmqRoutingId;
     @Autowired
     private RabbitTemplate amqpTemplate;
 
-    // Send JWT token to User Service and wait for response
+    @Override
     public UserDTO getUserDetailsFromToken(String token) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(token.substring("Bearer ".length()));
@@ -37,10 +41,29 @@ public class UserService implements IUserService {
                 .andProperties(messageProperties)
                 .build();
         Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, rabbitmqRoutingKey, message);
-        // Wait for response with user details
         UserDTO userDetails = null;
         if (response != null && response.getBody() != null && response.getBody().length > 0) {
-            String jsonResponse = (String)amqpTemplate.getMessageConverter().fromMessage(response);
+            String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+            userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
+        }
+        return userDetails;
+    }
+
+    @Override
+    public UserDTO getUserDetailsFromId(Long id) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token= String.valueOf(id);
+        String json = objectMapper.writeValueAsString(token);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message message = MessageBuilder
+                .withBody(json.getBytes())
+                .andProperties(messageProperties)
+                .build();
+        Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, rabbitmqRoutingId, message);
+        UserDTO userDetails = null;
+        if (response != null && response.getBody() != null && response.getBody().length > 0) {
+            String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
         }
         return userDetails;

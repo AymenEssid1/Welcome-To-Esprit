@@ -10,5 +10,6 @@ import java.util.Optional;
 @EnableJpaRepositories
 public interface InterestRepository extends JpaRepository<UserInterest,Long> {
     public UserInterest findByUserAndTopic(Long user, String Topic);
+    public List<UserInterest> findByTopicIn(List<String> topics);
     public List<UserInterest> findByUser(Long user);
 }

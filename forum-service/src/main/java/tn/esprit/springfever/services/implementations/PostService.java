@@ -27,6 +27,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.dto.PostDTO;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.PostPagingRepository;
@@ -129,7 +130,7 @@ public class PostService implements IPostService {
                 p.setMedia(listM);
             }
             repo.save(p);
-            return ResponseEntity.status(HttpStatus.CREATED).body(p);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertToPostDTO(p, userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION))));
         }
     }
 
@@ -220,7 +221,7 @@ public class PostService implements IPostService {
                             p.setTopic(topic);
                         }
                         repo.save(p);
-                        return ResponseEntity.ok().body(p);
+                        return ResponseEntity.ok().body(convertToPostDTO(p, userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION))));
                     } else {
                         return ResponseEntity
                                 .status(HttpStatus.FORBIDDEN)
@@ -272,61 +273,68 @@ public class PostService implements IPostService {
     }
 
     @Override
-    @Cacheable("post")
-    public Post getSinglePost(Long id, HttpServletRequest request) {
+    public PostDTO getSinglePost(Long id, HttpServletRequest request) throws JsonProcessingException {
         Post post = repo.findById(id).orElse(null);
         List<Post> list = new ArrayList<>();
         list.add(post);
-        incrementViews(request, list);
-        matchingService.addInterestsFromPost(request, post);
-        return post;
+        //incrementViews(request, list);
+        return convertToPostDTO(post, userService.getUserDetailsFromId(post.getUser()));
+
     }
 
     @Override
     @Cacheable("post")
-    public List<Post> getAllLazy(int page, int size, HttpServletRequest request) {
+    public List<PostDTO> getAllLazy(int page, int size, HttpServletRequest request) throws JsonProcessingException {
         PageRequest pageable = PageRequest.of(
                 page,
                 size
         );
-
+        List<PostDTO> posts = new ArrayList<>();
         if (
                 request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null
         ) {
-            return pagerepo.findAll(pageable).getContent();
+            for (Post p : pagerepo.findAll(pageable).getContent()) {
+                posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
+            }
+            return posts;
         } else {
             List<Post> list = matchingService.getPostsByUserInterests(pageable, request);
             this.incrementViews(request, list);
             for (Post p : list) {
                 matchingService.addInterestsFromPost(request, p);
+                posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
             }
-            return list;
+            return posts;
         }
 
     }
 
     @Override
     @Cacheable("post")
-    public List<Post> getByUserLazy(
+    public List<PostDTO> getByUserLazy(
             int page,
             int size,
             Long id,
             HttpServletRequest request
-    ) {
+    ) throws JsonProcessingException {
         PageRequest pageable = PageRequest.of(
                 page,
                 size
         );
         List<Post> list = pagerepo.findByUser(pageable, id).getContent();
         this.incrementViews(request, list);
+        List<PostDTO> posts = new ArrayList<>();
         for (Post p : list) {
-            matchingService.addInterestsFromPost(request, p);
+            if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+                matchingService.addInterestsFromPost(request, p);
+            }
+            posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
         }
-        return list;
+        return posts;
     }
 
     @Override
-    public String rssFeed() throws FeedException {
+    public String rssFeed() throws FeedException, JsonProcessingException {
         PageRequest pageable = PageRequest.of(0, 10, Sort.by("id").descending());
         List<Post> list = pagerepo.findAll(pageable).getContent();
         SyndFeed feed = new SyndFeedImpl();
@@ -344,14 +352,15 @@ public class PostService implements IPostService {
             description.setType("text/plain");
             description.setValue(post.getContent());
             entry.setDescription(description);
+            entry.setAuthor(userService.getUserDetailsFromId(post.getUser()).getUsername());
             List<SyndEnclosure> enclosures = new ArrayList<>();
-            for (Media postMedia : post.getMedia()) {
+            if (!post.getMedia().isEmpty()) {
                 SyndEnclosure enclosure = new SyndEnclosureImpl();
                 enclosure.setUrl(
-                        "https://www.myforum.com/posts/media/" + postMedia.getMediaId()
+                        "https://www.myforum.com/posts/media/" + post.getMedia().get(0).getMediaId()
                 );
-                enclosure.setType(postMedia.getType());
-                enclosure.setLength(postMedia.getContent().length);
+                enclosure.setType(post.getMedia().get(0).getType());
+                enclosure.setLength(post.getMedia().get(0).getContent().length);
                 enclosures.add(enclosure);
             }
             entry.setEnclosures(enclosures);
@@ -388,7 +397,7 @@ public class PostService implements IPostService {
 
     @Override
     @Cacheable("post")
-    public List<Post> searchPosts(
+    public List<PostDTO> searchPosts(
             String searchString,
             int page,
             int size,
@@ -396,6 +405,7 @@ public class PostService implements IPostService {
     ) throws IOException {
         List<Post> posts = repo.findAll();
         List<Post> matchingPosts = new ArrayList<>();
+        List<PostDTO> postDTOS = new ArrayList<>();
         if (
                 request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null
         ) {
@@ -408,7 +418,7 @@ public class PostService implements IPostService {
                         post.getTitle().contains(searchString) ||
                                 post.getContent().contains(searchString) || post.getTitle().contains(searchString)
                 ) {
-                    matchingPosts.add(post);
+                    postDTOS.add(convertToPostDTO(post, userService.getUserDetailsFromId(post.getUser())));
                 }
             }
         } else {
@@ -416,11 +426,12 @@ public class PostService implements IPostService {
                     matchingService.getPostsByAdvancedSearch(searchString, page, size);
             for (Post p : matchingPosts) {
                 matchingService.addInterestsFromPost(request, p);
+                postDTOS.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getUser())));
             }
             incrementViews(request, matchingPosts);
         }
 
-        return matchingPosts;
+        return postDTOS;
     }
 
     @Override
@@ -478,4 +489,25 @@ public class PostService implements IPostService {
             return likesService.deletePostLike(repo.findById(postId).orElse(null), userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
         }
     }
+
+    public PostDTO convertToPostDTO(Post post, UserDTO user) {
+        PostDTO postDTO = new PostDTO();
+        postDTO.setId(post.getId());
+        postDTO.setTitle(post.getTitle());
+        postDTO.setContent(post.getContent());
+        postDTO.setCreatedAt(post.getCreatedAt());
+        postDTO.setComments(post.getComments());
+        postDTO.setMedia(post.getMedia());
+        postDTO.setLikes(post.getLikes());
+        postDTO.setUpdatedAt(post.getUpdatedAt());
+        postDTO.setTopic(post.getTopic());
+        if (post.getViews() == null ){
+            postDTO.setViews(0);
+        }else{
+            postDTO.setViews(post.getViews().size());
+        }
+        postDTO.setUser(user);
+        return postDTO;
+    }
+
 }

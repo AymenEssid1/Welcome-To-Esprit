@@ -8,8 +8,7 @@ public class Profanities {
 
     public Profanities(){
         List<String> dictionary = Arrays.asList(
-                "abdelmonom",
-                "abbo",
+
                 "abortionist",
                 "abuser",
                 "ahole",
@@ -106,6 +105,8 @@ public class Profanities {
                 "balllicker",
                 "ballsack",
                 "bampot",
+                "abdelmonom",
+                "abbo",
                 "banging",
                 "barelylegal",
                 "barface",
