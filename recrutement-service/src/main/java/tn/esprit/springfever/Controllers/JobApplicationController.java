@@ -25,6 +25,7 @@ import tn.esprit.springfever.repositories.JobApplicationRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -196,6 +197,20 @@ public class JobApplicationController {
         return iJobApplication.extractSkills(id);
 
     }
+    @GetMapping("StatNbApplicationByJob_Offer/")
+    public String countApplicationsByJobOffer() {
+        List<Object[]> jobOfferApplicationCount = iJobApplication.countApplicationsByJobOffer();
+        String ch = "";
+        for (Object[] result : jobOfferApplicationCount) {
+            Long id = ((BigInteger) result[0]).longValue();
+            String title = (String) result[1];
+            String subject = (String) result[2];
+            BigInteger count = (BigInteger) result[3];
+            ch = ch + ("Offer " + id + " (" + title + " - " + subject + ") received " + count + " applications.\n");
+        }
+        return ch;
+    }
+
 
 }
 

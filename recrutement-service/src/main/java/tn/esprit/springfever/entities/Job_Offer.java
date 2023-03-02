@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -24,7 +25,10 @@ public class Job_Offer implements Serializable {
     private String Title ;
     @NotBlank(message = "Le sujet ne peut pas être vide.")
     private String Subject ;
-
+    //Formula: permet de spécifier une requête SQL qui sera utilisée pour calculer la valeur d'un attribut de l'entité
+    //on va calculer avec Formula le nombre d'applications pour chaque Job_offer
+    @Formula("(select count(*) from Job_Application ja where ja.Id_Job_Offer = Id_Job_Offer)")
+    private Long applicationCount;
     @ManyToOne
     Job_Category jobCategory;
 

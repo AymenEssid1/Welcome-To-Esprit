@@ -49,6 +49,7 @@ import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
+import tn.esprit.springfever.repositories.JobOfferRepository;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -68,6 +69,8 @@ public class JobApplicationService implements IJobApplication {
 
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    JobOfferRepository jobOfferRepository;
 
 
     public Job_Application AddJobApplication (Job_Application job_application){
@@ -360,6 +363,10 @@ public class JobApplicationService implements IJobApplication {
 
 
         return false;
+    }
+
+    public List<Object[]> countApplicationsByJobOffer() {
+        return jobOfferRepository.getJobOfferApplicationCount();
     }
 
 

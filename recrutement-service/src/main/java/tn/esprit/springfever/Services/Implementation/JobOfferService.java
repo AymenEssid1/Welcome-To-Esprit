@@ -154,4 +154,6 @@ public class JobOfferService implements IJobOffer {
     public List<Object[]> countJobOffersByCategory() {
         return jobOfferRepository.countJobOffersByCategory();
     }
+
+
 }

@@ -16,4 +16,14 @@ public interface JobOfferRepository extends JpaRepository<Job_Offer,Long> {
     @Query("SELECT j.jobCategory.Name_Category, COUNT(j.Id_Job_Offer) FROM Job_Offer j GROUP BY j.jobCategory.Id_Job_Category")
     List<Object[]> countJobOffersByCategory();
 
+
+    @Query(value = "SELECT jo.Id_Job_Offer, jo.Title, jo.Subject, COUNT(*) as applicationCount " +
+            "FROM Job_Offer jo " +
+            "JOIN Job_Application ja ON jo.Id_Job_Offer = ja.Id_Job_Offer " +
+            "GROUP BY jo.Id_Job_Offer",
+            nativeQuery = true)
+    List<Object[]> getJobOfferApplicationCount();
+
+
+
 }

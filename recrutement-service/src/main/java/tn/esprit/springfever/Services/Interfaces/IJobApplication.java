@@ -30,6 +30,7 @@ public interface IJobApplication {
     public String extractSkills(Long id) throws IOException;
     public boolean isSkill(String word);
     //public boolean extractSkillsFromCv(Long id) throws IOException;
+    public List<Object[]> countApplicationsByJobOffer();
 
 
 }
