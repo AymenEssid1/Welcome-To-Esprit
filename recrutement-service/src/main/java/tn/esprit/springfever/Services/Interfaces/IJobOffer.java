@@ -18,6 +18,9 @@ public interface IJobOffer {
     public String AssignUserToJobApplication(Long id , Long Id_Job_Application );
 
     public String generateRSSFeed() throws FeedException;
+    public List<Object[]> countJobOffersByCategory() ;
+
+
 
 
 }

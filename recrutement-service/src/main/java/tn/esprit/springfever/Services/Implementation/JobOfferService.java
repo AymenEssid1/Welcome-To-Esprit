@@ -150,4 +150,8 @@ public class JobOfferService implements IJobOffer {
 
         return writer.toString();
     }
+
+    public List<Object[]> countJobOffersByCategory() {
+        return jobOfferRepository.countJobOffersByCategory();
+    }
 }

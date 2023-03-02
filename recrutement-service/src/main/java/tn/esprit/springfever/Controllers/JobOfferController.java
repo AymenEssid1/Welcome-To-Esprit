@@ -66,6 +66,11 @@ public class JobOfferController  {
         String rssFeed = iJobOffer.generateRSSFeed();
         return ResponseEntity.ok(rssFeed);
     }
+    @GetMapping("StatNbOffresParCategorie/")
+    public List<Object[]> countJobOffersByCategory(){
+        return iJobOffer.countJobOffersByCategory();
+    }
+
 
 
 }
