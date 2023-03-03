@@ -8,6 +8,10 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.dto.LikesDTO;
+import tn.esprit.springfever.dto.MessageDTO;
+import tn.esprit.springfever.dto.UserDTO;
+import tn.esprit.springfever.entities.Likes;
 import tn.esprit.springfever.entities.Message;
 import tn.esprit.springfever.repositories.MessageRepository;
 import tn.esprit.springfever.services.ConvoGenerator;
@@ -15,6 +19,7 @@ import tn.esprit.springfever.services.interfaces.IMessageService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,7 +31,7 @@ public class MessageService implements IMessageService {
     private UserService userService;
 
     @Override
-    public Message addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
+    public MessageDTO addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
         if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
             List<Message> list1 = repo.findBySenderAndReceiver(sender, rec);
@@ -45,8 +50,8 @@ public class MessageService implements IMessageService {
             } else {
                 msg.setConvId(list1.get(0).getConvId());
             }
-
-            return repo.save(msg);
+            Message message1= repo.save(msg);
+            return  convertToLikesDTO(message1);
         } else {
             return null;
         }
@@ -55,7 +60,7 @@ public class MessageService implements IMessageService {
 
     @Override
     @CachePut("msg")
-    public Message updateMessage(Long id, String msg, HttpServletRequest request) throws JsonProcessingException {
+    public MessageDTO updateMessage(Long id, String msg, HttpServletRequest request) throws JsonProcessingException {
         if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
             Message p = repo.findById(Long.valueOf(id)).orElse(null);
@@ -64,7 +69,7 @@ public class MessageService implements IMessageService {
                 p.setTimestamps(LocalDateTime.now());
                 repo.save(p);
             }
-            return p;
+            return convertToLikesDTO(p);
         } else {
             return null;
         }
@@ -92,10 +97,11 @@ public class MessageService implements IMessageService {
 
     @Override
     @Cacheable("msg")
-    public List<Message> getMessageByUser(HttpServletRequest request) throws JsonProcessingException {
+    public List<MessageDTO> getMessageByUser(HttpServletRequest request) throws JsonProcessingException {
         if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
             Long sender = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
-            return repo.findBySenderOrReceiver(sender, sender);
+            List<Message> messages = repo.findBySenderOrReceiver(sender, sender);
+            return convertToLikesDTOS(messages);
         } else {
             return null;
         }
@@ -132,8 +138,8 @@ public class MessageService implements IMessageService {
 
     @Override
     @Cacheable("msg")
-    public List<Message> getMsgsByConvo(String id) {
-        return repo.findByConvId(id);
+    public List<MessageDTO> getMsgsByConvo(String id) throws JsonProcessingException {
+        return convertToLikesDTOS(repo.findByConvId(id));
     }
 
     @Override
@@ -166,4 +172,39 @@ public class MessageService implements IMessageService {
             }
         }
     }
+
+    public MessageDTO convertToLikesDTO(Message message) throws JsonProcessingException {
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setId(message.getId());
+        messageDTO.setMsg(message.getMsg());
+        messageDTO.setTimestamps(message.getTimestamps());
+        messageDTO.setConvId(message.getConvId());
+        messageDTO.setSender(userService.getUserDetailsFromId(message.getSender()));
+        messageDTO.setReceiver(userService.getUserDetailsFromId(message.getReceiver()));
+        return messageDTO;
+    }
+
+    public List<MessageDTO> convertToLikesDTOS(List<Message> messages) throws JsonProcessingException {
+        List<MessageDTO> messageDTOS = new ArrayList<>();
+        List<Long> sendersIds = new ArrayList<>();
+        List<Long> receiversIds = new ArrayList<>();
+        for (Message message : messages) {
+            sendersIds.add(message.getSender());
+            receiversIds.add(message.getReceiver());
+        }
+        List<UserDTO> senders = userService.getUserDetailsFromIds(sendersIds);
+        List<UserDTO> receivers = userService.getUserDetailsFromIds(receiversIds);
+        for (Message message : messages){
+            MessageDTO messageDTO = new MessageDTO();
+            messageDTO.setId(message.getId());
+            messageDTO.setMsg(message.getMsg());
+            messageDTO.setTimestamps(message.getTimestamps());
+            messageDTO.setConvId(message.getConvId());
+            messageDTO.setSender(senders.get(messages.indexOf(message)));
+            messageDTO.setReceiver(receivers.get(messages.indexOf(message)));
+            messageDTOS.add(messageDTO);
+        }
+        return messageDTOS;
+    }
+
 }

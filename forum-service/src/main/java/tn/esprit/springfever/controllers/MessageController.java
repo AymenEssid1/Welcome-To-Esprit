@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.springfever.dto.MessageDTO;
 import tn.esprit.springfever.entities.Message;
 import tn.esprit.springfever.services.interfaces.IMessageService;
 
@@ -25,13 +26,13 @@ public class MessageController {
 
     @PostMapping(value="/")
     @ResponseBody
-    public ResponseEntity<Message> addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
+    public ResponseEntity<MessageDTO> addMessage(String message, Long rec, HttpServletRequest request) throws JsonProcessingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addMessage(message,rec,request));
     }
 
     @PutMapping(value="/")
     @ResponseBody
-    public ResponseEntity<Message> putMessage(Long id,String post, HttpServletRequest request) throws JsonProcessingException {
+    public ResponseEntity<MessageDTO> putMessage(Long id,String post, HttpServletRequest request) throws JsonProcessingException {
 
         return ResponseEntity.ok().body(service.updateMessage(id, post, request));
     }
@@ -51,12 +52,12 @@ public class MessageController {
     }
 
     @GetMapping(value="/")
-    public ResponseEntity<List<Message>> getMessages(HttpServletRequest request) throws JsonProcessingException {
+    public ResponseEntity<List<MessageDTO>> getMessages(HttpServletRequest request) throws JsonProcessingException {
         return ResponseEntity.ok().body(service.getMessageByUser(request));
     }
 
     @GetMapping(value="/convo/{id}")
-    public ResponseEntity<List<Message>> getMessagesByConvo(@PathVariable String id){
+    public ResponseEntity<List<MessageDTO>> getMessagesByConvo(@PathVariable String id) throws JsonProcessingException {
         return ResponseEntity.ok().body(service.getMsgsByConvo(id));
     }
 
