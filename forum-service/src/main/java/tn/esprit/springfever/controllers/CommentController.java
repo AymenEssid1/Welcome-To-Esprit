@@ -16,6 +16,7 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.dto.CommentDTO;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.Likes;
 import tn.esprit.springfever.services.interfaces.*;
@@ -69,7 +70,7 @@ public class CommentController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Comment> getById(@PathVariable Long id) {
+    public ResponseEntity<CommentDTO> getById(@PathVariable Long id) throws JsonProcessingException {
         return ResponseEntity.ok().body(service.getSingleComment(id));
     }
 

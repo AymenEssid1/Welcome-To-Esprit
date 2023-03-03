@@ -2,6 +2,7 @@ package tn.esprit.springfever.dto;
 
 import lombok.Data;
 import tn.esprit.springfever.entities.Likes;
+import tn.esprit.springfever.entities.Media;
 import tn.esprit.springfever.entities.Post;
 
 import java.util.List;
@@ -9,10 +10,10 @@ import java.util.List;
 public class CommentDTO {
     private Long id;
     private String content;
-
-    private Long user;
-    private List<Likes> likes;
+    private UserDTO user;
+    private List<LikesDTO> likes;
     private Post post;
+    private List<Media> media;
 
 
 }

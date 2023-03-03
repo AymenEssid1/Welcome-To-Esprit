@@ -29,6 +29,7 @@ import java.util.List;
 @Tag(name = "Posts Module")
 @Api(tags = "Posts Module")
 @Service
+@CrossOrigin
 public class PostController {
     @Autowired
     private IPostService service;

@@ -1,5 +1,8 @@
 package tn.esprit.springfever.services.interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import tn.esprit.springfever.dto.LikesDTO;
+import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.entities.Likes;
@@ -14,4 +17,6 @@ public interface ILikesService {
     public String deleteCommentLike(Comment comment, Long user);
     public List<Likes> findByUser(Long user);
     public Likes findById(Long id);
+    public List<LikesDTO> convertToLikesDTOS(List<Likes> likes) throws JsonProcessingException;
+    public LikesDTO convertToLikesDTO(Likes like) throws JsonProcessingException;
 }

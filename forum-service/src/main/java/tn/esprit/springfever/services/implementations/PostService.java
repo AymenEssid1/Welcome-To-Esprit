@@ -34,10 +34,7 @@ import tn.esprit.springfever.repositories.PostPagingRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.repositories.PostViewsRepository;
 import tn.esprit.springfever.repositories.ReactionRepository;
-import tn.esprit.springfever.services.interfaces.ILikesService;
-import tn.esprit.springfever.services.interfaces.IMediaService;
-import tn.esprit.springfever.services.interfaces.IPostService;
-import tn.esprit.springfever.services.interfaces.IUserService;
+import tn.esprit.springfever.services.interfaces.*;
 import tn.esprit.springfever.utils.MediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 
@@ -69,6 +66,8 @@ public class PostService implements IPostService {
 
     @Autowired
     private ProfanitiesService profanitiesService;
+    @Autowired
+    private ICommentService commentService;
 
     @Autowired
     private ReactionRepository reactionRepository;
@@ -277,7 +276,7 @@ public class PostService implements IPostService {
         Post post = repo.findById(id).orElse(null);
         List<Post> list = new ArrayList<>();
         list.add(post);
-        //incrementViews(request, list);
+        incrementViews(request, list);
         return convertToPostDTO(post, userService.getUserDetailsFromId(post.getUser()));
 
     }
@@ -289,22 +288,19 @@ public class PostService implements IPostService {
                 page,
                 size
         );
-        List<PostDTO> posts = new ArrayList<>();
         if (
                 request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null
         ) {
-            for (Post p : pagerepo.findAll(pageable).getContent()) {
-                posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
-            }
-            return posts;
+
+            return convertToPostDTOS(pagerepo.findAll(pageable).getContent());
         } else {
             List<Post> list = matchingService.getPostsByUserInterests(pageable, request);
             this.incrementViews(request, list);
             for (Post p : list) {
-                matchingService.addInterestsFromPost(request, p);
-                posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
+                //matchingService.addInterestsFromPost(request, p);
             }
-            return posts;
+
+            return convertToPostDTOS(pagerepo.findAll(pageable).getContent());
         }
 
     }
@@ -326,7 +322,7 @@ public class PostService implements IPostService {
         List<PostDTO> posts = new ArrayList<>();
         for (Post p : list) {
             if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-                matchingService.addInterestsFromPost(request, p);
+                //matchingService.addInterestsFromPost(request, p);
             }
             posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
         }
@@ -490,15 +486,15 @@ public class PostService implements IPostService {
         }
     }
 
-    public PostDTO convertToPostDTO(Post post, UserDTO user) {
+    public PostDTO convertToPostDTO(Post post, UserDTO user) throws JsonProcessingException {
         PostDTO postDTO = new PostDTO();
         postDTO.setId(post.getId());
         postDTO.setTitle(post.getTitle());
         postDTO.setContent(post.getContent());
         postDTO.setCreatedAt(post.getCreatedAt());
-        postDTO.setComments(post.getComments());
+        postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
         postDTO.setMedia(post.getMedia());
-        postDTO.setLikes(post.getLikes());
+        postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
         postDTO.setUpdatedAt(post.getUpdatedAt());
         postDTO.setTopic(post.getTopic());
         if (post.getViews() == null ){
@@ -508,6 +504,36 @@ public class PostService implements IPostService {
         }
         postDTO.setUser(user);
         return postDTO;
+    }
+
+    public List<PostDTO> convertToPostDTOS(List<Post> posts) throws JsonProcessingException {
+        List<PostDTO> postDTOS = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
+        for (Post post : posts) {
+            list.add(post.getUser());
+        }
+        List<UserDTO> users = userService.getUserDetailsFromIds(list);
+        for (Post post : posts){
+            PostDTO postDTO = new PostDTO();
+            postDTO.setId(post.getId());
+            postDTO.setTitle(post.getTitle());
+            postDTO.setContent(post.getContent());
+            postDTO.setCreatedAt(post.getCreatedAt());
+            postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
+            postDTO.setMedia(post.getMedia());
+            postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
+            postDTO.setUpdatedAt(post.getUpdatedAt());
+            postDTO.setTopic(post.getTopic());
+            if (post.getViews() == null ){
+                postDTO.setViews(0);
+            }else{
+                postDTO.setViews(post.getViews().size());
+            }
+            postDTO.setUser(users.get(posts.indexOf(post)));
+            postDTOS.add(postDTO);
+        }
+        log.info(String.valueOf(postDTOS.size()));
+        return postDTOS;
     }
 
 }

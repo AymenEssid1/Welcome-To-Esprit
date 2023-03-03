@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.dto.CommentDTO;
+import tn.esprit.springfever.dto.LikesDTO;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.CommentPagingRepository;
@@ -36,8 +38,6 @@ import java.util.List;
 public class CommentService implements ICommentService {
     @Autowired
     private CommentRepository repo;
-    @Autowired
-    private IPostService postService;
     @Autowired
     private IMediaService mediaService;
     @Autowired
@@ -103,7 +103,7 @@ public class CommentService implements ICommentService {
                 p.setMedia(listM);
             }
             repo.save(p);
-            return ResponseEntity.status(HttpStatus.CREATED).body(p);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertToLikesDTO(p));
         }
     }
 
@@ -178,7 +178,7 @@ public class CommentService implements ICommentService {
                             p.setContent(comment);
                         }
                         repo.save(p);
-                        return ResponseEntity.ok().body(p);
+                        return ResponseEntity.ok().body(convertToLikesDTO(p));
                     } else {
                         return ResponseEntity
                                 .status(HttpStatus.FORBIDDEN)
@@ -224,8 +224,14 @@ public class CommentService implements ICommentService {
 
     @Override
     @Cacheable("comment")
-    public Comment getSingleComment(Long id) {
-        return repo.findById(id).orElse(null);
+    public CommentDTO getSingleComment(Long id) throws JsonProcessingException {
+        Comment comment =repo.findById(id).orElse(null);
+        if (comment!=null){
+            return convertToLikesDTO(comment);
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
@@ -281,6 +287,39 @@ public class CommentService implements ICommentService {
         } else {
             return likesService.deleteCommentLike(repo.findById(commentId).orElse(null), userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId());
         }
+    }
+
+    @Override
+    public List<CommentDTO> convertToLikesDTOS(List<Comment> comments) throws JsonProcessingException {
+        List<CommentDTO> commentDTOS = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
+        for (Comment comment : comments) {
+            list.add(comment.getUser());
+        }
+        List<UserDTO> users = userService.getUserDetailsFromIds(list);
+        for (Comment comment : comments){
+            CommentDTO commentDTO = new CommentDTO();
+            commentDTO.setId(comment.getId());
+            commentDTO.setLikes(likesService.convertToLikesDTOS(comment.getLikes()));
+            commentDTO.setMedia(comment.getMedia());
+            commentDTO.setContent(comment.getContent());
+            commentDTO.setUser(users.get(comments.indexOf(comment)));
+            commentDTOS.add(commentDTO);
+        }
+        return commentDTOS;
+    }
+
+    @Override
+    public CommentDTO convertToLikesDTO(Comment comment) throws JsonProcessingException {
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setId(comment.getId());
+        if (comment.getLikes() != null){
+            commentDTO.setLikes(likesService.convertToLikesDTOS(comment.getLikes()));
+        }
+        commentDTO.setMedia(comment.getMedia());
+        commentDTO.setContent(comment.getContent());
+        commentDTO.setUser(userService.getUserDetailsFromId(comment.getUser()));
+        return commentDTO;
     }
 
 }

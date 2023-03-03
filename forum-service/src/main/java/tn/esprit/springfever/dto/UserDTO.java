@@ -1,5 +1,7 @@
 package tn.esprit.springfever.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -13,14 +15,17 @@ public class UserDTO {
     private String password;
 
     private String image;
-    private List<RoleDTO> roles = new ArrayList<>();
+    private List<String> roles = new ArrayList<>();
 
     public UserDTO() {
 
     }
-    public UserDTO(String username, String email, String password) {
+    @JsonCreator
+    public UserDTO(@JsonProperty("id")Long id,@JsonProperty("username") String username, @JsonProperty("email")String email, @JsonProperty("image")String image, @JsonProperty("roles")List<String> roles) {
+        this.id = id;
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.image = image;
+        this.roles = roles;
     }
 }

@@ -24,9 +24,9 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private List<Likes> likes;
+    private List<LikesDTO> likes;
 
-    private List<Comment> comments;
+    private List<CommentDTO> comments;
 
     private List<Media> media;
 
