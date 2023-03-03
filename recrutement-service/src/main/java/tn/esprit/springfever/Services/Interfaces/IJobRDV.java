@@ -31,5 +31,6 @@ public interface IJobRDV {
     public String generateJitsiMeetLink(Long id);
     public void updateCandidateLocation(Long idRDV, String address);
     public double calculateDistance(Long idRDV);
+    public void FixationRDV(Long id);
 
 }

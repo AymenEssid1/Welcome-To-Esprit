@@ -5,6 +5,8 @@ package tn.esprit.springfever.Services.Implementation;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.entities.*;
@@ -42,6 +44,8 @@ public class JobRdvService implements IJobRDV {
     @Autowired
     DisponiblitiesRepository disponiblitiesRepository;
 
+    @Autowired
+    private JavaMailSender mailSender;
 
 
     public Job_RDV addJobRDV(Job_RDV job_rdv) {
@@ -360,9 +364,9 @@ public class JobRdvService implements IJobRDV {
             double lat1 = Math.toRadians(latitude1);
             double lat2 = Math.toRadians(latitude2);
 
-            double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             double distance = earthRadius * c;
 
             return distance;
@@ -374,8 +378,50 @@ public class JobRdvService implements IJobRDV {
         return -1;
     }
 
+    public void sendEmailToFIXRDV(Long id, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("chaima.dammak@espri.tn");
+        Job_Application job_application = jobApplicationRepository.findById(id).orElse(null);
+        String to = job_application.getUser().getEmail();
+        System.out.println(to);
+        message.setTo(to);
+        message.setSubject(subject);
+        //body="Hello !! ";
+        message.setText(body);
+        mailSender.send(message);
+    }
 
+    public void FixationRDV(Long id) {
+        Job_RDV jobRdv = jobRdvRepository.findById(id).orElse(null);
+        double distance = calculateDistance(id);
+        RDV_Type rdvType = distance > 100.0 ? RDV_Type.ONLIGNE : RDV_Type.FACE_TO_FACE;
+        jobRdv.setType_RDV(rdvType);
+        if (jobRdv.getType_RDV() == RDV_Type.ONLIGNE) {
+            String subject = "Invitation to online interview for Job  position";
+            String body = "Dear Candidate ,\n" + "\n" +
+                    "\n" +
+                    "I hope this email finds you well. I am writing to invite you to an online interview for the" + jobRdv.getJobApplication().getJobOffer().getTitle() + "position at ESPRIT.\n" +
+                    "\n" +
+                    "\"As our team has taken into consideration the fact that you are located more than 100km away," + "\n" +
+                    "we have decided to conduct the interview online." + "\n" +
+                    " Your interview is scheduled for" + jobRdv.getAppointmentDate() + " and we kindly ask that you join the meeting room by clicking on the following link: \n" + generateJitsiMeetLink(id) +
+                    "\n Please ensure that you have a stable internet connection and a webcam for the interview.\n"
+                    + "\n \n \n" + "Best Reagrds,";
+            Long idJobApplication = jobRdv.getJobApplication().getId_Job_Application();
+            sendEmailToFIXRDV(idJobApplication, subject, body);
 
+        } else {
+            String subject = "Invitation to FaceToFace interview for Job  position";
+            String body = "Dear Candidate ,\n" + "\n" +
+                    "\n" +
+                    "I hope this email finds you well. I am writing to invite you to an online interview for the" + jobRdv.getJobApplication().getJobOffer().getTitle() + "position at ESPRIT.\n" +
+                    "\n" + "Your interview is scheduled for " + jobRdv.getAppointmentDate() + "\n at ESPRIT in " + jobRdv.getSalle_Rdv() + "\n"
+                    + "\n Best Reagrds,!";
+            Long idJobApp = jobRdv.getJobApplication().getId_Job_Application();
+            sendEmailToFIXRDV(idJobApp, subject, body);
+        }
+
+    }
 
 }
 

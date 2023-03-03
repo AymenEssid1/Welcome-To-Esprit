@@ -138,6 +138,12 @@ public class JobRdvController {
 
     }
 
+    @GetMapping("/send-email/{id}")
+    public void FixationRDV(@PathVariable("id") Long id){
+        iJobRDV.FixationRDV(id);
+
+    }
+
 
 
 
