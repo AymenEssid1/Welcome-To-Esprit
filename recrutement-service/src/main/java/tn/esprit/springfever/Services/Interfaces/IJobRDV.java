@@ -29,5 +29,7 @@ public interface IJobRDV {
                                                     int interviewDuration);
     //public String AssignRDVdATETordv(Long dispoCandidate, Long dispoJury,int interviewDuration );
     public String generateJitsiMeetLink(Long id);
+    public void updateCandidateLocation(Long idRDV, String address);
+    public double calculateDistance(Long idRDV);
 
 }

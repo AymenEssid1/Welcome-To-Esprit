@@ -144,10 +144,13 @@ public class JobApplicationService implements IJobApplication {
 
         Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
         Job_Offer job_offer=job_application.getJobOffer();
-        String text= extractTextFromPdf(Id_Job_Application);
-        String text2=job_offer.getSubject();
-        System.out.println(text);
-        System.out.println(text2);
+        String text= null;
+        try {
+            text = extractSkills(Id_Job_Application);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String text2=job_offer.getTitle();
         if(text.contains(text2)) {
             System.out.println("CV is Accepted  \n" +
                     "It contains the skills sought by the job offer\n");
@@ -164,7 +167,7 @@ public class JobApplicationService implements IJobApplication {
     }
 
 
-    public String extractTextFromPdf(Long id){
+    /*public String extractTextFromPdf(Long id){
         String text = null;
         try {
             FileSystemResource fileSystemResource = findLettreMotivation(id);
@@ -182,7 +185,7 @@ public class JobApplicationService implements IJobApplication {
             e.printStackTrace();
         }
         return text;
-    }
+    }*/
 
 
     public void sendEmail(Long id, String subject, String body){
@@ -212,7 +215,7 @@ public class JobApplicationService implements IJobApplication {
 
     //Bonne Code
 
-    public String extractSkills(Long id) throws IOException {
+    /*public String extractSkills(Long id) throws IOException {
         String text=extractTextFromPdf2(id);
         ClassLoader classLoader = getClass().getClassLoader();
 
@@ -274,11 +277,11 @@ public class JobApplicationService implements IJobApplication {
         return "chaima";
 
 
-    }
+    }*/
 
 
 //Ce code est le meme sauf qu'il retourne toute une liste de skills
-    /*public String extractSkills(Long id) throws IOException {
+   public String extractSkills(Long id) throws IOException {
         String text=extractTextFromPdf2(id);
         ClassLoader classLoader = getClass().getClassLoader();
 
@@ -337,10 +340,10 @@ public class JobApplicationService implements IJobApplication {
         if (extractedSkills.isEmpty()) {
             return "Aucune compétence n'a été extraite du CV";
         } else {
-            extractedSkills = extractedSkills.substring(0, extractedSkills.length() - 2); // Remove the last comma
+            //extractedSkills = extractedSkills.substring(0, extractedSkills.length() - 2); // Remove the last comma
             return extractedSkills;
         }
-    }*/
+    }
 
 
 
@@ -348,7 +351,8 @@ public class JobApplicationService implements IJobApplication {
 
 
 
-    private  List<String> skillsList = Arrays.asList("Java", "Python", "JavaScript", "React", "Node.js","Html","test2");
+    private  List<String> skillsList = Arrays.asList("Java", "Python", "JavaScript", "React", "Node.js","Html","test2","Css","Docker",
+            "Spring","Symfony","Angular","Conception de sites web");
 
     public   boolean isSkill(String word) {
         // Split the text into words

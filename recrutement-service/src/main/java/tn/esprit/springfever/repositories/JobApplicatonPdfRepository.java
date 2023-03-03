@@ -14,8 +14,8 @@ import java.util.List;
 @Repository
 public class JobApplicatonPdfRepository {
     public List<String> save(byte[] contentCv, byte[] contentLettre, String location_Cv, String location_LettreMotivation) throws Exception {
-        Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
-        Path lettreFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_LettreMotivation);
+        Path cvFile = Paths.get("C:\\Users\\User\\" + new Date().getTime() + "-" + location_Cv);
+        Path lettreFile = Paths.get("C:\\Users\\User\\" + new Date().getTime() + "-" + location_LettreMotivation);
 
         Files.write(cvFile, contentCv);
         Files.write(lettreFile, contentLettre);

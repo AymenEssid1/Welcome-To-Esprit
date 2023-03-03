@@ -1,21 +1,30 @@
 package tn.esprit.springfever.Services.Implementation;
 
-import com.netflix.discovery.shared.Pair;
+
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
-import tn.esprit.springfever.Services.Interfaces.JobMapper;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.enums.RDV_Type;
 import tn.esprit.springfever.repositories.*;
 
-import javax.persistence.EntityNotFoundException;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
+
 
 @Service
 @Slf4j
@@ -32,6 +41,8 @@ public class JobRdvService implements IJobRDV {
 
     @Autowired
     DisponiblitiesRepository disponiblitiesRepository;
+
+
 
     public Job_RDV addJobRDV(Job_RDV job_rdv) {
         return jobRdvRepository.save(job_rdv);
@@ -141,19 +152,21 @@ public class JobRdvService implements IJobRDV {
         // Conversion en liste de paires de dates
         List<LocalDateTime> dateRanges = new ArrayList<>();
         for (Disponibilites dispo : disponibilites) {
-            dateRanges.add( dispo.getEnd_date());
-            dateRanges.add( dispo.getEnd_date());
+            dateRanges.add(dispo.getEnd_date());
+            dateRanges.add(dispo.getEnd_date());
         }
 
         return dateRanges;
     }
+
     public Disponibilites AddDispo(Disponibilites disponibilites) {
         return disponiblitiesRepository.save(disponibilites);
     }
-    public String AssignUserToDisponibilities(Long idDispo, Long idUser ){
-        User user=userRepository.findById(idUser).orElse(null);
-        Disponibilites disponibilites=disponiblitiesRepository.findById(idDispo).orElse(null);
-        if(user!=null && disponibilites!=null){
+
+    public String AssignUserToDisponibilities(Long idDispo, Long idUser) {
+        User user = userRepository.findById(idUser).orElse(null);
+        Disponibilites disponibilites = disponiblitiesRepository.findById(idDispo).orElse(null);
+        if (user != null && disponibilites != null) {
             disponibilites.setUser(user);
             disponiblitiesRepository.save(disponibilites);
             return "OK ";
@@ -213,7 +226,7 @@ public class JobRdvService implements IJobRDV {
     public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury, int interviewDuration) {
         Disponibilites disponiblityCandidate = disponiblitiesRepository.findById(dispoCandidate).orElse(null);
         Long idCandadte = disponiblityCandidate.getUser().getId();
-        Job_RDV jobRdv=jobRdvRepository.findJob_RDVByCandidate_Id(idCandadte);
+        Job_RDV jobRdv = jobRdvRepository.findJob_RDVByCandidate_Id(idCandadte);
         Disponibilites disponiblityJury = disponiblitiesRepository.findById(dispoJury).orElse(null);
         LocalDateTime candidatePreferredDateTime = disponiblityCandidate.getPreferDateTime();
         LocalDateTime juryPreferredDateTime = disponiblityJury.getPreferDateTime();
@@ -259,9 +272,9 @@ public class JobRdvService implements IJobRDV {
         }
     }
 
-    public String generateJitsiMeetLink(Long id ) {
-        Job_RDV jobRdv=jobRdvRepository.findById(id).orElse(null);
-        if(jobRdv.getType_RDV()== RDV_Type.ONLIGNE){
+    public String generateJitsiMeetLink(Long id) {
+        Job_RDV jobRdv = jobRdvRepository.findById(id).orElse(null);
+        if (jobRdv.getType_RDV() == RDV_Type.ONLIGNE) {
             String roomName = "my-room-name"; // Remplacez "my-room-name" par un nom de salle de réunion valide.
             String domain = "meet.jit.si"; // Remplacez "meet.jit.si" par le nom de domaine Jitsi Meet de votre choix.
 
@@ -273,8 +286,96 @@ public class JobRdvService implements IJobRDV {
 
     }
 
+    /*public void updateCandidateLocation(Long idRDV, String address) {
+        String apiKey = "AIzaSyD8KsmpJAJvaYMyEZf6Ottr68ZMJNMKKDI";
+        GeoApiContext context = new GeoApiContext.Builder().apiKey(apiKey).build();
+        try {
+            GeocodingResult[] results = GeocodingApi.geocode(context, address).await();
+            if (results.length > 0) {
+                LatLng location = results[0].geometry.location;
+                double latitude = location.lat;
+                double longitude = location.lng;
+                Job_RDV jobRdv = jobRdvRepository.findById(idRDV).orElse(null);
+                User candidate = jobRdv.getJobApplication().getUser();
+                jobRdv.setLocationCandidate(address);
+                jobRdv.setLatitudeCandidate(latitude);
+                jobRdv.setLongitudeCandidate(longitude);
+                jobRdvRepository.save(jobRdv);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // handle error
+            System.out.println("Not Ok HERE ");
+        }
+    }*/
+    public void updateCandidateLocation(Long idRDV, String address) {
+        String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet httpGet = new HttpGet(url);
+        HttpResponse httpResponse;
+        try {
+            httpResponse = httpClient.execute(httpGet); //RequiredType:httpResponse
+            HttpEntity httpEntity = httpResponse.getEntity(); //getEntity en rouge : No candidates found for method call httpResponse.getEntity().
+            String response = EntityUtils.toString(httpEntity);
+            JSONArray jsonArray = new JSONArray(response);
+            JSONObject jsonObject = jsonArray.getJSONObject(0); //Cannot resolve method 'getJSONObject' in 'JSONArray'
+            String latitude = jsonObject.getString("lat"); //Cannot resolve method 'getString' in 'JSONObject'
+            String longitude = jsonObject.getString("lon");
+            Job_RDV jobRdv = jobRdvRepository.findById(idRDV).orElse(null);
+            User candidate = jobRdv.getJobApplication().getUser();
+            jobRdv.setLocationCandidate(address);
+            jobRdv.setLatitudeCandidate(Double.parseDouble(latitude));
+            jobRdv.setLongitudeCandidate(Double.parseDouble(longitude));
+            jobRdvRepository.save(jobRdv);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // handle error
+            System.out.println("Not Ok HERE ");
+        }
+    }
+
+    public double calculateDistance(Long idRDV) {
+        Job_RDV jobRdv = jobRdvRepository.findById(idRDV).orElse(null);
+        double latitude1 = jobRdv.getLatitudeCandidate();
+        double longitude1 = jobRdv.getLongitudeCandidate();
+
+        String address = "Ariana,2083";
+        String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet httpGet = new HttpGet(url);
+        HttpResponse httpResponse;
+        try {
+            httpResponse = httpClient.execute(httpGet);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            String response = EntityUtils.toString(httpEntity);
+            JSONArray jsonArray = new JSONArray(response);
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            double latitude2 = Double.parseDouble(jsonObject.getString("lat"));
+            double longitude2 = Double.parseDouble(jsonObject.getString("lon"));
+
+            double earthRadius = 6371; // km
+
+            double dLat = Math.toRadians(latitude2 - latitude1);
+            double dLon = Math.toRadians(longitude2 - longitude1);
+            double lat1 = Math.toRadians(latitude1);
+            double lat2 = Math.toRadians(latitude2);
+
+            double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            double distance = earthRadius * c;
+
+            return distance;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // handle error
+            System.out.println("Not Ok HERE ");
+        }
+        return -1;
+    }
 
 
 
 
 }
+

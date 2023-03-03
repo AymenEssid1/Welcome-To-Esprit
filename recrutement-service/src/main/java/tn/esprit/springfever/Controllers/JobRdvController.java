@@ -127,6 +127,18 @@ public class JobRdvController {
     }
 
 
+    @PutMapping("SetJCandidateLocation/{idRDV}/{address}")
+    public void updateCandidateLocation(@PathVariable("idRDV") Long idRDV, @PathVariable("address") String address){
+        iJobRDV.updateCandidateLocation(idRDV,address);
+
+    }
+    @GetMapping("/CalculDistance/{id}")
+    public double calculateDistance(@PathVariable("id") Long idRDV){
+        return iJobRDV.calculateDistance(idRDV);
+
+    }
+
+
 
 
 

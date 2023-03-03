@@ -26,6 +26,9 @@ public class Job_RDV implements Serializable {
     @Setter
 
     private Long ID_Job_DRV;
+    private String locationCandidate;
+    private double LatitudeCandidate;
+    private double LongitudeCandidate;
 
     @ManyToOne
     @JoinColumn(name = "Candidate_ID")
@@ -55,6 +58,7 @@ public class Job_RDV implements Serializable {
     @JoinColumn(name = "entretien_id")
     @JsonIgnore
     private Entretien entretien;
+
 
 
 
