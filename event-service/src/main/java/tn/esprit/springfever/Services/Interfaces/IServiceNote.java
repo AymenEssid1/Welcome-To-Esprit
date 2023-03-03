@@ -18,4 +18,9 @@ public interface IServiceNote {
     //public String getSentimentAnalysis(Long idNote);
 
     public void displayNoteStatistics();
+
+
+    public String analyzeSentiment(String text) ;
+    public String sentFeedback(Long idNote,String comment);
+
 }

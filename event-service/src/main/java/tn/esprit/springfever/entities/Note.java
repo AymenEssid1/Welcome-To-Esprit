@@ -24,25 +24,26 @@ public class Note implements Serializable{
     @Setter
 
     private Long idNote;
-    @NotBlank
+    @NotBlank(message = "Le softskillsNote ne peut pas être vide.")
     private float softskillsNote ;
-    @NotBlank
+    @NotBlank(message = "Le hardskillsNote ne peut pas être vide.")
     private float hardskillsNote;
-    @NotBlank
+    @NotBlank(message = "Le presentationNote ne peut pas être vide.")
     private float presentationNote ;
-    @NotBlank
+    @NotBlank(message = "Le consistencyNote ne peut pas être vide.")
     private float consistencyNote;
-    @NotBlank
+    @NotBlank(message = "Le originalityNote ne peut pas être vide.")
     private float originalityNote ;
-    @NotBlank
+    @NotBlank(message = "Le contentNote ne peut pas être vide.")
     private float contentNote;
-    @NotBlank
+    @NotBlank(message = "Le relevanceNote ne peut pas être vide.")
     private float relevanceNote ;
-    @NotBlank
+    @NotBlank(message = "Le comment ne peut pas être vide.")
+    @Size(max = 50, message = "Le comment ne peut pas dépasser {max} caractères.")
     private String comment ;
-    @NotBlank
+    @NotBlank(message = "Le submitDate ne peut pas être vide.")
     private Date submitDate ;
-    @NotBlank
+    @NotBlank(message = "Le projectNote ne peut pas être vide.")
     private float projectNote ;
 
 

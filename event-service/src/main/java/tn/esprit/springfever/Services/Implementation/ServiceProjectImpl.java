@@ -1,12 +1,18 @@
 package tn.esprit.springfever.Services.Implementation;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.springfever.DTO.ProjectDTO;
 import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.ProjectMapper;
@@ -16,11 +22,16 @@ import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.ProjectRepository;
+import tn.esprit.springfever.repositories.rapportPDFRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +42,9 @@ public class ServiceProjectImpl implements IServiceProject{
     @Autowired
     ProjectRepository projectRepository ;
     @Autowired
+    rapportPDFRepository rapportPdfRepository;
+
+    @Autowired
     ProjectMapper projectMapper;
 
     @Override
@@ -39,7 +53,50 @@ public class ServiceProjectImpl implements IServiceProject{
         return projectRepository.save(project);
     }
 
-/*
+    public Project save(byte[] rapport, String imageName) throws Exception {
+        return projectRepository.save(new Project(rapport));
+    }
+
+
+    public Project savef(byte[] rapport, String location_rapport) throws Exception {
+        Path rapportFile = Paths.get("C:\\Users\\Nour\\Desktop\\" + new Date().getTime() + "-" + location_rapport);
+
+        Files.write(rapportFile, rapport);
+
+        String rapportLocation = rapportFile.toAbsolutePath().toString();
+
+        return projectRepository.save(new Project( rapportLocation));
+    }
+
+    public FileSystemResource findrapport(Long Id_Job_Application) {
+
+        Project project = projectRepository.findById(Id_Job_Application)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return rapportPDFRepository.findInFileSystem(project.getLocation_rapport());
+    }
+
+    public String extractTextFromPdf(Long id){
+        String text = null;
+        try {
+            FileSystemResource fileSystemResource = findrapport(id);
+
+            PdfReader reader = new PdfReader(fileSystemResource.getPath());
+
+            int n = reader.getNumberOfPages();
+            text = "";
+            for (int i = 0; i < n; i++) {
+                text += PdfTextExtractor.getTextFromPage(reader, i + 1).trim() + "\n";
+            }
+            reader.close();
+            System.out.println(text);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return text;
+    }
+
+
+    /*
     @Override
     public Project addProject(Project project) throws IOException {
 

@@ -9,6 +9,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.awt.*;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -24,12 +25,12 @@ public class Teams implements Serializable{
 
     private Long idTeam;
 
-    @NotBlank
-    @Size(max = 30)
+    @NotBlank(message = "Le NameTeam ne peut pas être vide.")
+    @Size(max = 10, message = "Le nom du team ne peut pas dépasser {max} caractères.")
     private String NameTeam ;
-    @NotBlank
+    @NotBlank(message = "Le QRcertificat ne peut pas être vide.")
     private String QRcertificat;
-    @NotBlank
+    @NotBlank(message = "Le NiveauEtude ne peut pas être vide.")
     private String NiveauEtude ;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="teams")
@@ -43,5 +44,10 @@ public class Teams implements Serializable{
     @OneToOne
     @JsonIgnore
     private Project project;
+
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    private ImageData image;
+
 
 }

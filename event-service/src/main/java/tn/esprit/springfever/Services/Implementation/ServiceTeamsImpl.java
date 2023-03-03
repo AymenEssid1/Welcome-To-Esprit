@@ -133,8 +133,8 @@ public class ServiceTeamsImpl implements IServiceTeams{
                 userRepository.save(user);
 
                 String subject = "You have been assigned to a team for APP0 event";
-                String message = "Dear" + user.getUsername()+ ",\n\n"
-                        + "We are pleased to inform you that you have been assigned to " + team.getNameTeam()+ " for the" + event.getTypeEvent()+ ", which will be taking place on " + event.getStartDate()  + " at" + event.getEspace() +  ".\n"
+                String message = "Dear " + user.getUsername()+ ",\n\n"
+                        + "We are pleased to inform you that you have been assigned to " + team.getNameTeam()+ " for the APP0" +  ", which will be taking place on 14-03-2023 " +  " at ESPRIT" +  ".\n"
                         + "As a member of " + team.getNameTeam()  + ", you will be expected to attend all scheduled meetings and participate in team activities leading up to the event. Your contribution is crucial to our success, and we believe that your skills and experience will be a valuable asset to the team.\n\n"
                         + "Please be advised that you must arrive on time for the event .\n\n"
                         + "Thank you for your dedication and commitment to the success of this event. We look forward to working with you.\n\n"

@@ -23,18 +23,23 @@ public class Project implements Serializable{
     @Setter
 
     private Long idProject;
-    @NotBlank
-
+    @NotBlank(message = "Le URI ne peut pas être vide.")
     private String URI ;
-    @NotBlank
+    @NotBlank(message = "La presentation ne peut pas être vide.")
     private String presentation;
-    @NotBlank
+    @NotBlank(message = "La description ne peut pas être vide.")
+    @Size(max = 50, message = "La description ne peut pas dépasser {max} caractères.")
     private String description ;
-    @NotBlank
+    @NotBlank(message = "Le submitDate ne peut pas être vide.")
     private LocalDateTime submitDate ;
 
     @Lob
     private byte[] video;
+
+    @Lob
+    @Column(name = "Rapport")
+    private byte[] rapport;
+    private String location_rapport ;
 
     @OneToOne(mappedBy="project")
     @JsonIgnore
@@ -43,5 +48,23 @@ public class Project implements Serializable{
     @ManyToOne
     @JsonIgnore
     Note note;
+
+    public Project(byte[] rapport) {
+        this.rapport = rapport;
+    }
+    public Project(String location_rapport){
+        this.location_rapport=location_rapport;
+
+    }
+    public Project(String location_rapport,byte[] rapport ){
+        this.location_rapport=location_rapport;
+        this.rapport=rapport;
+    }
+    public Project(byte[]rapport, String location_rapport){
+        this.location_rapport=location_rapport;
+        this.rapport=rapport;
+
+    }
+
 
 }

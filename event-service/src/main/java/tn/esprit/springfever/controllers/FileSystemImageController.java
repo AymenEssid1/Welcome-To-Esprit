@@ -23,7 +23,7 @@ public class FileSystemImageController {
     @PostMapping(value = "/image" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public ResponseEntity<ImageData> uploadImage(@RequestParam("image") MultipartFile image) {
         try {
-            ImageData savedImageData = iFileLocationService.save(image.getBytes(), image.getOriginalFilename());
+            ImageData savedImageData = iFileLocationService.save(image);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedImageData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

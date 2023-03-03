@@ -2,6 +2,7 @@ package tn.esprit.springfever.repositories;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,16 +14,17 @@ public class FileSystemRepository  {
 
 
 
-    public String save(byte[] content, String imageName) throws Exception {
-        Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\pictures\\" + new Date().getTime() + "-" + imageName);
+    public String save(MultipartFile content) throws Exception {
+        Path newFile = Paths.get("C:\\Users\\Nour\\Desktop\\PI2\\welcome-to-esprit\\event-service\\videos" + new Date().getTime() + "-" + content.getOriginalFilename());
         Files.createDirectories(newFile.getParent());
-        Files.write(newFile, content);
+        Files.write(newFile, content.getBytes());
         return newFile.toAbsolutePath()
                 .toString();
+
     }
 
     public String saveVideo(byte[] data, String videoName) throws Exception {
-        Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\videos\\"+ new Date().getTime() + "-" + videoName);
+        Path newFile = Paths.get("C:\\Users\\Nour\\Desktop\\PI2\\welcome-to-esprit\\event-service\\videos"+ new Date().getTime() + "-" + videoName);
         Files.createDirectories(newFile.getParent());
         Files.write(newFile, data);
         return newFile.toAbsolutePath()

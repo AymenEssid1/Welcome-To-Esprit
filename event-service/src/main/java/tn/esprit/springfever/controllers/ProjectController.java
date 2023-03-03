@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ProjectDTO;
@@ -45,16 +46,44 @@ public class ProjectController {
     /*********  add project  ***********/
     @ApiOperation(value = "This method is used to add projects")
 
-    @PostMapping(value="saveVideo",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Project> addProject(@RequestParam("video") MultipartFile video, Project project) throws Exception {
-        fileLocationService.saveVideo(video.getBytes(), video.getOriginalFilename());
-        Project saveProject = iServiceProject.addProject(project);
-        return  new ResponseEntity<>(saveProject, HttpStatus.CREATED);
+
+    @GetMapping(value = "/Getrapport/{id}")
+    public ResponseEntity<FileSystemResource> downloadPDFrapport(@PathVariable("id") Long Id) {
+        try {
+            System.out.println("succes");
+            FileSystemResource fileSystemResource = iServiceProject.findrapport(Id);
+            System.out.println("succes");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(fileSystemResource);
+        } catch (Exception e) {
+            System.out.println("eror pdf");
+
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(value = "/pdf-text/{id}")
+    public String extractTextFromPdf(@PathVariable("id") Long Id) {
+        return iServiceProject.extractTextFromPdf(Id);
     }
 
 
-// let team uoload vd
+    @PostMapping(value="saveVideo",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    public ResponseEntity<Project> addProject(@RequestParam("video") MultipartFile video,@RequestParam("rapport") MultipartFile rapportFile, Project project) throws Exception {
+        fileLocationService.saveVideo(video.getBytes(), video.getOriginalFilename());
+        Project saveProject = iServiceProject.addProject(project);
+        Project saveRapport = iServiceProject.savef(rapportFile.getBytes(),rapportFile.getOriginalFilename());
+        return  new ResponseEntity<>(saveProject, (MultiValueMap<String, String>) saveRapport, HttpStatus.CREATED);
+
+
+    }
+
+
+
+
+    // let team uoload vd
     @PostMapping(value = "/{idProject}/uploadvideo",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> uploadVideo(@PathVariable Long idProject, @RequestParam("video") MultipartFile video) {
         try {

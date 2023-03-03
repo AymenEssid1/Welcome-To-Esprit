@@ -1,12 +1,14 @@
 package tn.esprit.springfever.Services.Implementation;
 
 
+import com.vader.sentiment.analyzer.SentimentAnalyzer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.NoteDTO;
 import tn.esprit.springfever.Services.Interfaces.NoteMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceNote;
+import tn.esprit.springfever.analyzer.SentimentPolarities;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.NoteRepository;
 import tn.esprit.springfever.repositories.ProjectRepository;
@@ -178,7 +180,42 @@ public class ServiceNoteImpl implements IServiceNote {
 
 */
 
-@Override
+
+
+    @Override
+    public String analyzeSentiment(String text) {
+        final SentimentPolarities sentimentPolarities = tn.esprit.springfever.analyzer.SentimentAnalyzer.getScoresFor(
+                text);
+        System.out.println(sentimentPolarities);
+        return "PositivePolarity: " + sentimentPolarities.getPositivePolarity() +
+                "NegativePolarity: " + sentimentPolarities.getNegativePolarity()+
+                "NeutralPolarity: " + sentimentPolarities.getNeutralPolarity() +
+                "CompoundPolarity: " + sentimentPolarities.getCompoundPolarity() ;
+    }
+
+    @Override
+    public String sentFeedback( Long idNote, String comment) {
+        Note existingNote = noteRepository.findById(idNote).orElse(null);
+        if(existingNote!=null) {
+            //existingNote.setComment(comment);
+            log.info("comment sent");
+            noteRepository.save(existingNote);
+            return this.analyzeSentiment(comment) ;
+        }
+        else {
+            log.info("comment not found");
+            return "comment not found" ;
+        }
+    }
+
+
+
+
+
+
+
+
+    @Override
     public void displayNoteStatistics() {
 
         // Calculate average softskills note

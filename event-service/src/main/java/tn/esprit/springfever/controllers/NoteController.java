@@ -81,6 +81,23 @@ public class NoteController {
 */
 
 
+
+    @PostMapping("/sentiment")
+    public ResponseEntity<String> analyzeSentiment(@RequestBody String text) {
+        String sentiment = iServiceNote.analyzeSentiment(text);
+        return ResponseEntity.ok(sentiment);
+    }
+
+    @PutMapping("/{id}/comment")
+    public String sentFeedback(@PathVariable("id") Long idNote, @RequestBody String comment) {
+        return iServiceNote.sentFeedback(idNote,comment);
+
+    }
+
+
+
+
+
     @GetMapping("statistiques/notes")
     public ResponseEntity<Map<String, Float>> getNotesStatistics() {
         Map<String, Float> statistics = new HashMap<>();
