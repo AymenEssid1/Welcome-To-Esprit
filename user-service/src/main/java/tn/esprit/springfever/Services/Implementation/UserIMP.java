@@ -173,8 +173,11 @@ public class UserIMP implements IServiceUser {
             user.setLastname(row.getCell(3).getStringCellValue());
             user.setCin((int) row.getCell(4).getNumericCellValue());
             user.setDob(row.getCell(5).getDateCellValue());
+            user.setPhoneNumber(String.valueOf(row.getCell(8).getNumericCellValue()));
             user.setPassword(passwordEncoder.encode(row.getCell(6).getStringCellValue()));
 
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            user.setCreationDate(currentDateTime);
             Role role = roleRepo.findByRolename(RoleType.CANDIDATE);
 
             if (row.getCell(7) == null) {

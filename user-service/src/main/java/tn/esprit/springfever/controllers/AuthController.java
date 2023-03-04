@@ -41,7 +41,9 @@ import javax.validation.Valid;
 import java.io.DataInput;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -200,9 +202,18 @@ public class AuthController {
     @PostMapping(value="/signUpV3",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
     public ResponseEntity<String> signUpV3(@RequestBody MultipartFile image,
-                                         @RequestParam String user,
-                                         @RequestParam RoleType roleType) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+                                           @RequestParam String username,
+                                           @RequestParam String firstname,
+                                           @RequestParam String lastname,
+                                           @RequestParam String email,
+                                           @RequestParam String phoneNumber,
+                                           @RequestParam String cin,
+                                           @RequestParam String dob,
+                                           @RequestParam String password,
+                                           @RequestParam RoleType roleType) throws Exception {
+        String user="{\"username\": \""+username+"\",   \"email\": \""+email+"\",   \"firstname\": \""+firstname+"\",   \"lastname\": \""+lastname+"\",   \"cin\": "+cin+",   \"phoneNumber\": \""+phoneNumber+"\",   \"dob\": \""+dob+"\",   \"password\": \""+password+"\" }";
+
+       ObjectMapper objectMapper = new ObjectMapper();
         UserDTO userDTO = objectMapper.readValue(user, UserDTO.class);
 
         // Validate input attributes

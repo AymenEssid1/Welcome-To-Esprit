@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ import tn.esprit.springfever.tools.ResourceNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +51,8 @@ public class UserController {
     private BadgeRepo badgerepo;
     @Autowired
     FileSystemRepository fileSystemRepository;
+    @Autowired
+    PasswordEncoder encoder;
 
     @Autowired
     IServiceUser iServiceUser;
@@ -89,53 +93,120 @@ public class UserController {
 
     @PostMapping(value="/ADD_USER",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
-    public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user,@RequestParam RoleType roleType) throws Exception {
+    public ResponseEntity<String> signUpV3(@RequestBody MultipartFile image,
+                                           @RequestParam String username,
+                                           @RequestParam String firstname,
+                                           @RequestParam String lastname,
+                                           @RequestParam String email,
+                                           @RequestParam String phoneNumber,
+                                           @RequestParam String cin,
+                                           @RequestParam String dob,
+                                           @RequestParam String password,
+                                           @RequestParam RoleType roleType) throws Exception {
+        String user="{\"username\": \""+username+"\",   \"email\": \""+email+"\",   \"firstname\": \""+firstname+"\",   \"lastname\": \""+lastname+"\",   \"cin\": "+cin+",   \"phoneNumber\": \""+phoneNumber+"\",   \"dob\": \""+dob+"\",   \"password\": \""+password+"\" }";
+
         ObjectMapper objectMapper = new ObjectMapper();
-        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
+        UserDTO userDTO = objectMapper.readValue(user, UserDTO.class);
+
+        // Validate input attributes
+        if (userDTO.getFirstname() == null || userDTO.getFirstname().matches(".*\\d.*")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Firstname");
+        }
+        if (userDTO.getLastname() == null || userDTO.getLastname().matches(".*\\d.*")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Lastname");
+        }
+
+
+        if (userDTO.getPhoneNumber() == null || !userDTO.getPhoneNumber().matches("\\d{8}")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Phone Number");
+        }
+        if (userDTO.getEmail() == null || !userDTO.getEmail().matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Email Address");
+        }
+
+        // Create User object
         User u = new User();
         u.setFirstname(userDTO.getFirstname());
         u.setCin(userDTO.getCin());
         u.setLastname(userDTO.getLastname());
         u.setDob(userDTO.getDob());
-        u.setPassword(userDTO.getPassword());
+        u.setEmail(userDTO.getEmail());
+        u.setPassword(encoder.encode(userDTO.getPassword()));
         u.setUsername(userDTO.getUsername());
-        if(image!=null){
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        u.setCreationDate(currentDateTime);
+        u.setPhoneNumber(userDTO.getPhoneNumber());
+
+        if (roleType.name().equals("STUDENT")) {
+            u.setPayment_status(0);
+        } else {
+            u.setPayment_status(-1);
+        }
+
+        if(image != null){
             System.out.println(image.getOriginalFilename());
             Image newImage = iFileLocationService.save(image);
             u.setImage(newImage);
         }
+
+        // Add user and assign role
         iServiceUser.addUserAndAssignRole(u,roleType);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(u);
-    }
-    @GetMapping(value = "/badge/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId) {
-        try {
-            Badge badge = badgeRepository.findById(imageId).orElse(null);
-            FileSystemResource fileSystemResource = fileSystemRepository.findInFileSystem(badge.getQrCode());
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(fileSystemResource);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(u.toString());
     }
 
 
 
-    @PutMapping(value = "/update/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+
+    @PutMapping(value = "/UPDATE_USER/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
-    public ResponseEntity<User> updateUser(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType, @PathVariable long id) throws Exception {
+    public ResponseEntity<User> updateUser(@RequestBody MultipartFile image, @PathVariable long id , @RequestParam(required = false) String username,
+                                           @RequestParam(required = false) String firstname,
+                                           @RequestParam(required = false) String lastname,
+                                           @RequestParam(required = false) String email,
+                                           @RequestParam(required = false) String phoneNumber,
+                                           @RequestParam(required = false) String dob,
+                                           @RequestParam(required = false) String password, @RequestParam RoleType roleType) throws Exception {
+
+
+        String user="{\"username\": \""+username+"\",   \"email\": \""+email+"\",   \"firstname\": \""+firstname+"\",   \"lastname\": \""+lastname+"\",   \"phoneNumber\": \""+phoneNumber+"\",   \"dob\": \""+dob+"\",   \"password\": \""+password+"\" }";
+
         User oguser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + id));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
+        System.out.println(oguser);
 
-        oguser.setFirstname(userDTO.getFirstname());
-        oguser.setCin(userDTO.getCin());
-        oguser.setLastname(userDTO.getLastname());
-        oguser.setDob(userDTO.getDob());
-        oguser.setPassword(userDTO.getPassword());
-        oguser.setUsername(userDTO.getUsername());
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = objectMapper.readValue(user, UserDTO.class);
+
+        if(firstname != null) {
+            oguser.setFirstname(userDTO.getFirstname());
+        }
+
+        if(lastname != null) {
+            oguser.setLastname(userDTO.getLastname());
+        }
+
+        if(dob != null) {
+            oguser.setDob(userDTO.getDob());
+        }
+
+        if(password != null) {
+            oguser.setPassword(userDTO.getPassword());
+        }
+
+        if(username != null) {
+            oguser.setUsername(userDTO.getUsername());
+        }
+
+        if(phoneNumber != null) {
+            oguser.setPhoneNumber(userDTO.getPhoneNumber());
+        }
+
+        if(email != null) {
+            oguser.setEmail(userDTO.getEmail());
+        }
+
         System.out.println("aaaaaaaaaaggghhhh!!!!");
 
         if(image!=null){
@@ -169,6 +240,17 @@ public class UserController {
     }
 
 
+    @GetMapping(value = "/badge/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId) {
+        try {
+            Badge badge = badgeRepository.findById(imageId).orElse(null);
+            FileSystemResource fileSystemResource = fileSystemRepository.findInFileSystem(badge.getQrCode());
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(fileSystemResource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+/////////////////////////////////////////////////////////////////////////////////////////////
     private Map<String, String> getRequestHeaders() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         Map<String, String> headers = new HashMap<>();

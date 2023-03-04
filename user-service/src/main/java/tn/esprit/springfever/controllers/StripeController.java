@@ -46,7 +46,8 @@ public class StripeController {
 
 
             Ban b=banRepository.findBanByUser(u);
-            banRepository.fasakh(b.getId());
+            if(b!=null)
+            {banRepository.fasakh(b.getId());}
 
             return ResponseEntity.ok().body(chargee);
         } catch (StripeException e) {
