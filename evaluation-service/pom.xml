@@ -69,6 +69,11 @@
                 <artifactId>opennlp-tools</artifactId>
                 <version>2.1.0</version>
             </dependency>
+        <dependency>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-uima</artifactId>
+            <version>1.9.3</version>
+        </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-security</artifactId>
@@ -173,21 +178,62 @@
             </dependency>
 
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/com.robrua.nlp/easy-bert -->
+        <dependency>
+            <groupId>com.robrua.nlp</groupId>
+            <artifactId>easy-bert</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
+
+
+<!--
+
+        <dependency>
+            <groupId>org.tensorflow</groupId>
+            <artifactId>tensorflow</artifactId>
+            <version>1.15.0</version>
+        </dependency>
+        -->
 
 
 
 
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
+        <!--
 
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-nlp</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+-->
+<!--
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native-platform</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+-->
 
+        <!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-api -->
+        <!--
 
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-api</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+-->
 
-
-
-
-
-
-
-            <dependency>
+        <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <scope>runtime</scope>
@@ -301,13 +347,18 @@
             <version>3.8.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
+
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>4.5.1</version>
+            <classifier>models</classifier>
+        </dependency>
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
             <version>4.5.1</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.github.apanimesh061</groupId>
@@ -316,8 +367,30 @@
         </dependency>
 
 
-</dependencies>
 
+
+        <!-- https://mvnrepository.com/artifact/edu.mit/jwi -->
+        <dependency>
+            <groupId>edu.mit</groupId>
+            <artifactId>jwi</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>net.sf.extjwnl</groupId>
+            <artifactId>extjwnl</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
+
+
+
+
+
+
+
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -350,6 +423,27 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.explosion:spacy</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

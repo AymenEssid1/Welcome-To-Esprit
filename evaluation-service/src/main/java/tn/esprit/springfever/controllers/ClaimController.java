@@ -4,8 +4,10 @@ package tn.esprit.springfever.Controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
@@ -13,13 +15,14 @@ import tn.esprit.springfever.Services.Interfaces.IServiceUser;
 import tn.esprit.springfever.entities.Claim;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @RequestMapping("/Claims")
 @RestController(value = "/claims")
 @Api( tags = "claims")
-
+@CrossOrigin(origins = "http://localhost:4200" , allowCredentials = "true")
 public class ClaimController {
 
     @Autowired
@@ -68,6 +71,7 @@ public class ClaimController {
     }
 
     @GetMapping("predictTreatmentPeriod/{id}")
+    @CrossOrigin(origins = "http://localhost:4200" , allowCredentials = "true")
     public ResponseEntity<Long> predictTreatmentPeriod(@PathVariable Long id) {
         Long predictedPeriod = iServiceClaims.predicateTreatmentClaim(id);
         return ResponseEntity.ok(predictedPeriod);
@@ -84,7 +88,12 @@ public class ClaimController {
         return iServiceClaims.sentFeedback(idClaim,feedback);
 
     }
+     @PostMapping(value="/badWordsCheck/{claim}" )
 
+    public boolean badWordsFound(@PathVariable("claim") String claimBody ) throws IOException {
+        return  iServiceClaims.badWordsFound(claimBody  );
+
+    }
 
 
 }

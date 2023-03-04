@@ -1,11 +1,13 @@
 package tn.esprit.springfever.Services.Interfaces;
 
 
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.entities.Claim;
-import weka.core.Instances;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ public interface IServiceClaims {
  public long predicateTreatmentClaim(Long id ) ;
  public String analyzeSentiment(String text) ;
  public String sentFeedback(Long idClaim,String feedback);
-
+ public  boolean badWordsFound(String input ) throws IOException;
+ public void deleteClaimHavingBadWords() throws IOException;
 
 }

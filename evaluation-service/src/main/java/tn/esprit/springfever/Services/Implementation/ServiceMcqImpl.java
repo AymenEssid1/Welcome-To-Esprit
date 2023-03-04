@@ -1,12 +1,40 @@
 package tn.esprit.springfever.Services.Implementation;
 
+
+
+
+import io.github.flashvayne.chatgpt.service.ChatgptService;
+import opennlp.tools.doccat.DoccatFactory;
+import opennlp.tools.doccat.DocumentCategorizer;
+import opennlp.tools.doccat.DocumentCategorizerME;
+import opennlp.tools.doccat.DocumentSample;
+import opennlp.tools.doccat.DocumentSampleStream;
+import opennlp.tools.doccat.FeatureGenerator;
+import opennlp.tools.doccat.NGramFeatureGenerator;
+import opennlp.tools.tokenize.SimpleTokenizer;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.ObjectStreamUtils;
+import opennlp.tools.util.Span;
+import opennlp.tools.util.StringUtil;
+
+import opennlp.tools.util.featuregen.TokenFeatureGenerator;
+
+
+
+
+
+
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.tokenize.Tokenizer;
+
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IServiceMcq;
+import tn.esprit.springfever.Services.Interfaces.IStringsimilarity;
 import tn.esprit.springfever.entities.Mcq;
 import tn.esprit.springfever.entities.Question;
 import tn.esprit.springfever.repositories.McqRepository;
@@ -15,9 +43,7 @@ import tn.esprit.springfever.repositories.QuestionRepository;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -27,6 +53,10 @@ public class ServiceMcqImpl implements IServiceMcq {
     private McqRepository mcqRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    IStringsimilarity iStringsimilarity ;
+    @Autowired
+    ChatgptService chatgptService ;
 
     @Override
     public Mcq addMcq(Mcq mcq) {
@@ -83,10 +113,63 @@ public class ServiceMcqImpl implements IServiceMcq {
                 }
             }
         }
-        // Randomly select up to 5 questions from the matching questions
+
+
+
+        // Compute the cosine similarity between the embeddings of the tokens and the embeddings of the questions
+        Map<Question, Double> questionSimilarities = new HashMap<>();
+        for (Question question : questionRepository.findAll()) {
+           // float[] questionEmbedding = model.embedSentence(question.getText().toLowerCase()).getData();
+            //double similarity =  iStringsimilarity.calculateSimilarity(diplomaTitle,question.getEnnonce());
+
+            double similarity = Double.parseDouble(chatgptService.sendMessage("give me only without desciption (without any word just value) a similarity  score" +
+                    " between the  diploma : " + diplomaTitle + "nd the question : "+
+                    question.getEnnonce() ));
+            System.out.println(similarity);
+
+            questionSimilarities.put(question, similarity);
+
+        }
+
+
+        // ************* Print the question similarities
+        for (Map.Entry<Question, Double> entry : questionSimilarities.entrySet()) {
+            Question question = entry.getKey();
+            double similarity = entry.getValue();
+            System.out.println("Question: " + question.getEnnonce());
+            System.out.println("Similarity: " + similarity);
+        }
+        //**************
+
+        // Sort the questions by similarity in descending order
+        List<Map.Entry<Question, Double>> sortedQuestions = new ArrayList<>(questionSimilarities.entrySet());
+        Collections.sort(sortedQuestions, (a, b) -> Double.compare(b.getValue(), a.getValue()));
+
+        // Select up to 5 questions with the highest similarity
+        List<Question> selectedQuestions = new ArrayList<>();
+        int numQuestions = Math.min(5, sortedQuestions.size());
+        for (int i = 0; i < numQuestions; i++) {
+            selectedQuestions.add(sortedQuestions.get(i).getKey());
+        }
+
+       // System.out.println("selected questions : "+selectedQuestions.toString() );
+
+
+
+
+
+
+
+
+
+
+/*
+            // Randomly select up to 5 questions from the matching questions
         Collections.shuffle(matchingQuestions);
         int numQuestions = Math.min(5, matchingQuestions.size());
         List<Question> selectedQuestions = matchingQuestions.subList(0, numQuestions);
+
+ */
         // Create a new MCQ
         Mcq mcq = new Mcq();
         mcq.setMcqTitle(diplomaTitle);

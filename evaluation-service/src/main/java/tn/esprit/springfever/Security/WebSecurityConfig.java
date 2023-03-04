@@ -16,7 +16,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+ import org.springframework.security.oauth2.core.user.OAuth2User;
+ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+ import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+ import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tn.esprit.springfever.Security.jwt.AuthEntryPointJwt;
 import tn.esprit.springfever.Security.jwt.AuthTokenFilter;
  import tn.esprit.springfever.Security.services.UserDetailsServiceImpl;
@@ -59,13 +62,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+       // http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class) ;
+
+         http.authorizeRequests()
                 .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();
+
     }
 
 

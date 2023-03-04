@@ -26,6 +26,7 @@ public class McqController {
     }
 
     @GetMapping("/getAllMcqs")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<List<Mcq>> getAllMcqs() {
         return ResponseEntity.ok(mcqService.getAllMcqs());
     }

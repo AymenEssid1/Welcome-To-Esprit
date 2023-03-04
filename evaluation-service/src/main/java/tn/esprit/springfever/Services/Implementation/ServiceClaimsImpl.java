@@ -1,26 +1,22 @@
 package tn.esprit.springfever.Services.Implementation;
 
-
-
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-
- import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.util.CoreMap;
 import lombok.extern.slf4j.Slf4j;
+import java.io.*;
 import java.lang.System ;
-
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Services.Interfaces.ClaimMapper;
@@ -32,20 +28,8 @@ import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
-import edu.stanford.nlp.sentiment.SentimentTraining ;
-
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.FastVector;
-import weka.core.Instances;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
-import java.util.Properties;
 
 
 @Service
@@ -94,14 +78,27 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
     @Override
     public Claim addClaim(Claim claim) throws IOException {
-        // Send email notification to user
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("New claim submitted");
-        message.setText("A new claim has been submitted.");
-        message.setTo("springforfever@gmail.com");
-        javaMailSender.send(message);
-        log.info("claim was successfully added !");
+
+        if(  (this.badWordsFound(claim.getDescription()))) {
+            // Send email notification to user
+            SimpleMailMessage warning = new SimpleMailMessage();
+            warning.setSubject("Warning");
+            warning.setText("you have not respect the rules of use of our website ");
+            warning.setTo("springforfever@gmail.com"); // to change with the email of the user
+            javaMailSender.send(warning);
+        }
+        else {
+            // Send email notification to user
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setSubject("New claim submitted");
+            message.setText("A new claim has been submitted.");
+            message.setTo("springforfever@gmail.com"); // to change with the email of the user
+            javaMailSender.send(message);
+            log.info("claim was successfully added !");
+        }
+
         claimRepository.save(claim);
+
         return claim;
     }
 
@@ -209,6 +206,57 @@ public class ServiceClaimsImpl implements IServiceClaims {
         long avg = estimatedPeriod/claims.size();
         return avg ;
     }
+
+
+    public  boolean badWordsFound(String input ) throws IOException {
+        // Tokenize the claim body
+        InputStream modelIn = new FileInputStream("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\en-token.bin");
+        TokenizerModel model = new TokenizerModel(modelIn);
+        Tokenizer tokenizer = new TokenizerME(model);
+        String[] tokens = tokenizer.tokenize(input);
+        for (String word : tokens) {
+            for (String badWord : this.excelToStringArray()) {
+
+                if(word.equals(badWord))
+                    return true ;
+            }
+        }
+        return false ;
+    }
+
+    // at 12:00 AM every day
+    @Scheduled(cron="0 0 0 * * ?")
+        @Override
+    public void deleteClaimHavingBadWords() throws IOException {
+        List<Claim> allClaims = claimRepository.findAll();
+        for (Claim claim : allClaims) {
+
+            if(this.badWordsFound(claim.getDescription())) {
+                this.deleteClaim(claim.getIdClaim());
+            }
+
+        }
+    }
+
+
+    public List<String> excelToStringArray() throws IOException {
+        List<String> badwords = new ArrayList<>();
+
+        FileInputStream file = new FileInputStream(new File("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\badwords.xlsx"));
+        Workbook workbook = new XSSFWorkbook(file);
+
+        // Get the first sheet of the workbook
+        Sheet sheet = workbook.getSheetAt(0);
+        // Loop through the rows of the sheet
+        for (Row row : sheet) {
+            badwords.add(row.getCell(0).getStringCellValue());
+        }
+        return badwords ;
+    }
+
+
+
+
 
 
 

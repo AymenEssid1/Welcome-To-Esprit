@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 public class SecurityConfiguration {
     @Bean
     public SecurityScheme securityScheme() {
+
         SecurityScheme securityScheme = new SecurityScheme();
         securityScheme.type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")

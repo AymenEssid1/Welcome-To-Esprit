@@ -229,7 +229,7 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
     @Override
     public String reformuleResponse(String response) {
-         return chatgptService.sendMessage(" return another new whole sentence having the same meaning as this one < :" + response + ">");
+         return chatgptService.sendMessage("return another new whole sentence having the same meaning as this one < :" + response + ">");
     }
 
 

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 import tn.esprit.springfever.entities.Faq;
+import tn.esprit.springfever.entities.FaqCategory;
 import tn.esprit.springfever.entities.Question;
 import tn.esprit.springfever.enums.Faq_Category_enum;
 
@@ -20,5 +21,9 @@ public interface FaqRepository extends JpaRepository<Faq,Long> {
 
     @Query("SELECT q FROM Faq q WHERE q.question LIKE %:keyword% OR q.response LIKE %:keyword%")
     List<Faq> findByKeywords(@Param("keyword") String keywords);
+
+
+
+
 
 }
