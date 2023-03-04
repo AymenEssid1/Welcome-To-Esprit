@@ -2,12 +2,15 @@ package tn.esprit.springfever.services.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.Span;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +25,13 @@ import tn.esprit.springfever.repositories.InterestRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.services.interfaces.IUserService;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class MatchingService {
     @Autowired
     private PostRepository postRepository;
@@ -38,19 +41,34 @@ public class MatchingService {
     private InterestRepository interestRepository;
     private static final String TOKENIZER_MODEL_PATH = "opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
     private static final String POS_MODEL_PATH = "opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
+    private static final String NAME_FINDER_PERSON_PATH = "en-ner-person.bin";
+    private static final String NAME_FINDER_LOCATION_PATH = "en-ner-location.bin";
+    private static final String NAME_FINDER_ORG_PATH = "en-ner-organization.bin";
     private static Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
     private static POSTaggerME posTagger;
+    private static NameFinderME person;
+    private static NameFinderME location;
+    private static NameFinderME org;
     private ClassLoader classLoader = getClass().getClassLoader();
 
     public MatchingService() {
         try (InputStream tokenizerModelStream = classLoader.getResourceAsStream(TOKENIZER_MODEL_PATH);
-             InputStream posModelStream = classLoader.getResourceAsStream(POS_MODEL_PATH)) {
+             InputStream posModelStream = classLoader.getResourceAsStream(POS_MODEL_PATH);
+             InputStream personFinderStream = classLoader.getResourceAsStream(NAME_FINDER_PERSON_PATH);
+             InputStream orgFinderStream = classLoader.getResourceAsStream(NAME_FINDER_ORG_PATH);
+             InputStream locationFinderStream = classLoader.getResourceAsStream(NAME_FINDER_LOCATION_PATH)) {
             TokenizerModel tokenizerModel = new TokenizerModel(tokenizerModelStream);
             POSModel posModel = new POSModel(posModelStream);
+            TokenNameFinderModel personFinderModel = new TokenNameFinderModel(personFinderStream);
+            TokenNameFinderModel orgFinderModel = new TokenNameFinderModel(orgFinderStream);
+            TokenNameFinderModel locationFinderModel = new TokenNameFinderModel(locationFinderStream);
             posTagger = new POSTaggerME(posModel);
             tokenizer = new TokenizerME(tokenizerModel);
+            person = new NameFinderME(personFinderModel);
+            org = new NameFinderME(orgFinderModel);
+            location = new NameFinderME(locationFinderModel);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -65,7 +83,7 @@ public class MatchingService {
         try {
             return userService.getUserDetailsFromToken(authHeader);
         } catch (JsonProcessingException ex) {
-            log.error("Error calling user service1: {}", ex.getMessage());
+            System.out.println("Error calling user service1: "+ ex.getMessage());
             return null;
         }
     }
@@ -103,18 +121,61 @@ public class MatchingService {
 
     public List<String> extractTopicsFromPost(String post) {
         List<String> topics = new ArrayList<>();
-        String text = post;
-        String[] tokens = tokenizer.tokenize(text);
+        String[] tokens = tokenizer.tokenize(post);
         String[] posTags = posTagger.tag(tokens);
+        Span[] personSpans = person.find(tokens);
+        Span[] orgSpans = org.find(tokens);
+        Span[] locationSpans = location.find(tokens);
+        List<String> nerLabels = new ArrayList<>();
+        for (Span span : personSpans) {
+            String label = "PER";
+            for (int i = span.getStart(); i < span.getEnd(); i++) {
+                nerLabels.add(label);
+            }
+        }
+        for (Span span : orgSpans) {
+            String label = "ORG";
+            for (int i = span.getStart(); i < span.getEnd(); i++) {
+                nerLabels.add(label);
+            }
+        }
+        for (Span span : locationSpans) {
+            String label = "LOC";
+            for (int i = span.getStart(); i < span.getEnd(); i++) {
+                nerLabels.add(label);
+            }
+        }
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             String posTag = posTags[i];
-            if (posTag.startsWith("N") || posTag.startsWith("J")) {
-                topics.add(token);
+            String nerLabel = i < nerLabels.size() ? nerLabels.get(i) : "O";
+            if (posTag.startsWith("N") || posTag.startsWith("V") || posTag.startsWith("J")) {
+                topics.add(token.toLowerCase());
+            } else if (nerLabel.startsWith("PER") || nerLabel.startsWith("ORG") || nerLabel.startsWith("LOC")) {
+                topics.add(token.toLowerCase());
             }
         }
-        return topics;
+
+        return getTopNTopics(topics, 5);
     }
+
+    private List<String> getTopNTopics(List<String> topics, int n) {
+        Map<String, Integer> topicFreq = new HashMap<>();
+        for (String topic : topics) {
+            int freq = topicFreq.containsKey(topic) ? topicFreq.get(topic) + 1 : 1;
+            topicFreq.put(topic, freq);
+        }
+        // Sort topics by frequency in descending order
+        List<Map.Entry<String, Integer>> sortedTopics = new ArrayList<>(topicFreq.entrySet());
+        sortedTopics.sort(Map.Entry.<String, Integer>comparingByValue().reversed());
+        // Get the top n topics
+        List<String> topTopics = new ArrayList<>();
+        for (int i = 0; i < Math.min(n, sortedTopics.size()); i++) {
+            topTopics.add(sortedTopics.get(i).getKey());
+        }
+        return topTopics;
+    }
+
 
 
     public double calculateInitialWeight(Post post, UserDTO user) {

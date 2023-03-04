@@ -21,14 +21,14 @@ public class PostViews  implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-    private String user;
+    private Long user;
     @ManyToOne
     @JsonIgnore
     private Post post;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
     private LocalDateTime timestamps;
 
-    public PostViews(String user, Post p, LocalDateTime timestamps){
+    public PostViews(Long user, Post p, LocalDateTime timestamps){
         this.user = user;
         this.post = p;
         this.timestamps=timestamps;

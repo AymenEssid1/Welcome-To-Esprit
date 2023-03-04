@@ -9,20 +9,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.CommentDTO;
 import tn.esprit.springfever.entities.Comment;
 import tn.esprit.springfever.entities.Likes;
+import tn.esprit.springfever.entities.Media;
 import tn.esprit.springfever.services.interfaces.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -116,6 +119,27 @@ public class CommentController {
         }else{
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
+    }
+
+    @GetMapping(value = "/download")
+    public ResponseEntity<Resource> download(Long id) throws IOException {
+        Media media = mediaService.findPath(id);
+        Path path = Paths.get(media.getLocation());
+        byte[] fileContent = Files.readAllBytes(path);
+
+        // Build the response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+media.getName());
+
+        // Wrap the byte array in a resource object
+        ByteArrayResource resource = new ByteArrayResource(fileContent);
+
+        // Return the response entity
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
 

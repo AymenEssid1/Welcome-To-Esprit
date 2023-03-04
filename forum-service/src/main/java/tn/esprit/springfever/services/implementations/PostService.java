@@ -372,9 +372,9 @@ public class PostService implements IPostService {
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader != null) {
                 try {
-                    String user = (String) userService
+                    Long user = (Long) userService
                             .getUserDetailsFromToken(authHeader)
-                            .getUsername();
+                            .getId();
                     list.forEach(
                             post -> {
                                 if (viewsRepository.findByPostAndUser(post, user) == null) {

@@ -41,8 +41,9 @@ public class Ad implements Serializable {
     private Date endDate;
     private int initialTargetNumberOfViews;
     private float cost;
-    @Enumerated(EnumType.STRING)
-    private TypeOfAudience typeOfAudience;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "ad_id")
+    private TargetPopulation typeOfAudience;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ad")
     private List<AdMedia> media;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ad")

@@ -27,4 +27,10 @@ public class AdViews implements Serializable {
     private Ad ad;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME )
     private LocalDateTime timestamps;
+
+    public AdViews(Long user, Ad ad, LocalDateTime timestamps){
+        this.user = user;
+        this.ad=ad;
+        this.timestamps= timestamps;
+    }
 }

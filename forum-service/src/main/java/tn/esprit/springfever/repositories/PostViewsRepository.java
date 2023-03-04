@@ -9,5 +9,5 @@ import java.util.List;
 
 @EnableJpaRepositories
 public interface PostViewsRepository extends JpaRepository<PostViews,Long> {
-    public PostViews findByPostAndUser(Post post, String user);
+    public PostViews findByPostAndUser(Post post, Long user);
 }

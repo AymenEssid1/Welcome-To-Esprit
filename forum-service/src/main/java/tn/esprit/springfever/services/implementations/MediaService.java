@@ -31,6 +31,13 @@ public class MediaService implements IMediaService {
     }
 
     @Override
+    public Media findPath(Long imageId) {
+        Media image = repo.findById(Long.valueOf(imageId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return image;
+    }
+
+    @Override
     public void delete(Long id) {
         Media  image = repo.findById(Long.valueOf(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
