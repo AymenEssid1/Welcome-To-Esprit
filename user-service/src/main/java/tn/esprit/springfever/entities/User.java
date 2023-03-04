@@ -74,6 +74,14 @@ public class User implements Serializable {
 
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_achievement",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "achievement_id"))
+    private Set<Achievement> achis = new HashSet<>();
+
 
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
