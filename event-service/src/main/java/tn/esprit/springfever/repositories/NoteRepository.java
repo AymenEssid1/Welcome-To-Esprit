@@ -2,15 +2,19 @@ package tn.esprit.springfever.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import tn.esprit.springfever.entities.Note;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import tn.esprit.springfever.entities.Project;
 
 import java.util.List;
-import java.util.Optional;
+
 @EnableJpaRepositories
 
 public interface NoteRepository extends JpaRepository<Note,Long> {
     //Note getNoteById(Long idNote);
+
+    List<Note> findAllByOrderByProjectNoteDesc();
 
     @Query("SELECT AVG(n.softskillsNote) FROM Note n")
     Float getAverageSoftskillsNote();
@@ -29,5 +33,10 @@ public interface NoteRepository extends JpaRepository<Note,Long> {
 
     @Query("SELECT AVG(n.relevanceNote) FROM Note n")
     Float getAverageRelevanceNote();
+
+
+
+
+
 
 }

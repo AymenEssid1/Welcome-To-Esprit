@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface TeamsRepository extends JpaRepository <Teams,Long> {
     Teams findByIdTeam(Long idTeam ) ;
 
+    default List<Teams> findbyIdProject(Long idProject) {
+        return null;
+    }
 }

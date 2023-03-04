@@ -12,7 +12,7 @@ public interface IServiceNote {
     public  List<Note> getAllNote() ;
     public  boolean deleteNote(Long idNote) ;
     public Note updateNote (Long idNote , NoteDTO noteDTO) ;
-    public String assignNoteToProject(Long idNote, Long idProject);
+   // public String assignNoteToProject(Long idNote, Long idProject);
     //public String analyzeSentiment(long idNote);
 
     //public String getSentimentAnalysis(Long idNote);
@@ -22,5 +22,8 @@ public interface IServiceNote {
 
     public String analyzeSentiment(String text) ;
     public String sentFeedback(Long idNote,String comment);
+
+    //List<Note> findAllByOrderByProjectNoteDesc();
+    //void sendSMSToUserWithMaxProjectNote();
 
 }

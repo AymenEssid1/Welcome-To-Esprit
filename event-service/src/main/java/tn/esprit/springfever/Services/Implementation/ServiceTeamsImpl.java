@@ -1,9 +1,6 @@
 package tn.esprit.springfever.Services.Implementation;
 
 import lombok.extern.slf4j.Slf4j;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,16 +8,10 @@ import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.TeamsMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
-import tn.esprit.springfever.entities.Event;
-import tn.esprit.springfever.entities.Teams;
-import tn.esprit.springfever.entities.User;
-import tn.esprit.springfever.repositories.EventRepository;
-import tn.esprit.springfever.repositories.TeamsRepository;
-import tn.esprit.springfever.repositories.UserRepository;
+import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.repositories.*;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,7 +21,13 @@ public class ServiceTeamsImpl implements IServiceTeams{
     @Autowired
     UserRepository userRepository;
     @Autowired
+    NoteRepository noteRepository;
+    @Autowired
+    ProjectRepository projectRepository;
+    @Autowired
     TeamsRepository teamsRepository ;
+    @Autowired
+    ImageDataRepository imageDataRepository ;
     @Autowired
     TeamsMapper teamsMapper;
 
@@ -45,6 +42,29 @@ public class ServiceTeamsImpl implements IServiceTeams{
         log.info("teams was successfully added !");
         return teamsRepository.save(teams);
     }
+
+    public String AssignImageToTeams(Long idTeam , Long id ){
+        Teams teams =teamsRepository.findById(idTeam).orElse(null);
+        ImageData image=imageDataRepository.findById(id).orElse(null);
+        if(teams!=null && image!=null){
+            teams.setImage(image);
+            teamsRepository.save(teams);
+            return "Image Is successffully affected To Teams ! ";
+        }
+        return "Teams Or Image Does not Exist ";
+    }
+
+    public String AssignProjectToTeams(Long idTeam , Long idProject ){
+        Teams teams =teamsRepository.findById(idTeam).orElse(null);
+        Project project=projectRepository.findById(idProject).orElse(null);
+        if(teams!=null && project!=null){
+            teams.setProject(project);
+            teamsRepository.save(teams);
+            return "project Is successffully affected To Teams ! ";
+        }
+        return "Teams Or project Does not Exist ";
+    }
+
 
     /*
     @Override
@@ -154,6 +174,19 @@ public class ServiceTeamsImpl implements IServiceTeams{
         email.setSubject(subject);
         email.setText(message);
         javaMailSender.send(email);
+    }
+
+
+
+
+    @Override
+    public List<Teams> getTeamsByProjectId(Long idProject) {
+        return teamsRepository.findbyIdProject(idProject);
+    }
+
+    @Override
+    public Teams getTeamsWithMaxProjectNote() {
+        return null;
     }
 
 

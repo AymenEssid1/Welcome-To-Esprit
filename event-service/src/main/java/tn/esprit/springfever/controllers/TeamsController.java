@@ -1,8 +1,10 @@
 package tn.esprit.springfever.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import tn.esprit.springfever.entities.ImageData;
 import tn.esprit.springfever.entities.Teams;
 
 import java.awt.*;
+import java.io.DataInput;
 import java.io.IOException;
 import java.util.List;
 
@@ -39,15 +42,36 @@ public class TeamsController {
 
     @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Teams> addTeams(@RequestBody Teams teams,@RequestBody MultipartFile image) throws Exception {
+    public ResponseEntity<Teams> addTeams(@RequestParam Teams teams,@RequestParam("image") MultipartFile image) throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        TeamsDTO teamsDTO = objectMapper.readValue((DataInput) teams,TeamsDTO.class);
+
         Teams t=new Teams();
-        System.out.println(image.getOriginalFilename());
-        ImageData newImage = iFileLocationService.save(image);
-        t.setImage(newImage);
+        t.setNameTeam(teamsDTO.getNameTeam());
+        t.setQRcertificat(teamsDTO.getQRcertificat());
+        t.setNiveauEtude(teamsDTO.getNiveauEtude());
+
+        if(image!=null){
+            System.out.println(image.getOriginalFilename());
+            ImageData newImage = iFileLocationService.save(image);
+            t.setImage(newImage);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(t);
        }
 
 
+    @PutMapping("AssignImageToTeams/{idTeam}/{id}")
+    public String AssignImageToTeams(@PathVariable("idTeam") Long idTeam ,@PathVariable("id") Long id ){
+        return iServiceTeams.AssignImageToTeams(idTeam,id) ;
+
+    }
+
+    @PutMapping("AssignProjectToTeams/{idTeam}/{idProject}")
+    public String AssignProjectToTeams(@PathVariable("idTeam") Long idTeam ,@PathVariable("idProject") Long idProject ){
+        return iServiceTeams.AssignProjectToTeams(idTeam,idProject) ;
+
+    }
 
 
     /*********  update teams  ***********/

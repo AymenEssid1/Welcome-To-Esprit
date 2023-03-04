@@ -17,10 +17,8 @@ import tn.esprit.springfever.DTO.ProjectDTO;
 import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.ProjectMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceProject;
-import tn.esprit.springfever.entities.Event;
-import tn.esprit.springfever.entities.Project;
-import tn.esprit.springfever.entities.Teams;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.*;
+import tn.esprit.springfever.repositories.NoteRepository;
 import tn.esprit.springfever.repositories.ProjectRepository;
 import tn.esprit.springfever.repositories.rapportPDFRepository;
 
@@ -41,6 +39,8 @@ public class ServiceProjectImpl implements IServiceProject{
 
     @Autowired
     ProjectRepository projectRepository ;
+    @Autowired
+    NoteRepository noteRepository ;
     @Autowired
     rapportPDFRepository rapportPdfRepository;
 
@@ -165,6 +165,34 @@ public class ServiceProjectImpl implements IServiceProject{
         projectRepository.save(project);
 
 
+
+    }
+
+
+    @Override
+    public String assignNoteToProject(Long idNote, Long idProject) {
+        Note note = noteRepository.findById(idNote).orElse(null);
+        Project project = projectRepository.findById(idProject).orElse(null);
+
+        // Calculate the project note
+        float projectNote = (note.getSoftskillsNote() + note.getHardskillsNote() + note.getPresentationNote() +
+                note.getConsistencyNote() + note.getOriginalityNote() + note.getContentNote() + note.getRelevanceNote()) / 7;
+        note.setProjectNote(projectNote);
+
+        if (note != null && project != null) {
+
+
+            // Assign project note to project
+
+            Note notes = project.getNote();
+            project.setNote(notes);
+        }
+
+        // note.setProject( project);           hedhy lzm na7eha maach comm bch njm nsavi f project ama feha erreur !!!
+        noteRepository.save(note);
+        project.setNote(note);
+        projectRepository.save(project);
+        return "note is Affeced To project";
 
     }
 

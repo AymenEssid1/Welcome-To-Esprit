@@ -123,4 +123,10 @@ public class ProjectController {
         return  new ResponseEntity<>(result,HttpStatus.OK);}
 
 
+    @PutMapping("assignNoteToProject/{idNote}/{idProject}")
+    public String assignNoteToProject(@PathVariable("idNote") Long idNote, @PathVariable("idProject") Long idProject) {
+        return iServiceProject.assignNoteToProject(idNote, idProject);
+    }
+
+
 }

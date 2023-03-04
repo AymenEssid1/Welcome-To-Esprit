@@ -25,5 +25,8 @@ public interface IServiceProject {
     public Project savef(byte[] rapport, String location_rapport ) throws Exception ;
 
 
+    public String assignNoteToProject(Long idNote, Long idProject);
+
+
 
 }

@@ -1,6 +1,11 @@
 package tn.esprit.springfever.Services.Implementation;
 
 
+import com.twilio.type.PhoneNumber;
+
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+//import com.twilio.rest.lookups.v1.PhoneNumber;
 import com.vader.sentiment.analyzer.SentimentAnalyzer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +13,15 @@ import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.NoteDTO;
 import tn.esprit.springfever.Services.Interfaces.NoteMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceNote;
+import tn.esprit.springfever.Services.Interfaces.SmsService;
 import tn.esprit.springfever.analyzer.SentimentPolarities;
+import tn.esprit.springfever.configuration.SMS_service;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.NoteRepository;
 import tn.esprit.springfever.repositories.ProjectRepository;
+import tn.esprit.springfever.repositories.TeamsRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -25,7 +34,11 @@ public class ServiceNoteImpl implements IServiceNote {
     @Autowired
     NoteRepository noteRepository ;
     @Autowired
+    TeamsRepository teamsRepository ;
+    @Autowired
     ProjectRepository projectRepository ;
+    @Autowired
+    SMS_service smsService ;
 
     @Autowired
     NoteMapper noteMapper;
@@ -105,7 +118,7 @@ public class ServiceNoteImpl implements IServiceNote {
         noteRepository.save(note);
         return note;
     }*/
-
+/*
 @Override
     public String assignNoteToProject(Long idNote, Long idProject) {
         Note note = noteRepository.findById(idNote).orElse(null);
@@ -129,6 +142,8 @@ public class ServiceNoteImpl implements IServiceNote {
         return "note is Affeced To project";
 
     }
+*/
+
 
     /*
 @Override
@@ -244,5 +259,29 @@ public class ServiceNoteImpl implements IServiceNote {
 
     }
 
+
+
+/*
+    // Twilio credentials
+    private final String ACCOUNT_SID = "ACf5932234ee7104417d4aa27eeb82027d";
+    private final String AUTH_TOKEN = "a135f9e778d62e3198a72edd1a3f3496";
+    private final String FROM_PHONE_NUMBER = "+16076899788";
+    private final String TO_PHONE_NUMBER = "+21694602836";
+
+    @Transactional
+    public void sendSMSToUserWithMaxProjectNote() {
+        // Retrieve the Note with the highest projectNote value
+        List<Note> notes = noteRepository.findAllByOrderByProjectNoteDesc();
+        Note noteWithMaxProjectNote = notes.get(0);
+
+        // Send SMS message
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        Message message = Message.creator(
+                        new PhoneNumber(TO_PHONE_NUMBER),
+                        new PhoneNumber(FROM_PHONE_NUMBER),
+                        "Congratulations! you are invited to the ceremonie and Your team has the highest project note :Note with max projectNote: " + noteWithMaxProjectNote.getProjectNote())
+                .create();
+    }
+*/
 
 }

@@ -67,4 +67,7 @@ public class Project implements Serializable{
     }
 
 
+    public Project() {
+
+    }
 }

@@ -52,5 +52,6 @@ public class Note implements Serializable{
     private java.util.Set<Project> project;
 
 
-
+    public Note(String s, String message, Date date) {
+    }
 }
