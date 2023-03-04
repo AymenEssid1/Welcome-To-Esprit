@@ -41,4 +41,6 @@ public interface IServiceUser {
 
 
     public String checkBan(User user);
+
+
 }

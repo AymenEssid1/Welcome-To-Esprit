@@ -3,6 +3,7 @@ package tn.esprit.springfever.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.NumberFormat;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -36,8 +38,16 @@ public class User implements Serializable {
 
     private int cin;
 
+
+    @NotBlank
+    @Size(max = 8)
+    @Size(min = 8)
+   @NumberFormat
+    private String phoneNumber;
+
     @Temporal(value=TemporalType.DATE)
     @DateTimeFormat(pattern = "yyy-MM-dd")
+
     private Date dob;
     @Size(max = 120)
     private String password;
@@ -47,8 +57,17 @@ public class User implements Serializable {
     @JsonIgnore
     private int failedLoginAttempts;
 
+
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    private int payment_status;
+
+    @JsonIgnore
+    private LocalDateTime creationDate;
+
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -103,8 +122,18 @@ public class User implements Serializable {
     }
 
     @Override
-    public String toString(){
-        return this.username+"  "+this.email+" ";
-    }
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", cin=" + cin +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", dob=" + dob +
+                ", password='" + password + '\'' +
+                ", creationDate=" + creationDate +
 
+                '}';
+    }
 }

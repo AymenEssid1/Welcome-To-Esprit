@@ -2,11 +2,14 @@ package tn.esprit.springfever.controllers;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.springfever.Services.Implementation.StripeService;
+import tn.esprit.springfever.Repositories.BanRepository;
+import tn.esprit.springfever.Repositories.UserRepo;
+import tn.esprit.springfever.configuration.PaymentService;
+import tn.esprit.springfever.entities.Ban;
+import tn.esprit.springfever.entities.User;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -16,92 +19,34 @@ import java.util.Map;
 public class StripeController {
 
     @Autowired
-    private StripeService stripeService;
-
-    @PostMapping("/charge")
-    public ResponseEntity<?> chargeCreditCard(@RequestBody Map<String, Object> request) {
-        try {
-            String token = (String) request.get("token");
-            BigDecimal amount = new BigDecimal(request.get("amount").toString());
-
-            Charge charge = stripeService.chargeCreditCard(token, amount);
-
-
-            return ResponseEntity.ok().body(charge);
-        } catch (StripeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+    private PaymentService paymentService;
+    @Autowired
+    UserRepo userrepo;
+    @Autowired
+    private BanRepository banRepository;
 
 
 
-
-    public String getStringFromBraces(String input) {
-        int startIndex = input.indexOf("{");
-        if (startIndex == -1) {
-            // If there's no "{" in the input string, return an empty string
-            return "";
-        }
-        int endIndex = input.lastIndexOf("}");
-        if (endIndex == -1) {
-            // If there's no "}" in the input string, return an empty string
-            return "";
-        }
-        // Use Math.min to ensure that endIndex doesn't precede the startIndex
-        endIndex = Math.max(endIndex, startIndex);
-        return input.substring(startIndex, endIndex + 1);
-    }
-
-    public static String extractLinesContainingKeywords(String input) {
-        StringBuilder result = new StringBuilder();
-        String[] lines = input.split("\\r?\\n");
-        for (String line : lines) {
-            if (line.contains("status")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("brand")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("last4")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("exp_month")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("exp_year")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("amount")) {
-                result.append(line).append("\n");
-            }
-        }
-        for (String line : lines) {
-            if (line.contains("receipt_url")) {
-                result.append(line).append("\n");
-            }
-        }
-        return result.toString();
-    }
 
     @PostMapping("/chargeV2")
-    public ResponseEntity<String> chargeCreditCardV2(@RequestParam String request,@RequestParam int amountt ) {
+    public ResponseEntity<String> chargeCreditCardV2(@RequestParam String request,@RequestParam int amountt ,@RequestParam String username ) {
+        User u=userrepo.findByUsername(username).orElse(null);
+        if (u==null){return ResponseEntity.badRequest().body("user not found");}
+        if(u.getPayment_status()==1){return ResponseEntity.badRequest().body("already paid");}
         try {
             String token = request;
             BigDecimal amount = BigDecimal.valueOf(amountt);
 
-            Charge charge = stripeService.chargeCreditCard(token, amount);
+            Charge charge = paymentService.chargeCreditCard(token, amount);
             //System.out.println(ResponseEntity.ok().body(charge));
-            String chargee=extractLinesContainingKeywords(getStringFromBraces(charge.toString()));
+            String chargee=paymentService.extractLinesContainingKeywords(paymentService.getStringFromBraces(charge.toString()));
+            u.setPayment_status(1);
+
+            userrepo.save(u);
+
+
+            Ban b=banRepository.findBanByUser(u);
+            banRepository.fasakh(b.getId());
 
             return ResponseEntity.ok().body(chargee);
         } catch (StripeException e) {

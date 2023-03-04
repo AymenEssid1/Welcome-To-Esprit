@@ -38,6 +38,7 @@ import tn.esprit.springfever.payload.Response.MessageResponse;
 
 
 import javax.validation.Valid;
+import java.io.DataInput;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -144,6 +145,12 @@ public class AuthController {
         u.setEmail(userDTO.getEmail());
         u.setPassword(encoder.encode(userDTO.getPassword()));
         u.setUsername(userDTO.getUsername());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        u.setCreationDate(currentDateTime);
+        u.setPhoneNumber(userDTO.getPhoneNumber());
+
+        if (roleType.name().equals("STUDENT")){u.setPayment_status(0);} else{u.setPayment_status(-1);}
+
         if(image!=null){
             System.out.println(image.getOriginalFilename());
             Image newImage = iFileLocationService.save(image);
@@ -190,7 +197,60 @@ public class AuthController {
 
 
 
+    @PostMapping(value="/signUpV3",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> signUpV3(@RequestBody MultipartFile image,
+                                         @RequestParam String user,
+                                         @RequestParam RoleType roleType) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = objectMapper.readValue(user, UserDTO.class);
 
+        // Validate input attributes
+        if (userDTO.getFirstname() == null || userDTO.getFirstname().matches(".*\\d.*")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Firstname");
+        }
+        if (userDTO.getLastname() == null || userDTO.getLastname().matches(".*\\d.*")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Lastname");
+        }
+
+
+        if (userDTO.getPhoneNumber() == null || !userDTO.getPhoneNumber().matches("\\d{8}")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Phone Number");
+        }
+        if (userDTO.getEmail() == null || !userDTO.getEmail().matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Email Address");
+        }
+
+        // Create User object
+        User u = new User();
+        u.setFirstname(userDTO.getFirstname());
+        u.setCin(userDTO.getCin());
+        u.setLastname(userDTO.getLastname());
+        u.setDob(userDTO.getDob());
+        u.setEmail(userDTO.getEmail());
+        u.setPassword(encoder.encode(userDTO.getPassword()));
+        u.setUsername(userDTO.getUsername());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        u.setCreationDate(currentDateTime);
+        u.setPhoneNumber(userDTO.getPhoneNumber());
+
+        if (roleType.name().equals("STUDENT")) {
+            u.setPayment_status(0);
+        } else {
+            u.setPayment_status(-1);
+        }
+
+        if(image != null){
+            System.out.println(image.getOriginalFilename());
+            Image newImage = iFileLocationService.save(image);
+            u.setImage(newImage);
+        }
+
+        // Add user and assign role
+        iServiceUser.addUserAndAssignRole(u,roleType);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(u.toString());
+    }
 
 
 

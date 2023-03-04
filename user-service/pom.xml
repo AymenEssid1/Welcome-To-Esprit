@@ -194,6 +194,12 @@
             <artifactId>json</artifactId>
             <version>20211205</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.twilio.sdk/twilio -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.2.4</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -30,10 +30,12 @@ public class UserDTO {
     private Date dob;
     private String password;
     private String email;
+    private String phoneNumber;
 
     private Set<Role> roles = new HashSet<>();
     private Image image;
     private Badge badge;
+
 }
 
 
