@@ -12,6 +12,7 @@ import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
  import tn.esprit.springfever.Services.Interfaces.IStringsimilarity;
 
@@ -19,6 +20,7 @@ import java.io.*;
 import java.util.*;
 
 @Service
+@Slf4j
 public class StringSimilarityService implements IStringsimilarity {
 
 
@@ -32,8 +34,7 @@ public class StringSimilarityService implements IStringsimilarity {
 
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse");
-        System.out.println(props.getProperty("pos.model"));
-        System.out.println(props);
+        log.info(props.getProperty("pos.model"));
 
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
@@ -70,10 +71,10 @@ public class StringSimilarityService implements IStringsimilarity {
         Set<IndexedWord> vertices2 = graph2.vertexSet();
         int numVertices1 = vertices1.size();
         int numVertices2 = vertices2.size();
-        System.out.println("graph1" + graph1 );
+        log.info("graph1" + graph1 );
 
-        System.out.println("vertices1" + vertices1 );
-        System.out.println("numVertices1" + vertices1.size() );
+        log.info("vertices1" + vertices1 );
+        log.info("numVertices1" + vertices1.size() );
 
 
         int numCommonVertices = 0;
@@ -86,76 +87,11 @@ public class StringSimilarityService implements IStringsimilarity {
             }
         }
         double similarity = (double) numCommonVertices / (numVertices1 + numVertices2 - numCommonVertices);
-        System.out.println("similarity" + similarity );
-
+        log.info("similarity" + similarity );
         return similarity;
     }
 
 
-
-
-
-
-
 }
 
-
-
-
- /*
-
-@Service
-public class StringSimilarityService implements IStringsimilarity {
-
-    private final StanfordCoreNLP pipeline;
-
-    public StringSimilarityService() {
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse");
-        pipeline = new StanfordCoreNLP(props);
-    }
-
-    public double calculateSimilarity(String diplomaTitle, String question) throws IOException {
-        Annotation diplomaAnnotation = new Annotation(diplomaTitle);
-        pipeline.annotate(diplomaAnnotation);
-        List<CoreMap> diplomaSentences = diplomaAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
-        List<String> diplomaLemmas = new ArrayList<String>();
-        for (CoreMap diplomaSentence : diplomaSentences) {
-            SemanticGraph diplomaDependencies = diplomaSentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-            diplomaLemmas.addAll(getLemmas(diplomaDependencies));
-        }
-
-        Annotation questionAnnotation = new Annotation(question);
-        pipeline.annotate(questionAnnotation);
-        List<CoreMap> questionSentences = questionAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
-        List<String> questionLemmas = new ArrayList<String>();
-        for (CoreMap questionSentence : questionSentences) {
-            SemanticGraph questionDependencies = questionSentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-            questionLemmas.addAll(getLemmas(questionDependencies));
-        }
-
-        List<String> intersection = new ArrayList<String>(diplomaLemmas);
-        intersection.retainAll(questionLemmas);
-
-        double similarity = (double) intersection.size() / ((double) diplomaLemmas.size() + (double) questionLemmas.size() - (double) intersection.size());
-        return similarity;
-    }
-
-    private List<String> getLemmas(SemanticGraph dependencies) {
-        List<String> lemmas = new ArrayList<String>();
-        for (SemanticGraphEdge edge : dependencies.edgeIterable()) {
-            if (!edge.isExtra()) {
-                CoreLabel source = CoreLabel.wordFromString(edge.getSource().word());
-                CoreLabel target = CoreLabel.wordFromString(edge.getTarget().word());
-                String sourceLemma = source.get(CoreAnnotations.LemmaAnnotation.class);
-                String targetLemma = target.get(CoreAnnotations.LemmaAnnotation.class);
-                lemmas.add(sourceLemma);
-                lemmas.add(targetLemma);
-            }
-        }
-        return lemmas;
-    }
-}
-
-  */
 
