@@ -70,9 +70,41 @@ public class ServiceClaimsImpl implements IServiceClaims {
             log.info("claim not found");
             return "claim not found" ;
         }
+
     }
+    @Scheduled(fixedRate = 10000)
+    public void  bilanFeedback() {
+    List<Claim> listeClaim = new ArrayList<>() ;
+
+    double sumpos=0,sumNeg=0,sumComp=0,sumNeut = 0 ;
+        for (Claim claim: claimRepository.findAll()) {
+            if(claim.getFeedback()!=null) {
+                listeClaim.add(claim);
+            }
+        }
+
+        for (Claim claim : listeClaim) {
+            final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(claim.getFeedback());
+            sumpos += sentimentPolarities.getPositivePolarity() ;
+            sumComp+= sentimentPolarities.getCompoundPolarity();
+            sumNeg += sentimentPolarities.getNegativePolarity() ;
+            sumNeut+= sentimentPolarities.getNeutralPolarity();
+        }
+
+        log.info("Feedbacks Bilan :  \n" +
+                " Average of Postive feedbacks :  \n" +
+                String.valueOf(sumpos/listeClaim.size()) + "\n" +
+                " Average of negative feedbacks :   \n" +
+                String.valueOf(sumNeg/listeClaim.size()) + "\n" +
+                " Average of compound feedbacks :   \n" +
+                String.valueOf(sumComp/listeClaim.size()) + "\n" +
+                " Average of neutral feedbacks :   \n" +
+                        String.valueOf(sumNeut/listeClaim.size()) + "\n"
+
+        );
 
 
+    }
 
 
 
@@ -96,13 +128,8 @@ public class ServiceClaimsImpl implements IServiceClaims {
             javaMailSender.send(message);
             log.info("claim was successfully added !");
         }
-
-
-
         return claimRepository.save(claim);
     }
-
-
     // pagination
     @Override
     public List<Claim> getAllClaims() {
@@ -110,8 +137,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
         Page<Claim> claimPage = claimRepository.findAll(pageRequest);
         return claimPage.getContent();
     }
-    //////
-    @Override
+     @Override
     public boolean deleteClaim(Long idclaim) {
         Claim existingClaim = claimRepository.findById(idclaim).orElse(null);
         if (existingClaim != null) {

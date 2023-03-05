@@ -26,5 +26,5 @@ public interface IServiceClaims {
  public String sentFeedback(Long idClaim,String feedback);
  public  boolean badWordsFound(String input ) throws IOException;
  public void deleteClaimHavingBadWords() throws IOException;
-
+public void  bilanFeedback() ;
 }
