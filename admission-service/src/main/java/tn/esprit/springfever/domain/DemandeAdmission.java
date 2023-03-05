@@ -26,6 +26,9 @@ public class DemandeAdmission {
     @Column(name = "date_admission")
     private LocalDate dateAdmission;
 
+    @Column(name="CIN")
+    private String CIN;
+
     @Column
     @Enumerated(EnumType.STRING)
     private TypeDemande typeDemande;
@@ -42,14 +45,6 @@ public class DemandeAdmission {
     @Column
     @Enumerated(EnumType.STRING)
     private Cursus cursus;
-
-    @Column
-    private String specialite;
-
-    @Column(name = "\"option\"")
-    private String option;
-
-
 
     @Column
     private String nomParent;
@@ -76,4 +71,11 @@ public class DemandeAdmission {
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "demandeRdv")
     private RDV rdvDemande;
+
+
+
+
+
+
+
 }

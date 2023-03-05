@@ -52,7 +52,7 @@ public class SpecialiteService {
         Option o = optionRepository.findById(idoption).orElse(new Option());
          Specialite specialite = new Specialite();
         mapToEntity(specialiteDTO, specialite);
-        specialite.setDemandeSpecialite(demandeAdmission);
+        specialite.getDemandeAdmissions().add(demandeAdmission);
         specialite.setSpecialiteOption(o);
         return specialiteRepository.save(specialite).getIdSpecialite();
     }
@@ -71,16 +71,14 @@ public class SpecialiteService {
     private SpecialiteDTO mapToDTO( Specialite specialite,  SpecialiteDTO specialiteDTO) {
         specialiteDTO.setIdSpecialite(specialite.getIdSpecialite());
         specialiteDTO.setNomSpecialite(specialite.getNomSpecialite());
-        specialiteDTO.setDemandeSpecialite(specialite.getDemandeSpecialite() == null ? null : specialite.getDemandeSpecialite().getIdAdmission());
+
         specialiteDTO.setSpecialiteOption(specialite.getSpecialiteOption() == null ? null : specialite.getSpecialiteOption().getIdOption());
         return specialiteDTO;
     }
 
     private Specialite mapToEntity( SpecialiteDTO specialiteDTO,  Specialite specialite) {
         specialite.setNomSpecialite(specialiteDTO.getNomSpecialite());
-         DemandeAdmission demandeSpecialite = specialiteDTO.getDemandeSpecialite() == null ? null : demandeAdmissionRepository.findById(specialiteDTO.getDemandeSpecialite())
-                .orElseThrow(() -> new NotFoundException("demandeSpecialite not found"));
-        specialite.setDemandeSpecialite(demandeSpecialite);
+
          Option specialiteOption = specialiteDTO.getSpecialiteOption() == null ? null : optionRepository.findById(specialiteDTO.getSpecialiteOption())
                 .orElseThrow(() -> new NotFoundException("specialiteOption not found"));
         specialite.setSpecialiteOption(specialiteOption);

@@ -5,6 +5,8 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -20,12 +22,15 @@ public class Specialite {
     @Enumerated(EnumType.STRING)
     private NomSpecialite nomSpecialite;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany
     @JoinColumn(name = "demande_specialite_id")
-    private DemandeAdmission demandeSpecialite;
+    private List<DemandeAdmission> demandeAdmissions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "specialite_option_id")
     private Option specialiteOption;
+
+
+
 
 }

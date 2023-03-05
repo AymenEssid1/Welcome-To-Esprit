@@ -24,14 +24,7 @@ public class DemandeAdmissionDTO {
     private Niveau niveau;
 
     private Cursus cursus;
-
-    @Size(max = 255)
-    private String specialite;
-
-    @Size(max = 255)
-    private String option;
-
-
+    private String CIN;
     @Size(max = 255)
     private String nomParent;
 

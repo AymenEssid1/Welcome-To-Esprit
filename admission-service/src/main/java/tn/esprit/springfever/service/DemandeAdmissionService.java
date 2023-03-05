@@ -6,15 +6,12 @@ import com.twilio.type.PhoneNumber;
 import org.hibernate.type.LocalDateTimeType;
 import org.hibernate.type.LocalDateType;
 import org.springframework.beans.factory.annotation.Autowired;
-import tn.esprit.springfever.domain.DemandeAdmission;
-import tn.esprit.springfever.domain.RDV;
-import tn.esprit.springfever.domain.Salle;
-import tn.esprit.springfever.domain.User;
+import tn.esprit.springfever.domain.*;
 import tn.esprit.springfever.model.DemandeAdmissionDTO;
-import tn.esprit.springfever.repos.DemandeAdmissionRepository;
-import tn.esprit.springfever.repos.RDVRepository;
-import tn.esprit.springfever.repos.SalleRepository;
-import tn.esprit.springfever.repos.UserRepository;
+import tn.esprit.springfever.model.Diplome;
+import tn.esprit.springfever.model.Niveau;
+import tn.esprit.springfever.model.NomSpecialite;
+import tn.esprit.springfever.repos.*;
 import tn.esprit.springfever.util.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -36,6 +33,8 @@ public class DemandeAdmissionService {
     private RDVRepository rdvRepository;
     @Autowired
     private SalleRepository salleRepository;
+    @Autowired
+    private SpecialiteRepository specialiteRepository;
 
     // Configurez les informations d'identification de Twilio
     final String ACCOUNT_SID = "votre_SID_Twilio";
@@ -152,6 +151,115 @@ public class DemandeAdmissionService {
         demandeAdmissionRepository.deleteById(idAdmission);
     }
 
+    public void StatDemande() {
+
+      int ING = 0;
+        int PRE = 0;
+       for (DemandeAdmission d : demandeAdmissionRepository.findAll()) {
+
+            if (d.getDiplome().equals(Diplome.INGENIEURIE)) {
+                ING++;
+            }
+            if (d.getDiplome().equals(Diplome.PREPA)) {
+                PRE++;
+            }
+            if (ING > PRE) {
+                System.out.print("on a plus  d'ingnieurs");
+            }
+            else if (PRE > ING) {
+                System.out.print("on a plus  de prepas");
+
+            } else {System.out.print("les diplomes sont egaux");}
+
+        }
+        int niv1=0;
+        int niv2=0;
+        int niv3=0;
+        int niv4=0;
+        int em=0;
+        int gc=0;
+        int it=0;
+        int tc=0;
+
+        List<DemandeAdmission> demandeAdmissions=demandeAdmissionRepository.findAll();
+        List<Specialite> specialites=specialiteRepository.findAll();
+
+        for (DemandeAdmission d:demandeAdmissions){
+            if(d.getNiveau().equals(Niveau.UN)){
+                niv1++;}
+            if (d.getNiveau().equals(Niveau.DEUX)){
+                niv2++;}
+            if (d.getNiveau().equals(Niveau.TROIS)){
+                niv3++;}
+            if(d.getNiveau().equals(Niveau.QUATRE)){
+                niv4++;}
+
+        }
+        if ((niv1>niv2)&&(niv1>niv3)&&(niv1>niv4)){
+            System.out.print("le niveau 1 est supérieur");
+        }
+        if ((niv1==niv2)&&(niv1>niv3)&&(niv1>niv4)){
+            System.out.print("le niveau 1 et 2 sont supérieur");
+        }
+        if ((niv1>niv2)&&(niv1==niv3)&&(niv1>niv4)){
+            System.out.print("le niveau 1 et 3 sont supérieur");
+        }
+        if ((niv1>niv2)&&(niv1>niv3)&&(niv1==niv4)){
+            System.out.print("les niveaux 1 et 4 sont supérieur");
+        }
+        if((niv2>niv3)&&(niv2>niv1)&&(niv2>niv4)){
+            System.out.print("le niveau 2 est supérieur");
+        }
+        if((niv2==niv3)&&(niv2>niv1)&&(niv2>niv4)){
+            System.out.print("les niveaux 2 et 3 sont supérieur");
+        }
+        if((niv2>niv3)&&(niv2>niv1)&&(niv2==niv4)){
+            System.out.print("les niveaux 2 et 4 sont le plus");
+        }
+        if ((niv3>niv1)&&(niv3>niv2)&&(niv3>niv4)){
+            System.out.print("les niveaux 3 sont le plus");
+        }
+        if ((niv3>niv1)&&(niv3>niv2)&&(niv3==niv4)){
+            System.out.print("le niveau 3 et 4 est le plus");
+        }
+        if((niv4>niv1)&&(niv4>niv2)&&(niv4>niv3)){
+            System.out.print("le niveau 4 est le plus");
+        }
+        else{
+            System.out.print("tous les niveau sont egaux");
+
+        }
+        for(Specialite s:specialites){
+            if(s.getNomSpecialite().equals(NomSpecialite.EM)){em++;}
+            if(s.getNomSpecialite().equals(NomSpecialite.GC)){gc++;}
+            if(s.getNomSpecialite().equals(NomSpecialite.IT)){it++;}
+            if(s.getNomSpecialite().equals(NomSpecialite.TC)){tc++;}
+        }
+
+        if ((em>gc)&&(em>it)&&(em>tc)){
+            System.out.print("le em est le plus");
+        }
+        if((gc>em)&&(gc>it)&&(gc>tc)){
+            System.out.print("le gc est le plus");
+        }
+        if ((it>em)&&(it>gc)&&(it>tc)){
+            System.out.print("le it est le plus");
+        }
+        if((tc>em)&&(tc>gc)&&(tc>it)){
+            System.out.print("le tc est le plus");
+        }
+        else{
+            System.out.print("tous les Specialiter sont egaux");
+
+        }
+
+
+
+
+    }
+
+
+
     private DemandeAdmissionDTO mapToDTO( DemandeAdmission demandeAdmission,
              DemandeAdmissionDTO demandeAdmissionDTO) {
         demandeAdmissionDTO.setIdAdmission(demandeAdmission.getIdAdmission());
@@ -160,8 +268,7 @@ public class DemandeAdmissionService {
         demandeAdmissionDTO.setDiplome(demandeAdmission.getDiplome());
         demandeAdmissionDTO.setNiveau(demandeAdmission.getNiveau());
         demandeAdmissionDTO.setCursus(demandeAdmission.getCursus());
-        demandeAdmissionDTO.setSpecialite(demandeAdmission.getSpecialite());
-        demandeAdmissionDTO.setOption(demandeAdmission.getOption());
+        demandeAdmissionDTO.setCIN(demandeAdmission.getCIN());
         demandeAdmissionDTO.setNomParent(demandeAdmission.getNomParent());
         demandeAdmissionDTO.setPrenomParent(demandeAdmission.getPrenomParent());
         demandeAdmissionDTO.setMailParent(demandeAdmission.getMailParent());
@@ -177,9 +284,8 @@ public class DemandeAdmissionService {
         demandeAdmission.setDiplome(demandeAdmissionDTO.getDiplome());
         demandeAdmission.setNiveau(demandeAdmissionDTO.getNiveau());
         demandeAdmission.setCursus(demandeAdmissionDTO.getCursus());
-        demandeAdmission.setSpecialite(demandeAdmissionDTO.getSpecialite());
-        demandeAdmission.setOption(demandeAdmissionDTO.getOption());
         demandeAdmission.setNomParent(demandeAdmissionDTO.getNomParent());
+        demandeAdmission.setCIN(demandeAdmissionDTO.getCIN());
         demandeAdmission.setPrenomParent(demandeAdmissionDTO.getPrenomParent());
         demandeAdmission.setMailParent(demandeAdmissionDTO.getMailParent());
         demandeAdmission.setTelParent(demandeAdmissionDTO.getTelParent());

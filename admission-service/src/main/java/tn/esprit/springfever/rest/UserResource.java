@@ -2,6 +2,7 @@ package tn.esprit.springfever.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import tn.esprit.springfever.model.UserDTO;
+import tn.esprit.springfever.service.RDVService;
 import tn.esprit.springfever.service.UserService;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ public class UserResource {
 
         @Autowired
     private  UserService userService;
+        @Autowired
+        private RDVService rdvService;
 
     public UserResource( UserService userService) {
         this.userService = userService;
@@ -42,6 +45,11 @@ public class UserResource {
     public ResponseEntity<Void> updateUser(@PathVariable  Long userID,
             @RequestBody @Valid  UserDTO userDTO) {
         userService.update(userID, userDTO);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/etattuteur")
+    public ResponseEntity<Void> updateEtatUser() {
+        rdvService.etatTuteur();
         return ResponseEntity.ok().build();
     }
 

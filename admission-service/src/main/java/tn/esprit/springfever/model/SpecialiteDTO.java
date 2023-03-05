@@ -10,7 +10,6 @@ public class SpecialiteDTO {
 
     private Long idSpecialite;
     private NomSpecialite nomSpecialite;
-    private Long demandeSpecialite;
     private Long specialiteOption;
 
 }

@@ -37,7 +37,9 @@ public class DemandeAdmissionResource {
 
     @GetMapping
     public ResponseEntity<List<DemandeAdmissionDTO>> getAllDemandeAdmissions() {
+        demandeAdmissionService.StatDemande();
         return ResponseEntity.ok(demandeAdmissionService.findAll());
+
     }
 
     @GetMapping("/{idAdmission}")
@@ -69,5 +71,7 @@ public class DemandeAdmissionResource {
         demandeAdmissionService.delete(idAdmission);
         return ResponseEntity.noContent().build();
     }
+
+
 
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -111,14 +112,20 @@ public class RDVService {
     }
 
     @Scheduled(cron = "*/10 * * * * *" )
-    private void etatTuteur(){
+    public void etatTuteur(){
         LocalDate l = LocalDate.now();
-        List<User> users = userRepository.findByetatuserAndRDVuserRDVsDate();
+        List<User> users = userRepository.findAll();
 
-    for(User user:users ){
-        System.err.print("test");
-        user.setEtatuser("disponible");
-    }
+        System.out.println(users.size());
+        for(User u:users)
+        {
+            if((u.getEtatuser().equals("non disponible"))&&(u.getDemandeAdmission().getDateAdmission().plusDays(7).isEqual(l))){
+                u.setEtatuser("disponible");
+                userRepository.save(u);
+
+            }
+        }
+
 
     }
 

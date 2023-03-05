@@ -33,11 +33,13 @@ public class RDVResource {
 
     @GetMapping
     public ResponseEntity<List<RDVDTO>> getAllRDVs() {
+        rDVService.etatTuteur();
         return ResponseEntity.ok(rDVService.findAll());
     }
 
     @GetMapping("/{idRDV}")
     public ResponseEntity<RDVDTO> getRDV(@PathVariable  Long idRDV) {
+
         return ResponseEntity.ok(rDVService.get(idRDV));
     }
 
