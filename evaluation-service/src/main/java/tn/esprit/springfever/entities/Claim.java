@@ -39,8 +39,8 @@ public class Claim implements Serializable {
     private ClaimSubject claimSubject ;
 
     @NotBlank
-    @NotNull
-    @Size(min = 1, max = 500)
+    @NotNull(message = "La description ne peut pas être vide.")
+    @Size(min = 1, max = 500 , message = "La description ne peut pas être vide.")
     private String description;
 
     @Enumerated(EnumType.STRING)

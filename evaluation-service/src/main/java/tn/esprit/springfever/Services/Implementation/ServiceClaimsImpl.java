@@ -97,9 +97,9 @@ public class ServiceClaimsImpl implements IServiceClaims {
             log.info("claim was successfully added !");
         }
 
-        claimRepository.save(claim);
 
-        return claim;
+
+        return claimRepository.save(claim);
     }
 
 
@@ -213,12 +213,14 @@ public class ServiceClaimsImpl implements IServiceClaims {
         InputStream modelIn = new FileInputStream("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\en-token.bin");
         TokenizerModel model = new TokenizerModel(modelIn);
         Tokenizer tokenizer = new TokenizerME(model);
-        String[] tokens = tokenizer.tokenize(input);
-        for (String word : tokens) {
-            for (String badWord : this.excelToStringArray()) {
+        if(input!=null) {
+            String[] tokens = tokenizer.tokenize(input);
+            for (String word : tokens) {
+                for (String badWord : this.excelToStringArray()) {
 
-                if(word.equals(badWord))
-                    return true ;
+                    if (word.equals(badWord))
+                        return true;
+                }
             }
         }
         return false ;

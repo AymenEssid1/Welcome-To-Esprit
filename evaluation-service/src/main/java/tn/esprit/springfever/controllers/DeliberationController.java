@@ -4,10 +4,14 @@ package tn.esprit.springfever.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.springfever.Exceptions.ValidationExceptionHandler;
 import tn.esprit.springfever.Services.Interfaces.IServiceDeliberation;
 import tn.esprit.springfever.entities.Deliberation;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -20,10 +24,19 @@ public class DeliberationController {
 
 
     @PostMapping("/addDeliberation")
-    public ResponseEntity<Deliberation> addDeliberation(@RequestBody Deliberation deliberation) {
+    public ResponseEntity<?> addDeliberation(@Valid @RequestBody Deliberation deliberation, BindingResult result) {
+        if(result.hasErrors()) {
+            ValidationExceptionHandler.ValidationErrorResponse response = new ValidationExceptionHandler.ValidationErrorResponse();
+            List<FieldError> fieldErrors = result.getFieldErrors();
+            for(FieldError error : fieldErrors) {
+                response.addError(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
         Deliberation savedDeliberation = deliberationService.addDeliberation(deliberation);
         return new ResponseEntity<>(savedDeliberation, HttpStatus.CREATED);
     }
+
 
     @GetMapping("/getAllDeliberations")
     public ResponseEntity<List<Deliberation>> getAllDeliberations() {

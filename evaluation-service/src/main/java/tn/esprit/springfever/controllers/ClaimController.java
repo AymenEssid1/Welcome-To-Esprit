@@ -4,16 +4,21 @@ package tn.esprit.springfever.Controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ClaimDTO;
+import tn.esprit.springfever.Exceptions.ValidationExceptionHandler;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.Services.Interfaces.IServiceUser;
 import tn.esprit.springfever.entities.Claim;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +41,18 @@ public class ClaimController {
     @ApiOperation(value = "This method is used to add claim ")
 
     @PostMapping("/add")
-    @ResponseBody
-    public Claim addClaim(@RequestBody Claim claim) throws IOException {return  iServiceClaims.addClaim(claim);}
+    public ResponseEntity<?> addClaim(@Valid @RequestBody Claim claim, BindingResult result) throws IOException {
+        if(result.hasErrors()) {
+            ValidationExceptionHandler.ValidationErrorResponse response = new ValidationExceptionHandler.ValidationErrorResponse();
+            List<FieldError> fieldErrors = result.getFieldErrors();
+            for(FieldError error : fieldErrors) {
+                response.addError(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        Claim addedClaim = iServiceClaims.addClaim(claim);
+        return new ResponseEntity<>(addedClaim, HttpStatus.OK);
+    }
     /*********  update claim  ***********/
     @PutMapping("/update/{idClaim}")
     @ResponseBody

@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,21 +26,25 @@ public class Question implements Serializable {
     @Setter
     private Long idQuestion ;
     @Size(max = 500)
+    @NotBlank(message = "Ennonce cannot be blank")
+    @Size(max = 500, message = "Ennonce cannot be longer than 500 characters")
+    private String ennonce;
 
-    private String ennonce ;
-    @Size(max = 500)
+    @NotBlank(message = "option 1 cannot be blank")
+    @Size(max = 500, message = "Option 1 cannot be longer than 500 characters")
+    private String option1;
 
-    private String option1 ;
-    @Size(max = 500)
+    @NotBlank(message = "option 2 cannot be blank")
+    @Size(max = 500, message = "Option 2 cannot be longer than 500 characters")
+    private String option2;
 
-    private String option2 ;
-    @Size(max = 500)
+    @NotBlank(message = "option 3 cannot be blank")
+    @Size(max = 500, message = "Option 3 cannot be longer than 500 characters")
+    private String option3;
 
-    private String option3 ;
-    @Size(max = 500)
-
-    private String answer ;
-    @Size(max = 500)
+    @NotBlank(message = "Answer cannot be blank")
+    @Size(max = 500, message = "Answer cannot be longer than 500 characters")
+    private String answer;
 
     @ManyToMany(cascade = CascadeType.ALL , mappedBy = "questions")
     @JsonIgnore

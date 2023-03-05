@@ -3,23 +3,42 @@ package tn.esprit.springfever.Controllers;
 import io.github.flashvayne.chatgpt.service.ChatgptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
+ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.Exceptions.ValidationExceptionHandler;
 import tn.esprit.springfever.Services.Interfaces.IServiceFaq;
 import tn.esprit.springfever.entities.Faq;
 import  tn.esprit.springfever.Services.Interfaces.IServiceFaq;
 import  tn.esprit.springfever.entities.Faq;
 import  tn.esprit.springfever.enums.Faq_Category_enum;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+
+
+
+
+
+
+
+
 @RestController
 @RequestMapping("/faqs")
 @Slf4j
+@Configuration
+
+
 public class FaqController {
 
     @Autowired
@@ -33,11 +52,24 @@ public class FaqController {
         return new ResponseEntity<>(faqs, HttpStatus.OK);
     }
 
+
+
+
     @PostMapping("addFaq/")
-    public ResponseEntity<Faq> addFaq(@RequestBody Faq faq) {
-        Faq addedFaq = faqService.addFaq(faq);
-        return new ResponseEntity<>(addedFaq, HttpStatus.CREATED);
+    public ResponseEntity<?> addFaq(@Valid @RequestBody Faq faq, BindingResult result) {
+        if (result.hasErrors()) {
+            ValidationExceptionHandler.ValidationErrorResponse response = new ValidationExceptionHandler.ValidationErrorResponse();
+            List<FieldError> fieldErrors = result.getFieldErrors();
+            for (FieldError error : fieldErrors) {
+                response.addError(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else {
+            Faq addedFaq = faqService.addFaq(faq);
+            return new ResponseEntity<>(addedFaq, HttpStatus.CREATED);
+        }
     }
+
 
     @DeleteMapping("deleteFaq/{idFaq}")
     public ResponseEntity<String> deleteFaq(@PathVariable Long idFaq) {

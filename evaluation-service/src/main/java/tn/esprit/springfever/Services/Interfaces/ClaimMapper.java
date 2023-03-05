@@ -10,7 +10,6 @@ package tn.esprit.springfever.Services.Interfaces;
  import tn.esprit.springfever.DTO.ClaimDTO;
  import  tn.esprit.springfever.entities.Claim;
 @Mapper(componentModel = "spring")
-
 @Service
 public interface ClaimMapper {
      ClaimMapper INSTANCE = Mappers.getMapper(ClaimMapper.class);

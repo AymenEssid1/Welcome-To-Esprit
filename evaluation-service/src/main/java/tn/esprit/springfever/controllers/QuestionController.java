@@ -13,6 +13,12 @@ import tn.esprit.springfever.entities.Question;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+ import tn.esprit.springfever.Exceptions.ValidationExceptionHandler;
+
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/questions")
 @Slf4j
@@ -23,9 +29,19 @@ public class QuestionController {
 
 
     @PostMapping("/addQuestion")
-    public ResponseEntity<Question> addQuestion(@RequestBody Question question) {
-        return new ResponseEntity<>(questionService.addQuestion(question), HttpStatus.CREATED);
+    public ResponseEntity<?> addQuestion(@Valid @RequestBody Question question, BindingResult result) {
+        if (result.hasErrors()) {
+            ValidationExceptionHandler.ValidationErrorResponse response = new ValidationExceptionHandler.ValidationErrorResponse();
+            List<FieldError> fieldErrors = result.getFieldErrors();
+            for (FieldError error : fieldErrors) {
+                response.addError(error.getField(), error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        Question addedQuestion = questionService.addQuestion(question);
+        return new ResponseEntity<>(addedQuestion, HttpStatus.CREATED);
     }
+
 
     @GetMapping("/getAllQuestions")
     public ResponseEntity<List<Question>> getAllQuestions() {

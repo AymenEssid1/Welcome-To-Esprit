@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.validation.constraints.NotBlank;
 
 
 @Entity
@@ -14,9 +15,11 @@ public class ImageData {
     @GeneratedValue
     Long id;
 
-    String name;
+    @NotBlank(message = "Name cannot be blank")
+    private String name;
 
-    String location;
+    @NotBlank(message = "Location cannot be blank")
+    private String location;
 
     @Lob
     byte[] content;

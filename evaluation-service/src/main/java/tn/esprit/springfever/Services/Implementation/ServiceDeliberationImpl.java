@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class ServiceDeliberationImpl implements IServiceDeliberation {
 
     @Override
     public Deliberation addDeliberation(Deliberation deliberation) {
+        deliberation.setDateDelib(new Date());
         log.info("Deliberation was successfully added!");
         return deliberationRepository.save(deliberation);
     }

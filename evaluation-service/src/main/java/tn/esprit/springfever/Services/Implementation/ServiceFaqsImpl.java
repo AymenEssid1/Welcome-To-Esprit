@@ -18,6 +18,7 @@ import tn.esprit.springfever.entities.FaqCategory;
  import tn.esprit.springfever.repositories.FaqCategoryRepository;
 import tn.esprit.springfever.repositories.FaqRepository;
 import org.apache.poi.ss.usermodel.Row;
+  import tn.esprit.springfever.util.FileUtil;
 
   import java.io.BufferedReader;
   import java.io.FileReader;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
   import java.util.stream.Collectors;
 
 import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
+  import static tn.esprit.springfever.util.FileUtil.writeToFile;
 
 @Service
 @Slf4j
@@ -43,6 +45,8 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
     FaqCategoryRepository faqCategoryRepository;
     @Autowired
     ChatgptService chatgptService ;
+
+
 
 
     @Override
@@ -132,43 +136,24 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
     @Override
     public List<Faq> search(String query) {
-
-
+        writeToFile(("User searched for "+query) ,"M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt")  ;
          log.info("User searched for {}", query);
              List<String> allQueries = new ArrayList<>();
             // Read the SFlogs.log file and extract the search queries
-            try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/SFlogs.log"))) {
+            try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt"))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (line.contains("User searched for ")) {
                         String[] parts = line.split("\\s+");
-                        if (parts.length >= 3) {
-                            String q = parts[11];
+                             String q = parts[3];
                             allQueries.add(q);
-                        }
                    }
                 }
             } catch (IOException e) {
                 // Handle exception
             }
-            // Count the frequency of each search query
-            Map<String, Long> queryCounts = allQueries.stream()
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-            // Sort the search queries by frequency and return the top 10
-            List<String> topQueries = queryCounts.entrySet().stream()
-                    .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                    .limit(10)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-        System.out.print("************ liste des 10 queries  *********");
-        System.out.print("************ "+ topQueries +" *********");
-
-
 
          return faqRepository.search(query);
-
-
 
     }
 
@@ -176,15 +161,13 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
     public List<String> topSearchedQueries() {
         List<String> allQueries = new ArrayList<>();
         // Read the SFlogs.log file and extract the search queries
-        try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/SFlogs.log"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains("User searched for ")) {
                     String[] parts = line.split("\\s+");
-                    if (parts.length >= 3) {
-                        String q = parts[11];
-                        allQueries.add(q);
-                    }
+                    String q = parts[3];
+                    allQueries.add(q);
                 }
             }
         } catch (IOException e) {
@@ -200,17 +183,17 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
                 .limit(10)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
-        System.out.print("************ liste des 10 queries  *********");
-        System.out.print("************ "+ topQueries +" *********");
+        log.info("************ liste des 10 queries  *********");
+        log.info("************ "+ topQueries +" *********");
         return topQueries ;
 
     }
 
+
+
     @Override
     public List<Faq> getDfaultFaqs() {
-
         List<Faq> defaultFaqs= new ArrayList<>() ;
-
         this.topSearchedQueries().forEach(
                 query -> {
                     List<Faq> ListQuery=faqRepository.findByKeywords(query);
@@ -219,11 +202,8 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
                             defaultFaqs.add(faq);
                         }
                     });
-
                 }
-
         );
-
             return defaultFaqs ;
     }
 
