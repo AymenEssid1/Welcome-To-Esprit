@@ -19,7 +19,7 @@ public interface IJobRDV {
     public String AssignEntretienToRDV( Long ID_Job_Entretien, Long ID_Job_DRV);
 
     public String AssignJobApplicationToRDV(Long Id_Job_Application ,Long ID_Job_DRV);
-    //public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto);
+    public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto);
     public String AssignCandidateToJobRDV(Long ID_Job_DRV , Long Id_Job_Application );
     public String AssignJuryToJobRDV(Long ID_Job_DRV , Long id );
     public List<LocalDateTime> getDisponibilites(Long userId);

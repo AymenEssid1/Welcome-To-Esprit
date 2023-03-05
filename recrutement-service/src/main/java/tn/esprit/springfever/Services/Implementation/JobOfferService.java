@@ -154,6 +154,28 @@ public class JobOfferService implements IJobOffer {
     public List<Object[]> countJobOffersByCategory() {
         return jobOfferRepository.countJobOffersByCategory();
     }
+    /*public String getJobOffersSortedByApplicationCount() {
+        System.out.println("Ok1");
+        String res="";
+        try {
+            List<Job_Offer> list = jobOfferRepository.findAllSortedByApplicationCount();
+            System.out.println("Ok 2");
+            System.out.println(list.get(0).toCustomString());
+
+            System.out.println(list.get(0));
+            for (int i = 0; i < list.size(); i++) {
+                res=res+list.get(i)+"\n";
+                //System.out.println(list.get(i));
+
+            }
+            return res;
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }*/
+
 
 
 }

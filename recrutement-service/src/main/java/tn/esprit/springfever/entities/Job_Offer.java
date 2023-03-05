@@ -1,5 +1,6 @@
 package tn.esprit.springfever.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,9 +34,16 @@ public class Job_Offer implements Serializable {
     Job_Category jobCategory;
 
     @OneToMany(mappedBy = "jobOffer", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Job_Application> jobApplications;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image_JobOffer image;
+
+
+
+
+
+
 
 }

@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaRepositories("tn.esprit.springfever.repositories")
 
-@ComponentScan(basePackages = {"tn.esprit.springfever.Controllers","tn.esprit.springfever.Services","tn.esprit.springfever.Configurations","tn.esprit.springfever.repositories","tn.esprit.springfever.Security","tn.esprit.springfever.payload"})
+@ComponentScan(basePackages = {"tn.esprit.springfever.Controllers","tn.esprit.springfever.Services","tn.esprit.springfever.Services.Interfaces","tn.esprit.springfever.Configurations","tn.esprit.springfever.DTO","tn.esprit.springfever.repositories","tn.esprit.springfever.Security","tn.esprit.springfever.payload"})
 
 @EnableSpringConfigured
  @EnableScheduling

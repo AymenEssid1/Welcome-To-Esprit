@@ -30,6 +30,7 @@ public class Job_RDV implements Serializable {
     private double LatitudeCandidate;
     private double LongitudeCandidate;
 
+
     @ManyToOne
     @JoinColumn(name = "Candidate_ID")
     private User candidate;

@@ -20,9 +20,18 @@ public interface JobOfferRepository extends JpaRepository<Job_Offer,Long> {
     @Query(value = "SELECT jo.Id_Job_Offer, jo.Title, jo.Subject, COUNT(*) as applicationCount " +
             "FROM Job_Offer jo " +
             "JOIN Job_Application ja ON jo.Id_Job_Offer = ja.Id_Job_Offer " +
-            "GROUP BY jo.Id_Job_Offer",
+            "GROUP BY jo.Id_Job_Offer " +
+            "ORDER BY applicationCount DESC",
             nativeQuery = true)
     List<Object[]> getJobOfferApplicationCount();
+
+    /*@Query(value = "SELECT jo.Id_Job_Offer,jo.image_id,jo.job_category_id_job_category, jo.Title, jo.Subject, COUNT(*) as applicationCount " +
+            "FROM job_offer jo " +
+            "LEFT JOIN job_application ja ON jo.id_job_offer = ja.id_job_offer " +
+            "GROUP BY jo.id_job_offer " +
+            "ORDER BY applicationCount DESC",
+            nativeQuery = true)
+    List<Job_Offer> findAllSortedByApplicationCount();*/
 
 
 

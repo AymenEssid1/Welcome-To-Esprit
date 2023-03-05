@@ -49,10 +49,10 @@ public class JobRdvController {
 
     }*/
 //updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto)
-   /* @PutMapping("/updateJobRDv/{id}")
+   @PutMapping("/updateJobRDv/{id}")
     @ResponseBody
 
-    public Job_RDV updateJobRDV(@PathVariable("id") Long ID_Job_DRV, @RequestBody Job_RDV_DTO jobRdvDto )  {return  iJobRDV.updateJobRDV(ID_Job_DRV,jobRdvDto);}*/
+    public Job_RDV updateJobRDV(@PathVariable("id") Long ID_Job_DRV, @RequestBody Job_RDV_DTO jobRdvDto )  {return  iJobRDV.updateJobRDV(ID_Job_DRV,jobRdvDto);}
 
 
 

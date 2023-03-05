@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
+import tn.esprit.springfever.Services.Interfaces.JobMapper;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.enums.RDV_Type;
 import tn.esprit.springfever.repositories.*;
@@ -46,6 +48,8 @@ public class JobRdvService implements IJobRDV {
 
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    JobMapper jobMapper;
 
 
     public Job_RDV addJobRDV(Job_RDV job_rdv) {
@@ -75,10 +79,10 @@ public class JobRdvService implements IJobRDV {
         return jobRdvExisted;
     }*/
 
-    /*public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto) {
+    public Job_RDV updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto) {
         Job_RDV jobRdv = jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if (jobRdv != null) {
-            jobMapper.updateClaimFromDto(jobRdv, jobRdvDto);
+            jobMapper.updateClaimFromDto(jobRdvDto,jobRdv );
             log.info(jobRdv.getSalle_Rdv());
             jobRdvRepository.save(jobRdv);
             log.info("Job was successfully updated !");
@@ -86,7 +90,7 @@ public class JobRdvService implements IJobRDV {
         }
         log.info("Job not found !");
         return  jobRdv;
-    }*/
+    }
 
     public String deleteJobOffer(Long ID_Job_DRV) {
         Job_RDV jobRdv = jobRdvRepository.findById(ID_Job_DRV).orElse(null);

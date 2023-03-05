@@ -8,13 +8,22 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.Services.Interfaces.IJobOffer;
 import tn.esprit.springfever.entities.Job_Offer;
+import tn.esprit.springfever.repositories.JobOfferRepository;
+import javax.persistence.EntityManager;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
 public class JobOfferController  {
     @Autowired
     IJobOffer iJobOffer;
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    JobOfferRepository jobOfferRepository;
+
     @PostMapping("addJobOffer/")
     public Job_Offer addJobOffer(@Validated @RequestBody Job_Offer job_offer){
         return iJobOffer.addJobOffer(job_offer);
@@ -70,6 +79,27 @@ public class JobOfferController  {
     public List<Object[]> countJobOffersByCategory(){
         return iJobOffer.countJobOffersByCategory();
     }
+
+
+    /*@GetMapping("/job-offers/sort-by-application-count")
+    public List<Job_Offer> getJobOffersSortedByApplicationCount() {
+        List<Job_Offer> jobOffers = jobOfferRepository.findAll();
+        jobOffers.sort(Comparator.comparingInt(j -> j.getJobApplications().size()));
+        Collections.reverse(jobOffers);
+        return jobOffers;
+    }*/
+    /*@GetMapping("/job-offers/sort-by-application-count")
+    public String getJobOffersSortedByApplicationCount(){
+        try {
+            return iJobOffer.getJobOffersSortedByApplicationCount();
+
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }*/
+
 
 
 

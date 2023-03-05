@@ -19,6 +19,7 @@ public interface IJobOffer {
 
     public String generateRSSFeed() throws FeedException;
     public List<Object[]> countJobOffersByCategory() ;
+    //public String getJobOffersSortedByApplicationCount();
 
 
 
