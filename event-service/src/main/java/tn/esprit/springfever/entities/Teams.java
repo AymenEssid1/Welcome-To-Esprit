@@ -1,6 +1,7 @@
 package tn.esprit.springfever.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @ToString
@@ -28,8 +30,12 @@ public class Teams implements Serializable{
     @NotBlank(message = "Le NameTeam ne peut pas être vide.")
     @Size(max = 10, message = "Le nom du team ne peut pas dépasser {max} caractères.")
     private String NameTeam ;
+
     @NotBlank(message = "Le QRcertificat ne peut pas être vide.")
+    @ApiModelProperty(notes = "The QR code image in base64-encoded PNG format", value = "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAA3NCSVQICAjb4U/gAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJZJREFUeNpiYBhgeP//PwMWQAKcAizF+/PjEwMzAxHgIYGZiYmZiYs3AhLCT//37LnQUyNiAeTbQ2MLFiwFEly6UxLihgZ2YAKXl6VdnBzMQl/CwMDwGJibGoqalBVMxh3NhYGDZfPmLXz/z5PhgcG5gCIwN7AOAC8gP4VhjEG2xgAAEI0F5fSNA5kwAAAABJRU5ErkJggg==")
+    @Column(unique = true, nullable = false)
     private String QRcertificat;
+
     @NotBlank(message = "Le NiveauEtude ne peut pas être vide.")
     private String NiveauEtude ;
 
@@ -49,5 +55,9 @@ public class Teams implements Serializable{
     @OneToOne(cascade = CascadeType.ALL)
     private ImageData image;
 
+    public Teams() {
+        // Generate the QR code using a random UUID
+        this.QRcertificat = UUID.randomUUID().toString();
+    }
 
 }

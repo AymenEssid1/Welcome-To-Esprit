@@ -1,4 +1,5 @@
 package tn.esprit.springfever.Services.Interfaces;
+import com.google.zxing.WriterException;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import tn.esprit.springfever.DTO.TeamsDTO;
@@ -9,6 +10,7 @@ import java.awt.print.Pageable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface IServiceTeams {
     public Teams addTeams(Teams teams) throws IOException;
@@ -24,5 +26,15 @@ public interface IServiceTeams {
 
     Teams getTeamsWithMaxProjectNote();
 
+  //  public String generateQr(Teams teams);
+
+
+    public Optional<Teams> getTeamById(Long id);
+    public Teams saveTeam(Teams team);
+    public byte[] generateQRCode(String teamName, String event) throws WriterException, IOException;
+
+    private static com.google.zxing.EncodeHintType getQRCodeHints() {
+        return null;
+    }
 
 }

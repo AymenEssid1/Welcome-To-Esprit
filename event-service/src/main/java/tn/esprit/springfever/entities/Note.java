@@ -54,4 +54,8 @@ public class Note implements Serializable{
 
     public Note(String s, String message, Date date) {
     }
+
+    public Note() {
+
+    }
 }

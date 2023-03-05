@@ -57,6 +57,7 @@ public class EventController {
 
     @PutMapping("AssignTeamsToEvent/{idEvent}/{idTeam}")
     public String assignTeamsToEvent(@PathVariable Long idEvent, @PathVariable Long idTeam) {
+        
         return iServiceEvent.assignTeamsToEvent(idEvent , idTeam);
     }
 

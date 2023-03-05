@@ -1,10 +1,13 @@
 package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.text.pdf.qrcode.WriterException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +19,14 @@ import tn.esprit.springfever.Services.Interfaces.IFileLocationService;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.ImageData;
 import tn.esprit.springfever.entities.Teams;
+import tn.esprit.springfever.repositories.FileSystemRepository;
+import tn.esprit.springfever.repositories.TeamsRepository;
 
 import java.awt.*;
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 @RequestMapping("/Teams")
@@ -33,6 +39,10 @@ public class TeamsController {
     IFileLocationService iFileLocationService;
     @Autowired
     IServiceTeams iServiceTeams;
+    @Autowired
+    TeamsRepository teamsRepository;
+    @Autowired
+    FileSystemRepository fileSystemRepository;
     /*
     @Autowired
     private JwtUtils jwtUtils;
@@ -40,24 +50,11 @@ public class TeamsController {
     /*********  add teams  ***********/
     @ApiOperation(value = "This method is used to add teams")
 
-    @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+    @PostMapping( "/add")
     @ResponseBody
-    public ResponseEntity<Teams> addTeams(@RequestParam Teams teams,@RequestParam("image") MultipartFile image) throws Exception {
+    public Teams addTeams(@RequestBody Teams teams) throws Exception {
+        return  iServiceTeams.addTeams(teams);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        TeamsDTO teamsDTO = objectMapper.readValue((DataInput) teams,TeamsDTO.class);
-
-        Teams t=new Teams();
-        t.setNameTeam(teamsDTO.getNameTeam());
-        t.setQRcertificat(teamsDTO.getQRcertificat());
-        t.setNiveauEtude(teamsDTO.getNiveauEtude());
-
-        if(image!=null){
-            System.out.println(image.getOriginalFilename());
-            ImageData newImage = iFileLocationService.save(image);
-            t.setImage(newImage);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(t);
        }
 
 
@@ -98,6 +95,72 @@ public class TeamsController {
         return ResponseEntity.ok().build();
     }
 
+
+/*
+    @GetMapping(value = "/teams/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long id) {
+        try {
+            Teams teams = teamsRepository.findById(id).orElse(null);
+            FileSystemResource fileSystemResource = fileSystemRepository.findInFileSystem(teams.getQRcertificat() );
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(fileSystemResource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+*/
+
+    @GetMapping("/{id}")
+    public String getTeamById(@PathVariable Long id, Model model) {
+        Optional<Teams> team = iServiceTeams.getTeamById(id);
+        if (team.isPresent()) {
+
+            return "team";
+        } else {
+            return "error";
+        }
+    }
+
+    @PostMapping("/")
+    public String saveTeam(@RequestParam String nameTeam, Model model) {
+        Teams team = new Teams();
+        Teams savedTeam = iServiceTeams.saveTeam(team);
+        //model.addAttribute("team", savedTeam);
+        return "team";
+    }
+
+    @GetMapping("/{id}/qrcode")
+    @ResponseBody
+    public ResponseEntity<byte[]> getQRCodeForTeam(@PathVariable Long id) {
+        Optional<Teams> team = iServiceTeams.getTeamById(id);
+        if (team.isPresent()) {
+            byte[] qrCodeBytes;
+            try {
+                qrCodeBytes = iServiceTeams.generateQRCode(team.get().getNameTeam() , "Certificate of Participation\n" +
+                        "\n" +
+                        "This is to certify that "+team.get().getNameTeam()+" has participated in the APP0 held on 13-03-2023 and has successfully completed all the requirements for the event.\n" +
+                        "\n" +
+                        "We wish "+team.get().getNameTeam()+" all the best in their future endeavors and hope that this certificate serves as a testament to their hard work and achievement.\n" +
+                        "\n" +
+                        "Congratulations on a job well done! We appreciate your hard work and dedication to your projects !\n");
+
+
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.IMAGE_PNG);
+                headers.setContentLength(qrCodeBytes.length);
+                headers.setContentDispositionFormData("attachment", team.get().getNameTeam() + ".png");
+                headers.setCacheControl("no-cache, no-store, must-revalidate");
+                return new ResponseEntity<byte[]>(qrCodeBytes, headers, HttpStatus.OK);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new ResponseEntity<byte[]>(HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (com.google.zxing.WriterException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return new ResponseEntity<byte[]>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 }

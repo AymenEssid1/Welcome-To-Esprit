@@ -1,5 +1,15 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.google.zxing.BarcodeFormat;
+//import com.itextpdf.text.pdf.qrcode.BitMatrix;
+//import com.itextpdf.text.pdf.qrcode.EncodeHintType;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.EncodeHintType;
+//import com.itextpdf.text.pdf.qrcode.QRCodeWriter;
+import com.itextpdf.text.pdf.qrcode.ErrorCorrectionLevel;
+//import com.itextpdf.text.pdf.qrcode.WriterException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,8 +21,17 @@ import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.repositories.*;
 
-import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Optional;
+
+import com.google.zxing.WriterException;
+
+//import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -187,6 +206,77 @@ public class ServiceTeamsImpl implements IServiceTeams{
     @Override
     public Teams getTeamsWithMaxProjectNote() {
         return null;
+    }
+
+
+
+/*
+    @Override
+    public String generateQr(Teams teams) {
+        String qrCodeData = teams.toString();
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.MARGIN, 2);
+        // Generate QR code
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = new BitMatrix(8, 8);
+        try {
+            bitMatrix = qrCodeWriter.encode(qrCodeData, BarcodeFormat.QR_CODE, 300, 300, hints);
+        } catch (com.google.zxing.WriterException e) {
+            // Handle writer exception
+            e.printStackTrace();
+
+        }// Save QR code as a PNG file
+        String filePath = System.getProperty("teams.dir") + "/assets/" + "user-" + teams.getIdTeam() + "-" + teams.getNameTeam() + ".png"; // Specify the file path and name
+        File qrCodeFile = new File(filePath);
+        try {
+            MatrixToImageWriter.writeToFile(bitMatrix, "png", qrCodeFile);
+        } catch (IOException e) {
+            // Handle IO exception
+            e.printStackTrace();
+
+        }
+
+        // Return a view that shows the generated QR code
+        ModelAndView modelAndView = new ModelAndView("qr-code");
+        modelAndView.addObject("qrCodeFile", qrCodeFile);
+        return filePath;
+    }
+
+*/
+
+
+@Override
+    public Optional<Teams> getTeamById(Long id) {
+        return teamsRepository.findById(id);
+    }
+@Override
+    public Teams saveTeam(Teams team) {
+        return teamsRepository.save(team);
+    }
+@Override
+    public byte[] generateQRCode(String teamName, String event) throws WriterException, IOException {
+        int width = 350;
+        int height = 350;
+        String qrCodeText = teamName + ": " + event;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeText, BarcodeFormat.QR_CODE, width, height, getQRCodeHints());
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+        byte[] qrCodeBytes = outputStream.toByteArray();
+        outputStream.close();
+        return qrCodeBytes;
+    }
+
+    private static Map<EncodeHintType, ?> getQRCodeHints() {
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.QR_VERSION, 20);
+        hints.put(EncodeHintType.MARGIN, 0);
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        return hints;
+
+
+
     }
 
 
