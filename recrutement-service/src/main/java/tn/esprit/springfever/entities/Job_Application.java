@@ -24,6 +24,11 @@ public class Job_Application implements Serializable  {
      private String location_Cv ;
     //@NotBlank(message = "Le champ 'location_LettreMotivation' ne peut pas être vide.")
     private String location_LettreMotivation;
+    private String locationCandidate;
+    @Column(nullable=true)
+    private double LatitudeCandidate;
+    @Column(nullable=true)
+    private double LongitudeCandidate;
 
     @Lob
     @Column(name = "Candidate_cv")

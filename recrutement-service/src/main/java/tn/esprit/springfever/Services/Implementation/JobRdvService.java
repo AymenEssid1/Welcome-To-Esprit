@@ -2,12 +2,17 @@ package tn.esprit.springfever.Services.Implementation;
 
 
 
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.Configurations.TwilioConfig;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.Services.Interfaces.JobMapper;
@@ -50,6 +55,8 @@ public class JobRdvService implements IJobRDV {
     private JavaMailSender mailSender;
     @Autowired
     JobMapper jobMapper;
+    @Autowired
+    private TwilioConfig twilioConfig;
 
 
     public Job_RDV addJobRDV(Job_RDV job_rdv) {
@@ -316,7 +323,7 @@ public class JobRdvService implements IJobRDV {
             System.out.println("Not Ok HERE ");
         }
     }*/
-    public void updateCandidateLocation(Long idRDV, String address) {
+    public void updateCandidateLocation(Long idJobApplication, String address) {
         String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet(url);
@@ -329,12 +336,12 @@ public class JobRdvService implements IJobRDV {
             JSONObject jsonObject = jsonArray.getJSONObject(0); //Cannot resolve method 'getJSONObject' in 'JSONArray'
             String latitude = jsonObject.getString("lat"); //Cannot resolve method 'getString' in 'JSONObject'
             String longitude = jsonObject.getString("lon");
-            Job_RDV jobRdv = jobRdvRepository.findById(idRDV).orElse(null);
-            User candidate = jobRdv.getJobApplication().getUser();
-            jobRdv.setLocationCandidate(address);
-            jobRdv.setLatitudeCandidate(Double.parseDouble(latitude));
-            jobRdv.setLongitudeCandidate(Double.parseDouble(longitude));
-            jobRdvRepository.save(jobRdv);
+            Job_Application job_application = jobApplicationRepository.findById(idJobApplication).orElse(null);
+            User candidate = job_application.getUser();
+            job_application.setLocationCandidate(address);
+            job_application.setLatitudeCandidate(Double.parseDouble(latitude));
+            job_application.setLongitudeCandidate(Double.parseDouble(longitude));
+            jobApplicationRepository.save(job_application);
         } catch (Exception ex) {
             ex.printStackTrace();
             // handle error
@@ -342,10 +349,10 @@ public class JobRdvService implements IJobRDV {
         }
     }
 
-    public double calculateDistance(Long idRDV) {
-        Job_RDV jobRdv = jobRdvRepository.findById(idRDV).orElse(null);
-        double latitude1 = jobRdv.getLatitudeCandidate();
-        double longitude1 = jobRdv.getLongitudeCandidate();
+    public double calculateDistance(Long idJobApplication) {
+        Job_Application job_application = jobApplicationRepository.findById(idJobApplication).orElse(null);
+        double latitude1 = job_application.getLatitudeCandidate();
+        double longitude1 = job_application.getLongitudeCandidate();
 
         String address = "Ariana,2083";
         String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
@@ -397,9 +404,11 @@ public class JobRdvService implements IJobRDV {
 
     public void FixationRDV(Long id) {
         Job_RDV jobRdv = jobRdvRepository.findById(id).orElse(null);
-        double distance = calculateDistance(id);
+        Long idJobApplication=jobRdv.getJobApplication().getId_Job_Application();
+        double distance = calculateDistance(idJobApplication);
         RDV_Type rdvType = distance > 100.0 ? RDV_Type.ONLIGNE : RDV_Type.FACE_TO_FACE;
         jobRdv.setType_RDV(rdvType);
+        jobRdvRepository.save(jobRdv);
         if (jobRdv.getType_RDV() == RDV_Type.ONLIGNE) {
             String subject = "Invitation to online interview for Job  position";
             String body = "Dear Candidate ,\n" + "\n" +
@@ -411,8 +420,8 @@ public class JobRdvService implements IJobRDV {
                     " Your interview is scheduled for" + jobRdv.getAppointmentDate() + " and we kindly ask that you join the meeting room by clicking on the following link: \n" + generateJitsiMeetLink(id) +
                     "\n Please ensure that you have a stable internet connection and a webcam for the interview.\n"
                     + "\n \n \n" + "Best Reagrds,";
-            Long idJobApplication = jobRdv.getJobApplication().getId_Job_Application();
-            sendEmailToFIXRDV(idJobApplication, subject, body);
+            Long idJobApplication1 = jobRdv.getJobApplication().getId_Job_Application();
+            sendEmailToFIXRDV(idJobApplication1, subject, body);
 
         } else {
             String subject = "Invitation to FaceToFace interview for Job  position";
@@ -426,6 +435,18 @@ public class JobRdvService implements IJobRDV {
         }
 
     }
+
+    public void sendReminderSMS(Job_RDV rdv) {
+        // Get candidate phone number from rdv object
+        String candidatePhoneNumber = "+216 29 541 816";
+
+        // Set reminder message
+        String message = "Reminder: Your job interview is scheduled tomorrow at " + rdv.getAppointmentDate().toString() + ". Don't forget to bring your resume and portfolio.";
+
+        // Send SMS using Twilio API
+        Message.creator(new PhoneNumber(candidatePhoneNumber), new PhoneNumber(twilioConfig.getTwilioNumber()), message).create();
+    }
+
 
 }
 

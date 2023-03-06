@@ -32,5 +32,6 @@ public interface IJobRDV {
     public void updateCandidateLocation(Long idRDV, String address);
     public double calculateDistance(Long idRDV);
     public void FixationRDV(Long id);
+    public void sendReminderSMS(Job_RDV rdv);
 
 }

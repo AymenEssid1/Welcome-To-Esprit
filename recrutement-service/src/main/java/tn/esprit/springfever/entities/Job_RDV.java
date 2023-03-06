@@ -26,9 +26,7 @@ public class Job_RDV implements Serializable {
     @Setter
 
     private Long ID_Job_DRV;
-    private String locationCandidate;
-    private double LatitudeCandidate;
-    private double LongitudeCandidate;
+
 
 
     @ManyToOne
@@ -40,9 +38,9 @@ public class Job_RDV implements Serializable {
     private User Jury;
 
     //private Date date_Rdv ;
-    @NotBlank(message = "La salle de RDV ne peut pas être vide.")
+    //@NotBlank(message = "La salle de RDV ne peut pas être vide.")
     private String salle_Rdv ;
-    @NotNull(message = "Le type de RDV ne peut pas être vide.")
+    //@NotNull(message = "Le type de RDV ne peut pas être vide.")
     @Enumerated(EnumType.STRING)
     private RDV_Type Type_RDV;
     //@NotNull(message = "La date de rendez-vous ne peut pas être vide.")

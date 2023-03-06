@@ -13,6 +13,7 @@ import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_RDV;
+import tn.esprit.springfever.repositories.JobRdvRepository;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -23,6 +24,8 @@ import java.util.List;
 public class JobRdvController {
     @Autowired
     IJobRDV iJobRDV;
+    @Autowired
+    JobRdvRepository jobRdvRepository;
 
 
 
@@ -30,7 +33,7 @@ public class JobRdvController {
 
 
     @PostMapping("addJobRDV/")
-    public Job_RDV addJobRDV(@Validated @RequestBody Job_RDV job_rdv){
+    public Job_RDV addJobRDV(@RequestBody Job_RDV job_rdv){
         return iJobRDV.addJobRDV(job_rdv);
 
     }
@@ -104,7 +107,7 @@ public class JobRdvController {
 
 
 
-    @GetMapping("/disponibilites/{dispoCandidate}/{dispoJury}/{interviewDuration}")
+    @GetMapping("/Determinate-Appointment-Date/{dispoCandidate}/{dispoJury}/{interviewDuration}")
     public ResponseEntity<LocalDateTime> findFirstAvailableDateTime(
             @ApiParam(value = "ID de la disponibilité du candidat", required = true) @PathVariable Long dispoCandidate,
             @ApiParam(value = "ID de la disponibilité du jury", required = true) @PathVariable Long dispoJury,
@@ -127,9 +130,9 @@ public class JobRdvController {
     }
 
 
-    @PutMapping("SetJCandidateLocation/{idRDV}/{address}")
-    public void updateCandidateLocation(@PathVariable("idRDV") Long idRDV, @PathVariable("address") String address){
-        iJobRDV.updateCandidateLocation(idRDV,address);
+    @PutMapping("SetJCandidateLocation/{idJobApplication}/{address}")
+    public void updateCandidateLocation(@PathVariable("idJobApplication") Long idJobApplication, @PathVariable("address") String address){
+        iJobRDV.updateCandidateLocation(idJobApplication,address);
 
     }
     @GetMapping("/CalculDistance/{id}")
@@ -138,11 +141,19 @@ public class JobRdvController {
 
     }
 
-    @GetMapping("/send-email/{id}")
+    @GetMapping("/send-email-To-Fix-RDV-For-Interview/{id}")
     public void FixationRDV(@PathVariable("id") Long id){
         iJobRDV.FixationRDV(id);
 
     }
+
+    @PostMapping("/jobRDV/{id}/sendReminderSMS")
+    public ResponseEntity<String> sendReminderSMS(@PathVariable(value = "id") Long id) {
+        Job_RDV rdv = jobRdvRepository.findById(id).orElse(null);
+        iJobRDV.sendReminderSMS(rdv);
+        return ResponseEntity.ok().body("Reminder SMS sent successfully.");
+    }
+
 
 
 
