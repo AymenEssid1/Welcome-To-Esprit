@@ -21,8 +21,8 @@ public class GeoIpService {
 
     @PostConstruct
     public void init() throws IOException {
-        File database = new File("C:/Users/aymen/Desktop/PI-spring_ang/welcome-to-esprit/user-service/src/main/resources/GeoLite2-City.mmdb");
-        File database2 = new File("C:/Users/aymen/Desktop/PI-spring_ang/welcome-to-esprit/user-service/src/main/resources/GeoLite2-Country.mmdb");
+        File database = new File(System.getProperty("user.dir")+"/user-service/src/main/resources/GeoLite2-City.mmdb");
+        File database2 = new File(System.getProperty("user.dir")+"/user-service/src/main/resources/GeoLite2-Country.mmdb");
         dbReader = new DatabaseReader.Builder(database).build();
         dbReader2 = new DatabaseReader.Builder(database2).build();
     }

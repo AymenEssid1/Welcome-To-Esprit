@@ -6,6 +6,7 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import io.swagger.annotations.ApiResponse;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ import tn.esprit.springfever.configuration.RequestUtils;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.payload.Request.LoginRequest;
-import tn.esprit.springfever.payload.Request.SignupRequest;
+import tn.esprit.springfever.payload.Request.SignUpRequest;
 import tn.esprit.springfever.payload.Response.JwtResponse;
 import tn.esprit.springfever.payload.Response.MessageResponse;
 
@@ -82,6 +83,7 @@ public class AuthController {
 
 
     @PostMapping("/signinV2")
+    @CacheEvict(value = "user", allEntries = true)
     public ResponseEntity<?> authenticateUserV2(@Valid @RequestBody LoginRequest loginRequest) throws IOException, GeoIp2Exception {
 
             User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);

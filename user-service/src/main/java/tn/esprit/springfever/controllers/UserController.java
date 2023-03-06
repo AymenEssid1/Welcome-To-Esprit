@@ -69,14 +69,7 @@ public class UserController {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    @GetMapping(value = "/test/authority")
-    public ResponseEntity<?> test(Authentication authentication ){
-        System.out.println("Request headers: " + getRequestHeaders());
-        System.out.println("Authentication: " + authentication);
-        return ResponseEntity.ok().body("authentication.getAuthorities()");
 
-
-    }
     @GetMapping("/getallusers")
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -192,7 +185,7 @@ public class UserController {
         }
 
         if(password != null) {
-            oguser.setPassword(userDTO.getPassword());
+            oguser.setPassword(encoder.encode(userDTO.getPassword()));
         }
 
         if(username != null) {

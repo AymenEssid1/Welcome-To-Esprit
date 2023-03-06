@@ -31,7 +31,7 @@ public interface IServiceUser {
     public String deleteUser(Long user);
     public List<User> getAllUsers();
     public User getSingleUser(Long id);
-    public String generateQr(User user);
+    public Badge generateQr(User user) throws Exception;
 
     public  void saveAll(List<User> users) ;
 

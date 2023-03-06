@@ -2,6 +2,7 @@ package tn.esprit.springfever.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 
@@ -55,6 +56,7 @@ public class User implements Serializable {
 
 
     @JsonIgnore
+
     private int failedLoginAttempts;
 
 
@@ -94,12 +96,11 @@ public class User implements Serializable {
     private Badge badge;
 
 
-    //////////////////////////////////////////
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+
     private Ban ban;
 
-    //////////////////////////////////////////
 
 
 

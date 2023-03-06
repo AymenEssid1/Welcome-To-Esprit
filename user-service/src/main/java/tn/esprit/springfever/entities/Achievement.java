@@ -27,6 +27,9 @@ public class Achievement implements Serializable {
     @JsonIgnore
     private Collection<User> users;
 
+    public Achievement() {
+    }
+
     public enum Icon {
         LIKE("👍"),
         STAR("🌟");

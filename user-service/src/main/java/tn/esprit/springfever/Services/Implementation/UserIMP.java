@@ -61,6 +61,10 @@ public class UserIMP implements IServiceUser {
 
     @Autowired
     private MailConfiguration mailConfiguration;
+    @Autowired
+    private BadgeRepo badgeRepository;
+    @Autowired
+    private  BadgeGenerationService badgeGenerationService;
 
     @Override
     public User addUserAndAssignRole(User user, RoleType rolename) {
@@ -117,7 +121,7 @@ public class UserIMP implements IServiceUser {
     }
 
     @Override
-    public String generateQr(User user) {
+    public Badge generateQr(User user) throws Exception {
         String qrCodeData = user.toString();
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
@@ -132,7 +136,7 @@ public class UserIMP implements IServiceUser {
             e.printStackTrace();
 
         }// Save QR code as a PNG file
-        String filePath = System.getProperty("user.dir") + "/assets/" + "user-" + user.getUserid() + "-" + user.getCin() + ".png"; // Specify the file path and name
+        String filePath = System.getProperty("user.dir") + "/assets/" + "user-" + user.getUserid() + "-" + user.getUsername() + ".png"; // Specify the file path and name
         File qrCodeFile = new File(filePath);
         try {
             MatrixToImageWriter.writeToFile(bitMatrix, "png", qrCodeFile);
@@ -145,8 +149,22 @@ public class UserIMP implements IServiceUser {
         // Return a view that shows the generated QR code
         ModelAndView modelAndView = new ModelAndView("qr-code");
         modelAndView.addObject("qrCodeFile", qrCodeFile);
-        return filePath;
+        Badge badge = new Badge();
+        badge.setUser(user);
+        badge.setQrCode(filePath);
+        user.setBadge(badge);
+        badgeRepository.save(badge);
+        badgeGenerationService.generate(user);
+
+        return badge;
     }
+
+
+
+
+
+
+
 
 
     @Transactional

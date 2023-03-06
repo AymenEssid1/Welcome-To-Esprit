@@ -3,15 +3,21 @@ package tn.esprit.springfever.Security.jwt;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
+import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.Repositories.UserRepo;
 
 
 import java.util.Date;
- 
+
 @Component
 public class JwtUtils {
+    @Autowired
+    private UserRepo userRepository;
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
      private String jwtSecret="404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
@@ -58,5 +64,10 @@ public class JwtUtils {
 
     public void setJwtExpirationMs(int jwtExpirationMs) {
         this.jwtExpirationMs = jwtExpirationMs;
+    }
+    @Transactional
+    public User getUserFromUserName(String username){
+        User u =  userRepository.findByUsername(username).orElse(null);
+        return u;
     }
 }

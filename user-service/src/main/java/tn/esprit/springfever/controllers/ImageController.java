@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.entities.Image;
 
-
+/*
 @RestController
 
 @RequestMapping("file-system")
@@ -43,3 +43,4 @@ public class ImageController {
         }
     }
 }
+*/

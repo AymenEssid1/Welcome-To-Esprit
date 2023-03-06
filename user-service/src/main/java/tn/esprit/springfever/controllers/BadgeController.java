@@ -27,15 +27,13 @@ public class BadgeController {
 
 
     @PostMapping("/addbadge/{id}")
-    public Badge saveBadge( @PathVariable(value ="id" )Long userId) {
+    public Badge saveBadge( @PathVariable(value ="id" )Long userId) throws Exception {
         User u=iServiceUser.getSingleUser(userId);
-        Badge badge = new Badge();
-        badge.setUser(u);
-        badge.setQrCode(iServiceUser.generateQr(u));
-
-        u.setBadge(badge);
-        return badgeRepository.save(badge);
+        return iServiceUser.generateQr(u);
     }
+
+
+
 
 
 

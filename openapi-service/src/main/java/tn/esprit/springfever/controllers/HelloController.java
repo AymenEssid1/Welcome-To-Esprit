@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Hello World")
 @Service
-@RequestMapping("/api/hello_user")
+@RequestMapping("/")
 public class HelloController {
     @GetMapping
     public String hello(){
