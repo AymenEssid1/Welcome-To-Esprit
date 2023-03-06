@@ -70,12 +70,18 @@ public class ProjectController {
 
 
     @PostMapping(value="saveVideo",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseBody
-    public ResponseEntity<Project> addProject(@RequestParam("video") MultipartFile video,@RequestParam("rapport") MultipartFile rapportFile, Project project) throws Exception {
-        fileLocationService.saveVideo(video.getBytes(), video.getOriginalFilename());
-        Project saveProject = iServiceProject.addProject(project);
-        Project saveRapport = iServiceProject.savef(rapportFile.getBytes(),rapportFile.getOriginalFilename());
-        return  new ResponseEntity<>(saveProject, (MultiValueMap<String, String>) saveRapport, HttpStatus.CREATED);
+    //@ResponseBody
+    public ResponseEntity<Project> addProject(@RequestParam("video") MultipartFile video,@RequestParam("rapport") MultipartFile rapportFile) throws Exception {
+        //fileLocationService.saveVideo(video.getBytes(), video.getOriginalFilename());
+        //Project saveProject = iServiceProject.addProject(project);
+        try{
+        Project saveRapport = iServiceProject.savef(rapportFile.getBytes(),rapportFile.getOriginalFilename(),video.getBytes(), video.getOriginalFilename());
+        return  //new ResponseEntity<>(saveProject, (MultiValueMap<String, String>) saveRapport, HttpStatus.CREATED);
+        ResponseEntity.status(HttpStatus.CREATED).body(saveRapport);}
+        catch (Exception e){
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR ).build();
+        }
+
 
 
     }

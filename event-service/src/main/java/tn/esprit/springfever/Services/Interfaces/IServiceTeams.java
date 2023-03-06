@@ -6,6 +6,7 @@ import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.entities.User;
 
+import javax.mail.MessagingException;
 import java.awt.print.Pageable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,6 +33,9 @@ public interface IServiceTeams {
     public Optional<Teams> getTeamById(Long id);
     public Teams saveTeam(Teams team);
     public byte[] generateQRCode(String teamName, String event) throws WriterException, IOException;
+
+
+    public void sendOnlineEventInvitation() throws MessagingException ;
 
     private static com.google.zxing.EncodeHintType getQRCodeHints() {
         return null;

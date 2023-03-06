@@ -22,7 +22,7 @@ public interface IServiceProject {
     public FileSystemResource findrapport(Long idProject);
 
     public Project save(byte[] rapport, String imageName) throws Exception ;
-    public Project savef(byte[] rapport, String location_rapport ) throws Exception ;
+    public Project savef(byte[] rapport, String location_rapport,byte[] bytes, String videoName) throws Exception;
 
 
     public String assignNoteToProject(Long idNote, Long idProject);

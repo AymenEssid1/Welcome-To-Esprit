@@ -22,6 +22,7 @@ import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.repositories.FileSystemRepository;
 import tn.esprit.springfever.repositories.TeamsRepository;
 
+import javax.mail.MessagingException;
 import java.awt.*;
 import java.io.DataInput;
 import java.io.IOException;
@@ -89,12 +90,26 @@ public class TeamsController {
     public  boolean deleteTeams(@PathVariable Long idTeam)  {return  iServiceTeams.deleteTeams(idTeam);}
 
 
-    @PostMapping("/assign-users")
+    @PostMapping("/assign-users-and-send-mail")
     public ResponseEntity<Void> affectusertoteams() {
         iServiceTeams.assignUserToTeams();
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/sendInvitation")
+    public ResponseEntity<String> sendInvitation() {
+        try {
+            iServiceTeams.sendOnlineEventInvitation();
+            return ResponseEntity.ok("Invitation sent successfully");
+        } catch (MessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send invitation: " + e.getMessage());
+        }
+    }
+    public void sendOnlineEventInvitation() throws MessagingException {
+        String recipient = "nour.yahyaoui@esprit.tn";
+        String googleMeetLink = "https://meet.google.com/odn-qtfp-tcs";
+        iServiceTeams.sendOnlineEventInvitation();
+    }
 
 /*
     @GetMapping(value = "/teams/{id}", produces = MediaType.IMAGE_JPEG_VALUE)

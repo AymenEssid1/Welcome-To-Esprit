@@ -76,6 +76,8 @@ public class ServiceNoteImpl implements IServiceNote {
     public List<Note> getAllNote() {return noteRepository.findAll();}
 
 
+
+
     @Override
     public boolean deleteNote(Long idNote) {
         Note existingNote = noteRepository.findById(idNote).orElse(null);
@@ -282,6 +284,28 @@ public class ServiceNoteImpl implements IServiceNote {
                         "Congratulations! you are invited to the ceremonie and Your team has the highest project note :Note with max projectNote: " + noteWithMaxProjectNote.getProjectNote())
                 .create();
     }
+*/
+
+
+    public static final String ACCOUNT_SID = "ACc09d890de978a5088416d38e5d30fa07";
+    public static final String AUTH_TOKEN = "67b3b05eef63f08f59c500678956a7e5";
+
+    public void sendSmsvalide() {
+
+        // Retrieve the Note with the highest projectNote value
+        List<Note> notes = noteRepository.findAllByOrderByProjectNoteDesc();
+        Note noteWithMaxProjectNote = notes.get(0);
+
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        Message msg = Message.creator(new PhoneNumber("+21694602836"),new PhoneNumber("+15672922697"),("Congratulations! you are invited to the ceremonie and Your team has the highest project note :Note with max projectNote: " + noteWithMaxProjectNote.getProjectNote())).create();
+
+    }
+
+/*
+    public List<NoteDTO> getNotesWithProjectAndTeamInfo() {
+        return noteRepository.getNotesWithProjectAndTeamInfo();
+    }
+
 */
 
 }

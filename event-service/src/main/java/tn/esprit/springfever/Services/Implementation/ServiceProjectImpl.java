@@ -18,9 +18,7 @@ import tn.esprit.springfever.DTO.TeamsDTO;
 import tn.esprit.springfever.Services.Interfaces.ProjectMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceProject;
 import tn.esprit.springfever.entities.*;
-import tn.esprit.springfever.repositories.NoteRepository;
-import tn.esprit.springfever.repositories.ProjectRepository;
-import tn.esprit.springfever.repositories.rapportPDFRepository;
+import tn.esprit.springfever.repositories.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.FileInputStream;
@@ -46,6 +44,10 @@ public class ServiceProjectImpl implements IServiceProject{
 
     @Autowired
     ProjectMapper projectMapper;
+    @Autowired
+    FileSystemRepository  fileSystemRepository;
+    @Autowired
+    VideoRepository videoRepository;
 
     @Override
     public Project addProject(Project project){
@@ -58,19 +60,22 @@ public class ServiceProjectImpl implements IServiceProject{
     }
 
 
-    public Project savef(byte[] rapport, String location_rapport) throws Exception {
+    public Project savef(byte[] rapport, String location_rapport,byte[] bytes, String videoName) throws Exception {
         Path rapportFile = Paths.get("C:\\Users\\Nour\\Desktop\\" + new Date().getTime() + "-" + location_rapport);
-
+        Path video =Paths.get("C:\\Users\\Nour\\Desktop\\" + new Date().getTime() + "-" + videoName);
         Files.write(rapportFile, rapport);
+        String location = fileSystemRepository.saveVideo(bytes, videoName);
+         videoRepository.save(new Video(videoName, location));
+         String videoLocation=video.toAbsolutePath().toString();
 
         String rapportLocation = rapportFile.toAbsolutePath().toString();
 
-        return projectRepository.save(new Project( rapportLocation));
+        return projectRepository.save(new Project( rapportLocation,videoLocation));
     }
 
-    public FileSystemResource findrapport(Long Id_Job_Application) {
+    public FileSystemResource findrapport(Long idProject) {
 
-        Project project = projectRepository.findById(Id_Job_Application)
+        Project project = projectRepository.findById(idProject)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return rapportPDFRepository.findInFileSystem(project.getLocation_rapport());
     }

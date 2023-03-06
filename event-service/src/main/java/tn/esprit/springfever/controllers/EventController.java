@@ -3,13 +3,17 @@ package tn.esprit.springfever.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.EventDTO;
 //import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Services.Interfaces.IServiceEvent;
+import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.Event;
 import tn.esprit.springfever.entities.Teams;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,6 +29,8 @@ public class EventController {
 
     @Autowired
     IServiceEvent iServiceEvent;
+    @Autowired
+    IServiceTeams iServiceTeams;
     /*
     @Autowired
     private JwtUtils jwtUtils;
@@ -60,6 +66,7 @@ public class EventController {
         
         return iServiceEvent.assignTeamsToEvent(idEvent , idTeam);
     }
+
 
 
 }

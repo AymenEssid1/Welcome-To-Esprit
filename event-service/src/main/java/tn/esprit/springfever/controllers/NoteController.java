@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.NoteDTO;
 //import tn.esprit.springfever.Security.jwt.JwtUtils;
@@ -21,6 +22,7 @@ import tn.esprit.springfever.repositories.NoteRepository;
 
 import tn.esprit.springfever.configuration.SMS_service;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ import java.util.Map;
 @Api( tags = "note")
 
 
-
+@Validated
 public class NoteController {
 
     @Autowired
@@ -58,7 +60,9 @@ public class NoteController {
 
     @PostMapping("/add")
     @ResponseBody
-    public Note addNote(@RequestBody Note note) throws IOException {return  iServiceNote.addNote(note);}
+    public Note addNote(@Valid @RequestBody Note note) throws IOException {
+        //iServiceNote.sendSmsvalide();
+        return  iServiceNote.addNote(note);}
 
 
     /*********  update note  ***********/
@@ -120,6 +124,9 @@ public class NoteController {
 
     @GetMapping("statistiques/notes")
     public ResponseEntity<Map<String, Float>> getNotesStatistics() {
+
+        iServiceNote.sendSmsvalide();
+
         Map<String, Float> statistics = new HashMap<>();
 
         // Calculate the average of each note type
@@ -177,5 +184,10 @@ public class NoteController {
         return ResponseEntity.ok("SMS sent successfully");
     }
 
+/*
+    @GetMapping("/with-project-and-team-info")
+    public List<NoteDTO> getNotesWithProjectAndTeamInfo() {
+        return iServiceNote.getNotesWithProjectAndTeamInfo();
+    }*/
 
 }

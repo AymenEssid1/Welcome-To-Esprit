@@ -23,19 +23,19 @@ public class Project implements Serializable{
     @Setter
 
     private Long idProject;
-    @NotBlank(message = "Le URI ne peut pas être vide.")
+    //@NotBlank(message = "Le URI ne peut pas être vide.")
     private String URI ;
-    @NotBlank(message = "La presentation ne peut pas être vide.")
+    //@NotBlank(message = "La presentation ne peut pas être vide.")
     private String presentation;
-    @NotBlank(message = "La description ne peut pas être vide.")
+    //@NotBlank(message = "La description ne peut pas être vide.")
     @Size(max = 50, message = "La description ne peut pas dépasser {max} caractères.")
     private String description ;
-    @NotBlank(message = "Le submitDate ne peut pas être vide.")
+    //@NotBlank(message = "Le submitDate ne peut pas être vide.")
     private LocalDateTime submitDate ;
 
     @Lob
     private byte[] video;
-
+    private String location_video ;
     @Lob
     @Column(name = "Rapport")
     private byte[] rapport;
@@ -69,5 +69,9 @@ public class Project implements Serializable{
 
     public Project() {
 
+    }
+    public Project(String location_rapport,String location_video){
+        this.location_rapport=location_rapport;
+        this.location_video=location_video;
     }
 }

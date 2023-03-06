@@ -10,12 +10,14 @@ import com.google.zxing.EncodeHintType;
 //import com.itextpdf.text.pdf.qrcode.QRCodeWriter;
 import com.itextpdf.text.pdf.qrcode.ErrorCorrectionLevel;
 //import com.itextpdf.text.pdf.qrcode.WriterException;
+//import com.twilio.rest.api.v2010.account.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.TeamsDTO;
+import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.Services.Interfaces.TeamsMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.*;
@@ -23,15 +25,15 @@ import tn.esprit.springfever.repositories.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 import com.google.zxing.WriterException;
 
 //import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
-import java.util.List;
-import java.util.Map;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 @Service
 @Slf4j
@@ -196,6 +198,53 @@ public class ServiceTeamsImpl implements IServiceTeams{
     }
 
 
+   // private static final String USERNAME = "nounou@gmail.com";
+  //  private static final String PASSWORD = "nounou";
+@Override
+    public void sendOnlineEventInvitation() throws MessagingException {
+
+    List<User> users = userRepository.findAll();
+
+    Event event = new Event();
+    event.setEspace("online");
+
+    for (User user : users) {
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            if (event.getEspace().equalsIgnoreCase("online")) {
+                String googleMeetLink = "https://meet.google.com/odn-qtfp-tcs";
+                String subject = "You have been invited to an online event";
+                String message = "Hello,\n\nYou are invited to an online event. Please use the following Google Meet link to join:\n\n" + googleMeetLink;
+                sendEmail(user.getEmail(), subject, message);
+            }
+        }
+    }
+
+
+
+/*
+        // create the email session
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(USERNAME, PASSWORD);
+            }
+        });
+
+        // create the message
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(USERNAME));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+        message.setSubject("Invitation to Online Event");
+        message.setText("Hello,\n\nYou are invited to an online event. Please use the following Google Meet link to join:\n\n" + googleMeetLink);
+
+        // send the message
+        Transport.send(message);
+        */
+    }
 
 
     @Override

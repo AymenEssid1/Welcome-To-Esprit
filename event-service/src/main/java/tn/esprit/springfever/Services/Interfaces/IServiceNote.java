@@ -26,4 +26,10 @@ public interface IServiceNote {
     //List<Note> findAllByOrderByProjectNoteDesc();
     //void sendSMSToUserWithMaxProjectNote();
 
+
+    public void sendSmsvalide();
+
+
+    //public List<NoteDTO> getNotesWithProjectAndTeamInfo();
+
 }
