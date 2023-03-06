@@ -212,6 +212,11 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
          return chatgptService.sendMessage("return another new whole sentence having the same meaning as this one < :" + response + ">");
     }
 
+    @Override
+    public Faq findFaqById(long idFaq) {
+        return faqRepository.findById(idFaq).get();
+    }
+
 
 }
 

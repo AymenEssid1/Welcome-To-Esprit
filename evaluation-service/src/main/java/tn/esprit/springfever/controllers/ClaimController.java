@@ -14,10 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ClaimDTO;
 import tn.esprit.springfever.Exceptions.ValidationExceptionHandler;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
+import tn.esprit.springfever.Services.Implementation.CsvExporter;
+import tn.esprit.springfever.Services.Interfaces.ICsvExporter;
 import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.Services.Interfaces.IServiceUser;
 import tn.esprit.springfever.entities.Claim;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +37,8 @@ public class ClaimController {
     IServiceUser iServiceUser;
     @Autowired
     IServiceClaims iServiceClaims;
+    @Autowired
+    ICsvExporter iCsvExporter;
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -109,6 +114,17 @@ public class ClaimController {
         return  iServiceClaims.badWordsFound(claimBody  );
 
     }
+
+
+    @GetMapping("/claims/export")
+    public void exportClaimsToCsv(HttpServletResponse response) throws IOException {
+        List<Claim> claims = iServiceClaims.getAllClaims();
+        iCsvExporter.exportClaimsToCsv(claims, response);
+    }
+
+
+
+
 
 
 }

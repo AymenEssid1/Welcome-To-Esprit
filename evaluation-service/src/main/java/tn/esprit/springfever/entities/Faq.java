@@ -22,10 +22,21 @@ import java.util.List;
 @Data
 
 public class Faq implements Serializable {
+    public Faq(Long idFaq, String question, String response) {
+        this.idFaq = idFaq;
+        this.question = question;
+        this.response = response;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     @Setter
+
+
+
+
+
 
     private Long idFaq;
     @NotBlank(message = "Le question ne doit pas être vide")
@@ -38,4 +49,9 @@ public class Faq implements Serializable {
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private List<FaqCategory> faqCategories = new ArrayList<>();
+
+
+    public Faq() {
+
+    }
 }
