@@ -19,6 +19,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.github.flashvayne</groupId>
+            <artifactId>chatgpt-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.6</version>

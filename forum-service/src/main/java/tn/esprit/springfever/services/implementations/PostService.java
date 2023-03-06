@@ -7,10 +7,7 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,22 +73,20 @@ public class PostService implements IPostService {
     public ResponseEntity<?> addPost(
             String title,
             String content,
-            String topic,
             HttpServletRequest authentication,
             List<MultipartFile> images
     )
             throws JsonProcessingException {
         if (
-                profanitiesService.containsBannedWords(topic) ||
-                        profanitiesService.containsBannedWords(content) ||
-                        profanitiesService.containsBannedWords(title)
+                profanitiesService.containsBannedWords(title) || profanitiesService.containsBannedWords(content)
         ) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(
                             "{\"Message\": \"Please check your post! We do not allow bad language\"}"
                     );
-        } else if (
+        }
+       if (
                 authentication == null ||
                         authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
         ) {
@@ -102,7 +97,7 @@ public class PostService implements IPostService {
             Post p = new Post();
             p.setTitle(title);
             p.setContent(content);
-            p.setTopic(topic);
+            p.setTopic(matchingService.reformuleResponse(title+": "+content));
             p.setCreatedAt(LocalDateTime.now());
             p.setUpdatedAt(LocalDateTime.now());
             p.setUser(
@@ -145,16 +140,15 @@ public class PostService implements IPostService {
     )
             throws IOException {
         if (
-                profanitiesService.containsBannedWords(topic) ||
-                        profanitiesService.containsBannedWords(content) ||
-                        profanitiesService.containsBannedWords(title)
+                title != null && profanitiesService.containsBannedWords(title) || content!=null && profanitiesService.containsBannedWords(content)
         ) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(
                             "{\"Message\": \"Please check your post! We do not allow bad language\"}"
                     );
-        } else if (
+        }
+       if (
                 authentication == null ||
                         authentication.getHeader(HttpHeaders.AUTHORIZATION) == null
         ) {
@@ -216,9 +210,7 @@ public class PostService implements IPostService {
                         if (content != null) {
                             p.setContent(content);
                         }
-                        if (topic != null) {
-                            p.setTopic(topic);
-                        }
+                        p.setTopic(matchingService.reformuleResponse(p.getTitle()+": "+p.getContent()));
                         repo.save(p);
                         return ResponseEntity.ok().body(convertToPostDTO(p, userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION))));
                     } else {
@@ -297,7 +289,7 @@ public class PostService implements IPostService {
             List<Post> list = matchingService.getPostsByUserInterests(pageable, request);
             this.incrementViews(request, list);
             for (Post p : list) {
-                //matchingService.addInterestsFromPost(request, p);
+                matchingService.addInterestsFromPost(request, p);
             }
 
             return convertToPostDTOS(pagerepo.findAll(pageable).getContent());
@@ -322,7 +314,7 @@ public class PostService implements IPostService {
         List<PostDTO> posts = new ArrayList<>();
         for (Post p : list) {
             if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-                //matchingService.addInterestsFromPost(request, p);
+                matchingService.addInterestsFromPost(request, p);
             }
             posts.add(convertToPostDTO(p, userService.getUserDetailsFromId(p.getId())));
         }

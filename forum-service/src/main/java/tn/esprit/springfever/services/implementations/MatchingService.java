@@ -1,6 +1,7 @@
 package tn.esprit.springfever.services.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.flashvayne.chatgpt.service.ChatgptService;
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -37,6 +38,8 @@ public class MatchingService {
     private PostRepository postRepository;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private ChatgptService chatgptService;
     @Autowired
     private InterestRepository interestRepository;
     private static final String TOKENIZER_MODEL_PATH = "opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
@@ -86,6 +89,11 @@ public class MatchingService {
             System.out.println("Error calling user service1: "+ ex.getMessage());
             return null;
         }
+    }
+
+
+    public String reformuleResponse(String response) {
+        return chatgptService.sendMessage("give me the most accurate general topic of this in just one word< :" + response + ">").replaceAll("[^a-zA-Z0-9]", "");
     }
 
     public void addInterestsFromPost(HttpServletRequest request, Post post) {

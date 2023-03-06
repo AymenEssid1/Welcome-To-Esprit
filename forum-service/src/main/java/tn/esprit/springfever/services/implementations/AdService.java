@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -217,10 +218,10 @@ public class AdService implements IAdService {
     public List<Ad> getAllLazy(int page, int size, HttpServletRequest request) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
         List<Ad> list = pagerepo.findAll(pageable).getContent();
-        list.stream().forEach((Ad ad) -> {
+        list.stream().map((Ad ad) -> {
             incrementViews(ad, request);
-            repo.save(ad);
-        });
+            return repo.save(ad);
+        }).collect(Collectors.toList());;
         return list;
     }
 

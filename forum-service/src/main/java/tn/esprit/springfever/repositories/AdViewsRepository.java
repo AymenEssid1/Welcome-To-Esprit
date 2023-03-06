@@ -11,5 +11,5 @@ import java.util.List;
 
 @EnableJpaRepositories
 public interface AdViewsRepository extends JpaRepository<AdViews,Long> {
-    public List<AdViews> findByAdAndUser(Ad ad, Long user);
+    public AdViews findByAdAndUser(Ad ad, Long user);
 }

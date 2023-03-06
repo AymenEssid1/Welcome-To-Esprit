@@ -17,7 +17,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface IPostService {
-    public ResponseEntity<?> addPost(String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException;
+    public ResponseEntity<?> addPost(String title, String content, HttpServletRequest authentication, List<MultipartFile> images) throws JsonProcessingException;
     public ResponseEntity<?> updatePost(Long id, String title, String content, String topic, HttpServletRequest authentication, List<MultipartFile> images) throws IOException;
     public String deletePost(Long post, HttpServletRequest authentication) throws IOException;
     public PostDTO getSinglePost(Long id, HttpServletRequest request) throws JsonProcessingException;

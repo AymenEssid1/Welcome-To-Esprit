@@ -50,8 +50,8 @@ public class PostController {
     @ApiOperation(value = "This method is used to add a post ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<?> addPost(@RequestParam String title, @RequestParam String content, @RequestParam String topic, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
-        return service.addPost(title, content, topic, authentication, images);
+    public ResponseEntity<?> addPost(@RequestParam String title, @RequestParam String content, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
+        return service.addPost(title, content,  authentication, images);
     }
 
     @ApiOperation(value = "This method is used to delete a post ")
