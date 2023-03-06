@@ -125,9 +125,10 @@ public class RDVService {
         for(User u:users)
         {
 
-            if((u.getEtatuser().equals("non disponible"))&&( demandeAdmissionRepository.findDemandeAdmissionByEvaluateurAndDateAdmission(u,l).getDateAdmission().equals(l)))
+            if((u.getEtatuser().equals("non disponible"))&&( u.getDemandeAdmissionStudent().getDateAdmission().equals(l)))
 
             {
+
                 System.out.println(u.getEtatuser());
 
                 u.setEtatuser("disponible");
@@ -137,14 +138,7 @@ public class RDVService {
 
 
             }
-            for(Salle s:salles){
-                if((s.getEtat().equals("non disponible"))&&(demandeAdmissionRepository.findByRdvDemandeSalle(s).getDateAdmission().plusDays(3).isEqual(l))){
-                    s.setEtat("disponible");
-                    salleRepository.save(s);
-                    System.out.println(s.toString());
 
-                }
-            }
 
 
         }

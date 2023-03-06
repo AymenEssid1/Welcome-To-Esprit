@@ -64,6 +64,7 @@ public class DemandeAdmissionService {
         demandeAdmission.setCondidat(user);
         DemandeAdmission d = demandeAdmissionRepository.save(demandeAdmission);
         user.setDemandeAdmissionStudent(d);
+        userRepository.save(user);
         RDV rdv= new RDV();
         d.setRdvDemande(rdv);
         rdv.setDemande(d);
@@ -73,7 +74,7 @@ public class DemandeAdmissionService {
         rdvRepository.save(rdv);
         Salledispo(rdv.getIdRDV());
         Tuteurdispo(rdv.getIdRDV());
-        userRepository.save(user);
+
       /* Twilio.init("ACc2294319aa2eaba8e91273055538a50e", "3d8aaf138dd120e037c4c12ae42a6ccf");
         Message.creator(new PhoneNumber("+21655105372"),
                 new PhoneNumber("+18654137235"),
