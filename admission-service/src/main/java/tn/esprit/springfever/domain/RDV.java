@@ -21,16 +21,13 @@ public class RDV {
     @Column
     private LocalDate date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rdvuser_id")
-    private User rDVuser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rdvsalle_id")
-    private Salle rDVsalle;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "salle")
+    private Salle salle;
 
     @OneToOne(cascade ={CascadeType.ALL} )
-    @JoinColumn(name = "rdvDemande")
-    private DemandeAdmission demandeRdv;
+    @JoinColumn(name = "demande")
+    private DemandeAdmission demande;
 
 }

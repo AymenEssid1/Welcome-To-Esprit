@@ -37,7 +37,6 @@ public class DemandeAdmissionResource {
 
     @GetMapping
     public ResponseEntity<List<DemandeAdmissionDTO>> getAllDemandeAdmissions() {
-        demandeAdmissionService.StatDemande();
         return ResponseEntity.ok(demandeAdmissionService.findAll());
 
     }
@@ -50,9 +49,9 @@ public class DemandeAdmissionResource {
 
     @PostMapping("/{iduser}")
     public ResponseEntity<Long> createDemandeAdmission(
-            @RequestBody @Valid DemandeAdmissionDTO demandeAdmissionDTO,
+            @RequestBody @Valid DemandeAdmission demandeAdmission,
             @PathVariable Long iduser) {
-        Long idDemande = demandeAdmissionService.create(demandeAdmissionDTO, iduser);
+        Long idDemande = demandeAdmissionService.create(demandeAdmission, iduser);
 
 
         return new ResponseEntity<>(idDemande, HttpStatus.CREATED);

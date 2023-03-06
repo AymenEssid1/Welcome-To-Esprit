@@ -59,29 +59,26 @@ public class DemandeAdmissionService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(DemandeAdmissionDTO demandeAdmissionDTO, Long IdUser)  {
+    public Long create(DemandeAdmission demandeAdmission, Long IdUser)  {
         User user = userRepository.findById(IdUser).orElse(new User());
-         DemandeAdmission demandeAdmission = new DemandeAdmission();
-        mapToEntity(demandeAdmissionDTO, demandeAdmission);
-        demandeAdmission.setUser(user);
+        demandeAdmission.setCondidat(user);
         DemandeAdmission d = demandeAdmissionRepository.save(demandeAdmission);
-        user.setDemandeAdmission(d);
+        user.setDemandeAdmissionStudent(d);
         RDV rdv= new RDV();
         d.setRdvDemande(rdv);
-        rdv.setDemandeRdv(d);
+        rdv.setDemande(d);
 
 
         rdv.setDate(LocalDate.now().plusDays(7));
         rdvRepository.save(rdv);
         Salledispo(rdv.getIdRDV());
         Tuteurdispo(rdv.getIdRDV());
-
         userRepository.save(user);
       /* Twilio.init("ACc2294319aa2eaba8e91273055538a50e", "3d8aaf138dd120e037c4c12ae42a6ccf");
         Message.creator(new PhoneNumber("+21655105372"),
                 new PhoneNumber("+18654137235"),
                 "Hello from Twilio ").create();*/
-        return d.getIdAdmission();
+        return demandeAdmission.getIdAdmission();
 
 
     }
@@ -91,20 +88,23 @@ public class DemandeAdmissionService {
 
         Salle salle = new Salle();
         salle.setIdsalle(idSalle);
-        rdv.setRDVsalle(salle);
+        rdv.setSalle(salle);
 
         rdvRepository.save(rdv);
     }
-    public void affecterTuteur(Long idrdv, Long idUser) {
-        RDV rdv = rdvRepository.findById(idrdv)
-                .orElseThrow(() -> new NotFoundException("Demande d'admission non trouvée avec l'ID : " + idrdv));
+    public void affecterTuteur(Long demandeid, Long idUser ) {
+        DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(demandeid)
+                .orElseThrow(() -> new NotFoundException("Demande d'admission non trouvée avec l'ID : " + demandeid));
 
-        User user = new User();
-        user.setUserID(idUser);
-        rdv.setRDVuser(user);
+       User Evaluateur= userRepository.findById(idUser).get();
+        Evaluateur.getDemandeAdmissionsEvaluateur().add(demandeAdmission);
+        demandeAdmission.setEvaluateur(Evaluateur);
 
-        rdvRepository.save(rdv);
-    }
+        demandeAdmissionRepository.save(demandeAdmission) ;
+        userRepository.save(Evaluateur) ;
+
+
+     }
     public void Salledispo(Long idRdv) {
         // Récupération de toutes les salles existantes
         List<Salle> salles = salleRepository.findByEtat("disponible");
@@ -122,19 +122,33 @@ public class DemandeAdmissionService {
 
         }
     }
-    public void Tuteurdispo(Long idRdv){
+    public void Tuteurdispo(Long demandeid){
+
+        // demande
+        DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(demandeid).get();
+
+
         // Récupération de toutes les users existantes
         List<User> users = userRepository.findByetatuser("disponible");
         int nbUsers = users.size();
+
+        System.out.println("liste des tuteurs dispo " + users.size());
 
 
         // Affectation aléatoire d'un user à la demande
         if (nbUsers > 0) {
             int indexUser = new Random().nextInt(nbUsers);
-            User user = users.get(indexUser);
-            affecterTuteur(idRdv, user.getUserID());
-            user.setEtatuser("non disponible");
-            userRepository.save(user);
+            System.out.println("index :" + indexUser);
+            User evaluator = users.get(indexUser);
+            System.out.println("******** evaluator of the user dispo" + evaluator.getUserID() + evaluator.getEtatuser());
+            evaluator.getDemandeAdmissionsEvaluateur().add(demandeAdmission);
+            demandeAdmission.setEvaluateur(evaluator);
+            System.out.println("tutor who would be affected " + evaluator.getUserID());
+            evaluator.setEtatuser("non disponible");
+            System.out.println(evaluator.getUserID() + evaluator.getEtatuser());
+            demandeAdmission.setEvaluateur(evaluator);
+            demandeAdmissionRepository.save(demandeAdmission);
+            userRepository.save(evaluator);
 
         }
 
@@ -151,112 +165,7 @@ public class DemandeAdmissionService {
         demandeAdmissionRepository.deleteById(idAdmission);
     }
 
-    public void StatDemande() {
 
-      int ING = 0;
-        int PRE = 0;
-       for (DemandeAdmission d : demandeAdmissionRepository.findAll()) {
-
-            if (d.getDiplome().equals(Diplome.INGENIEURIE)) {
-                ING++;
-            }
-            if (d.getDiplome().equals(Diplome.PREPA)) {
-                PRE++;
-            }
-            if (ING > PRE) {
-                System.out.print("on a plus  d'ingnieurs");
-            }
-            else if (PRE > ING) {
-                System.out.print("on a plus  de prepas");
-
-            } else {System.out.print("les diplomes sont egaux");}
-
-        }
-        int niv1=0;
-        int niv2=0;
-        int niv3=0;
-        int niv4=0;
-        int em=0;
-        int gc=0;
-        int it=0;
-        int tc=0;
-
-        List<DemandeAdmission> demandeAdmissions=demandeAdmissionRepository.findAll();
-        List<Specialite> specialites=specialiteRepository.findAll();
-
-        for (DemandeAdmission d:demandeAdmissions){
-            if(d.getNiveau().equals(Niveau.UN)){
-                niv1++;}
-            if (d.getNiveau().equals(Niveau.DEUX)){
-                niv2++;}
-            if (d.getNiveau().equals(Niveau.TROIS)){
-                niv3++;}
-            if(d.getNiveau().equals(Niveau.QUATRE)){
-                niv4++;}
-
-        }
-        if ((niv1>niv2)&&(niv1>niv3)&&(niv1>niv4)){
-            System.out.print("le niveau 1 est supérieur");
-        }
-        if ((niv1==niv2)&&(niv1>niv3)&&(niv1>niv4)){
-            System.out.print("le niveau 1 et 2 sont supérieur");
-        }
-        if ((niv1>niv2)&&(niv1==niv3)&&(niv1>niv4)){
-            System.out.print("le niveau 1 et 3 sont supérieur");
-        }
-        if ((niv1>niv2)&&(niv1>niv3)&&(niv1==niv4)){
-            System.out.print("les niveaux 1 et 4 sont supérieur");
-        }
-        if((niv2>niv3)&&(niv2>niv1)&&(niv2>niv4)){
-            System.out.print("le niveau 2 est supérieur");
-        }
-        if((niv2==niv3)&&(niv2>niv1)&&(niv2>niv4)){
-            System.out.print("les niveaux 2 et 3 sont supérieur");
-        }
-        if((niv2>niv3)&&(niv2>niv1)&&(niv2==niv4)){
-            System.out.print("les niveaux 2 et 4 sont le plus");
-        }
-        if ((niv3>niv1)&&(niv3>niv2)&&(niv3>niv4)){
-            System.out.print("les niveaux 3 sont le plus");
-        }
-        if ((niv3>niv1)&&(niv3>niv2)&&(niv3==niv4)){
-            System.out.print("le niveau 3 et 4 est le plus");
-        }
-        if((niv4>niv1)&&(niv4>niv2)&&(niv4>niv3)){
-            System.out.print("le niveau 4 est le plus");
-        }
-        else{
-            System.out.print("tous les niveau sont egaux");
-
-        }
-        for(Specialite s:specialites){
-            if(s.getNomSpecialite().equals(NomSpecialite.EM)){em++;}
-            if(s.getNomSpecialite().equals(NomSpecialite.GC)){gc++;}
-            if(s.getNomSpecialite().equals(NomSpecialite.IT)){it++;}
-            if(s.getNomSpecialite().equals(NomSpecialite.TC)){tc++;}
-        }
-
-        if ((em>gc)&&(em>it)&&(em>tc)){
-            System.out.print("le em est le plus");
-        }
-        if((gc>em)&&(gc>it)&&(gc>tc)){
-            System.out.print("le gc est le plus");
-        }
-        if ((it>em)&&(it>gc)&&(it>tc)){
-            System.out.print("le it est le plus");
-        }
-        if((tc>em)&&(tc>gc)&&(tc>it)){
-            System.out.print("le tc est le plus");
-        }
-        else{
-            System.out.print("tous les Specialiter sont egaux");
-
-        }
-
-
-
-
-    }
 
 
 
@@ -273,7 +182,6 @@ public class DemandeAdmissionService {
         demandeAdmissionDTO.setPrenomParent(demandeAdmission.getPrenomParent());
         demandeAdmissionDTO.setMailParent(demandeAdmission.getMailParent());
         demandeAdmissionDTO.setTelParent(demandeAdmission.getTelParent());
-        demandeAdmissionDTO.setUser(demandeAdmission.getUser() == null ? null : demandeAdmission.getUser().getUserID());
         return demandeAdmissionDTO;
     }
 
@@ -289,10 +197,19 @@ public class DemandeAdmissionService {
         demandeAdmission.setPrenomParent(demandeAdmissionDTO.getPrenomParent());
         demandeAdmission.setMailParent(demandeAdmissionDTO.getMailParent());
         demandeAdmission.setTelParent(demandeAdmissionDTO.getTelParent());
-         User demandeUser = demandeAdmissionDTO.getUser() == null ? null : userRepository.findById(demandeAdmissionDTO.getUser())
-                .orElseThrow(() -> new NotFoundException("demandeUser not found"));
-        demandeAdmission.setUser(demandeUser);
-        RDV rdv = demandeAdmissionDTO.getRdvDemande() == null ? null : rdvRepository.findById(demandeAdmissionDTO.getRdvDemande())
+
+
+        User condidat = demandeAdmissionDTO.getCondidat() == null ? null : userRepository.findById(demandeAdmissionDTO.getCondidat().getUserID())
+                .orElseThrow(() -> new NotFoundException("condidat not found"));
+        demandeAdmission.setCondidat(condidat);
+
+
+        User evaluateur = demandeAdmissionDTO.getEvaluateeur() == null ? null : userRepository.findById(demandeAdmissionDTO.getEvaluateeur().getUserID())
+                .orElseThrow(() -> new NotFoundException("evaluateur not found"));
+        demandeAdmission.setEvaluateur(evaluateur);
+
+
+        RDV rdv = demandeAdmissionDTO.getRdvDemande() == null ? null : rdvRepository.findById(demandeAdmissionDTO.getRdvDemande().getIdRDV())
                 .orElseThrow(() -> new NotFoundException("demandeUser not found"));
         demandeAdmission.setRdvDemande(rdv);
         return demandeAdmission;

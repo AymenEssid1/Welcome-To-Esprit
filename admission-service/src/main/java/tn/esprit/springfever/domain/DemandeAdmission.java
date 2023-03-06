@@ -1,5 +1,6 @@
 package tn.esprit.springfever.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import tn.esprit.springfever.model.Cursus;
 import tn.esprit.springfever.model.Diplome;
 import tn.esprit.springfever.model.Niveau;
@@ -65,11 +66,20 @@ public class DemandeAdmission {
     }
 
     @OneToOne
-    @JoinColumn(name = "user_user_id")
-    private User user;
+    @JoinColumn(name = "condidat")
+    @JsonIgnore
+
+    private User condidat;
+
+    @ManyToOne
+    @JoinColumn(name = "evaluateur")
+    @JsonIgnore
+
+    private User evaluateur ;
 
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "demandeRdv")
+    @JsonIgnore
     private RDV rdvDemande;
 
 

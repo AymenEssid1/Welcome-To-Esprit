@@ -4,7 +4,9 @@ package tn.esprit.springfever.model;
 import lombok.Getter;
 import lombok.Setter;
 import tn.esprit.springfever.domain.RDV;
+import tn.esprit.springfever.domain.User;
 
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -12,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class DemandeAdmissionDTO {
-
+/*
     private Long idAdmission;
 
     private LocalDate dateAdmission;
@@ -39,6 +41,59 @@ public class DemandeAdmissionDTO {
 
     private Long user;
     private Long rdvDemande;
+
+
+
+ */
+
+
+
+        @Id
+        @Column(nullable = false, updatable = false)
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long idAdmission;
+
+        private LocalDate dateAdmission;
+
+        private String CIN;
+
+        @Enumerated(EnumType.STRING)
+        private TypeDemande typeDemande;
+
+
+        @Enumerated(EnumType.STRING)
+        private Diplome diplome;
+
+
+        @Enumerated(EnumType.STRING)
+        private Niveau niveau;
+
+        @Enumerated(EnumType.STRING)
+        private Cursus cursus;
+
+        private String nomParent;
+
+        private String prenomParent;
+
+        private String mailParent;
+
+        private String telParent;
+
+
+        public void setDateAdmission() {
+            this.dateAdmission = LocalDate.now();
+        }
+
+
+        private User condidat;
+
+
+        private User evaluateeur ;
+
+
+        private RDV rdvDemande;
+
+
 
 
 }

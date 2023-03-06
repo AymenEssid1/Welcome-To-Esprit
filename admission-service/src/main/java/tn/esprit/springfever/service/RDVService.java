@@ -10,6 +10,7 @@ import tn.esprit.springfever.domain.Salle;
 import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.RDVDTO;
 import tn.esprit.springfever.model.SalleDTO;
+import tn.esprit.springfever.repos.DemandeAdmissionRepository;
 import tn.esprit.springfever.repos.RDVRepository;
 import tn.esprit.springfever.repos.SalleRepository;
 import tn.esprit.springfever.repos.UserRepository;
@@ -43,6 +44,8 @@ public class RDVService {
     private SalleService salleService;
     @Autowired
     private MailConfiguration mailConfiguration;
+    @Autowired
+    private DemandeAdmissionRepository demandeAdmissionRepository;
 
     @Autowired
     private  RDVRepository rDVRepository;
@@ -73,12 +76,11 @@ public class RDVService {
         User user= userRepository.findById(idUser).orElse(new User());
          RDV rDV = new RDV();
         mapToEntity(rDVDTO, rDV);
-        rDV.setRDVuser(user);
-        String emailBody = "TEST ";
+         String emailBody = "TEST ";
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject("TEST");
         message.setText(emailBody);
-        message.setTo(user.getDemandeAdmission().getMailParent());
+        message.setTo(user.getDemandeAdmissionStudent().getMailParent());
        // mailConfiguration.sendEmail(message);
         return rDVRepository.save(rDV).getIdRDV();
 
@@ -99,32 +101,57 @@ public class RDVService {
     private RDVDTO mapToDTO( RDV rDV,  RDVDTO rDVDTO) {
         rDVDTO.setIdRDV(rDV.getIdRDV());
         rDVDTO.setDate(rDV.getDate());
-        rDVDTO.setRDVuser(rDV.getRDVuser() == null ? null : rDV.getRDVuser().getUserID());
-        return rDVDTO;
+        rDVDTO.setDemande(rDV.getDemande());
+         return rDVDTO;
     }
 
     private RDV mapToEntity( RDVDTO rDVDTO,  RDV rDV) {
         rDV.setDate(rDVDTO.getDate());
-         User rDVuser = rDVDTO.getRDVuser() == null ? null : userRepository.findById(rDVDTO.getRDVuser())
+         DemandeAdmission demandeAdmission = rDVDTO.getDemande() == null ? null : demandeAdmissionRepository.findById(rDVDTO.getDemande().getIdAdmission())
                 .orElseThrow(() -> new NotFoundException("rDVuser not found"));
-        rDV.setRDVuser(rDVuser);
+        rDV.setDemande(demandeAdmission);
         return rDV;
     }
 
-    @Scheduled(cron = "*/10 * * * * *" )
+    @Scheduled(fixedRate = 100000)
     public void etatTuteur(){
         LocalDate l = LocalDate.now();
         List<User> users = userRepository.findAll();
+        List<Salle> salles = salleRepository.findAll();
 
-        System.out.println(users.size());
+        for (User u : users){
+            System.out.println(u.getEtatuser()+ u.getUserID());
+        }
         for(User u:users)
         {
-            if((u.getEtatuser().equals("non disponible"))&&(u.getDemandeAdmission().getDateAdmission().plusDays(7).isEqual(l))){
+
+            if((u.getEtatuser().equals("non disponible"))&&( demandeAdmissionRepository.findDemandeAdmissionByEvaluateurAndDateAdmission(u,l).getDateAdmission().equals(l)))
+
+            {
+                System.out.println(u.getEtatuser());
+
                 u.setEtatuser("disponible");
+
+
                 userRepository.save(u);
 
+
             }
+            for(Salle s:salles){
+                if((s.getEtat().equals("non disponible"))&&(demandeAdmissionRepository.findByRdvDemandeSalle(s).getDateAdmission().plusDays(3).isEqual(l))){
+                    s.setEtat("disponible");
+                    salleRepository.save(s);
+                    System.out.println(s.toString());
+
+                }
+            }
+
+
         }
+
+
+
+
 
 
     }

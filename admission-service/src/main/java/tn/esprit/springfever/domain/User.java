@@ -1,9 +1,12 @@
 package tn.esprit.springfever.domain;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -20,10 +23,16 @@ public class User {
     @Column
     private String etatuser;
 
-    @OneToOne
-    private DemandeAdmission demandeAdmission;
 
-    @OneToMany(mappedBy = "rDVuser")
-    private Set<RDV> rDVuserRDVs;
+
+
+    @OneToOne
+    @JsonIgnore
+    private  DemandeAdmission DemandeAdmissionStudent ;
+
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<DemandeAdmission> demandeAdmissionsEvaluateur;
 
 }

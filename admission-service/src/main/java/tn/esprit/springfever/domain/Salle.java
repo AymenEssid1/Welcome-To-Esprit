@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,8 +25,8 @@ public class Salle {
     private String etat;
 
 
-    @OneToMany(mappedBy = "rDVsalle")
-    private Set<RDV> rDVsalleRDVs;
+    @OneToMany(mappedBy = "salle")
+    private List<RDV> rdvs;
 
 
 

@@ -26,7 +26,7 @@ public class Specialite {
     @JoinColumn(name = "demande_specialite_id")
     private List<DemandeAdmission> demandeAdmissions;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "specialite_option_id")
     private Option specialiteOption;
 

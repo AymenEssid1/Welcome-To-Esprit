@@ -13,7 +13,6 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByetatuser(String etatuser);
 
-    @Query("SELECT u FROM User u JOIN u.rDVuserRDVs r WHERE u.etatuser = 'non disponible' AND r.date = :date")
 
-    List<User> findByetatuserAndRDVuserRDVsDate();
+
 }
