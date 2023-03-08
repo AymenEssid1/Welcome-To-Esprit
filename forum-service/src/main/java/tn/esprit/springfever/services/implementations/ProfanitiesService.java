@@ -1,9 +1,7 @@
 package tn.esprit.springfever.services.implementations;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Profanities;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -14,14 +12,9 @@ public class ProfanitiesService {
     public Profanities bannedWords = new Profanities();
     public boolean containsBannedWords(String postContent) {
         for (String word : bannedWords.getBadWords()) {
-            // Add variations of the banned word
-            List<String> wordVariations = generateWordVariations(word);
-            for (String variation : wordVariations) {
-                // Account for hidden characters and concatenated words
-                String regex = ".*(?:\\b|[^a-zA-Z0-9])" + Pattern.quote(variation) + "(?:\\b|[^a-zA-Z0-9]).*";
+                String regex = ".*(?:\\b|[^a-zA-Z0-9])" + Pattern.quote(word) + "(?:\\b|[^a-zA-Z0-9]).*";
                         if (postContent.matches(regex)) {
                     return true;
-                }
             }
         }
         return false;

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.dto.PostDTO;
 import tn.esprit.springfever.entities.Media;
-import tn.esprit.springfever.entities.Post;
 import tn.esprit.springfever.services.interfaces.IMediaService;
 import tn.esprit.springfever.services.interfaces.IPostService;
 import tn.esprit.springfever.services.interfaces.IReactionService;
@@ -170,4 +168,8 @@ public class PostController {
                 .body(resource);
     }
 
+    @PostMapping("/report")
+    public ResponseEntity<?> report(HttpServletRequest request, Long postId, String desc) throws JsonProcessingException {
+        return service.reportPost(postId,request,desc);
+    }
 }

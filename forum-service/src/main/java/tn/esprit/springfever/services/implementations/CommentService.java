@@ -19,10 +19,7 @@ import tn.esprit.springfever.repositories.CommentPagingRepository;
 import tn.esprit.springfever.repositories.CommentRepository;
 import tn.esprit.springfever.repositories.PostRepository;
 import tn.esprit.springfever.repositories.ReactionRepository;
-import tn.esprit.springfever.services.interfaces.ICommentService;
-import tn.esprit.springfever.services.interfaces.ILikesService;
-import tn.esprit.springfever.services.interfaces.IMediaService;
-import tn.esprit.springfever.services.interfaces.IPostService;
+import tn.esprit.springfever.services.interfaces.*;
 import tn.esprit.springfever.utils.MediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 
@@ -44,6 +41,8 @@ public class CommentService implements ICommentService {
     private ProfanitiesService profanitiesService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private IReportService reportService;
     @Autowired
     private ILikesService likesService;
     @Autowired
@@ -300,8 +299,12 @@ public class CommentService implements ICommentService {
         for (Comment comment : comments){
             CommentDTO commentDTO = new CommentDTO();
             commentDTO.setId(comment.getId());
-            commentDTO.setLikes(likesService.convertToLikesDTOS(comment.getLikes()));
-            commentDTO.setMedia(comment.getMedia());
+            if (comment.getLikes() != null){
+                commentDTO.setLikes(likesService.convertToLikesDTOS(comment.getLikes()));
+            }
+            if(comment.getMedia()!=null){
+                commentDTO.setMedia(comment.getMedia());
+            }
             commentDTO.setContent(comment.getContent());
             commentDTO.setUser(users.get(comments.indexOf(comment)));
             commentDTOS.add(commentDTO);
@@ -316,10 +319,34 @@ public class CommentService implements ICommentService {
         if (comment.getLikes() != null){
             commentDTO.setLikes(likesService.convertToLikesDTOS(comment.getLikes()));
         }
-        commentDTO.setMedia(comment.getMedia());
+        if(comment.getMedia()!=null){
+            commentDTO.setMedia(comment.getMedia());
+        }
         commentDTO.setContent(comment.getContent());
         commentDTO.setUser(userService.getUserDetailsFromId(comment.getUser()));
         return commentDTO;
     }
+    @Override
+    public ResponseEntity<?> reportComment(Long id, HttpServletRequest request, String desc) throws JsonProcessingException {
+        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else {
+            Long userId = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            Comment comment = repo.findById(id).orElse(null);
+            if(comment==null){
+                return ResponseEntity.notFound().build();
+            }else{
+                Report report = reportService.reportComment(comment,userId,desc);
+                if (report == null){
+                    return ResponseEntity.notFound().build();
+                }
+                if (comment.getReports().size()>5){
+                    repo.delete(comment);
+                }
+                return ResponseEntity.ok().body(report);
+            }
+        }
+    }
+
 
 }

@@ -22,4 +22,6 @@ public interface ICommentService {
     public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException;
     public List<CommentDTO> convertToLikesDTOS(List<Comment> comments) throws JsonProcessingException;
     public CommentDTO convertToLikesDTO(Comment comment) throws JsonProcessingException;
+
+    public ResponseEntity<?> reportComment(Long id, HttpServletRequest request, String desc) throws JsonProcessingException;
 }

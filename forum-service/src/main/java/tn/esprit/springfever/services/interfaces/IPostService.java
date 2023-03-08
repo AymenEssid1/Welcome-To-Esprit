@@ -28,4 +28,5 @@ public interface IPostService {
     public Object likePost (Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException;
     public Object changeReaction (Long id,Long reaction, HttpServletRequest request);
     public String deleteReaction(Long id, HttpServletRequest request) throws JsonProcessingException;
+    public ResponseEntity<?> reportPost(Long id, HttpServletRequest request, String desc) throws JsonProcessingException;
 }

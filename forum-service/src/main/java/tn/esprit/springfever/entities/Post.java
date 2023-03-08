@@ -40,7 +40,12 @@ public class Post implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private List<Likes> likes;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private List<Report> reports;
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "post")
     private List<Comment> comments;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

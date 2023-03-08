@@ -164,7 +164,7 @@ public class MatchingService {
             }
         }
 
-        return getTopNTopics(topics, 5);
+        return getTopNTopics(topics, 3);
     }
 
     private List<String> getTopNTopics(List<String> topics, int n) {

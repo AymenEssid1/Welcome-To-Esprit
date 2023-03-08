@@ -142,5 +142,10 @@ public class CommentController {
                 .body(resource);
     }
 
+    @PostMapping("/report")
+    public ResponseEntity<?> report(HttpServletRequest request, Long commentId, String desc) throws JsonProcessingException {
+        return service.reportComment(commentId,request,desc);
+    }
+
 
 }

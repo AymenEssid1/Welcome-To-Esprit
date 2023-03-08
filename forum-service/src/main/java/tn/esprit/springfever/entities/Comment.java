@@ -28,6 +28,11 @@ public class Comment implements Serializable {
     @JoinColumn(name = "comment_id")
     private List<Likes> likes;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "comment_id")
+    @JsonIgnore
+    private List<Report> reports;
+
     @ManyToOne
     @JsonIgnore
     private Post post;

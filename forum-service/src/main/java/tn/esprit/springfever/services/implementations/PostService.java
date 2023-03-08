@@ -40,6 +40,8 @@ import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 public class PostService implements IPostService {
     @Autowired
     private PostRepository repo;
+    @Autowired
+    private IReportService reportService;
 
     @Autowired
     private PostPagingRepository pagerepo;
@@ -478,15 +480,43 @@ public class PostService implements IPostService {
         }
     }
 
+    @Override
+    public ResponseEntity<?> reportPost(Long id, HttpServletRequest request, String desc) throws JsonProcessingException {
+        if (request == null || request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else {
+            Long userId = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION)).getId();
+            Post post = repo.findById(id).orElse(null);
+            if(post==null){
+                return ResponseEntity.notFound().build();
+            }else{
+                Report report = reportService.reportPost(post,userId,desc);
+                if (report == null){
+                    return ResponseEntity.notFound().build();
+                }
+                if (post.getReports().size()>5){
+                    repo.delete(post);
+                }
+                return ResponseEntity.ok().body(report);
+            }
+        }
+    }
+
     public PostDTO convertToPostDTO(Post post, UserDTO user) throws JsonProcessingException {
         PostDTO postDTO = new PostDTO();
         postDTO.setId(post.getId());
         postDTO.setTitle(post.getTitle());
         postDTO.setContent(post.getContent());
         postDTO.setCreatedAt(post.getCreatedAt());
-        postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
-        postDTO.setMedia(post.getMedia());
-        postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
+        if (post.getComments() != null){
+            postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
+        }
+        if (post.getMedia()!=null){
+            postDTO.setMedia(post.getMedia());
+        }
+        if(post.getLikes() != null){
+            postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
+        }
         postDTO.setUpdatedAt(post.getUpdatedAt());
         postDTO.setTopic(post.getTopic());
         if (post.getViews() == null ){
@@ -511,9 +541,15 @@ public class PostService implements IPostService {
             postDTO.setTitle(post.getTitle());
             postDTO.setContent(post.getContent());
             postDTO.setCreatedAt(post.getCreatedAt());
-            postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
-            postDTO.setMedia(post.getMedia());
-            postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
+            if (post.getComments() != null){
+                postDTO.setComments(commentService.convertToLikesDTOS(post.getComments()));
+            }
+            if (post.getMedia()!=null){
+                postDTO.setMedia(post.getMedia());
+            }
+            if(post.getLikes() != null){
+                postDTO.setLikes(likesService.convertToLikesDTOS(post.getLikes()));
+            }
             postDTO.setUpdatedAt(post.getUpdatedAt());
             postDTO.setTopic(post.getTopic());
             if (post.getViews() == null ){
