@@ -1,7 +1,6 @@
 package tn.esprit.springfever.services.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
@@ -70,6 +69,7 @@ public class PostService implements IPostService {
 
     @Autowired
     private ReactionRepository reactionRepository;
+
 
     @Override
     public ResponseEntity<?> addPost(
@@ -446,6 +446,8 @@ public class PostService implements IPostService {
                 if (p != null) {
                     p.getLikes().add(like);
                     repo.save(p);
+                    String notif = userService.getUserDetailsFromId(like.getUser()).getUsername()+" reacted to your post!";
+                    //notificationConfig.socketIOServer().getRoomOperations("").sendEvent("like",notif);
                     return "Liked!";
                 } else {
                     return "The post you're trying to react to is not found!";
