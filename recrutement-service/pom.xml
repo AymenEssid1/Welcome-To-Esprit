@@ -218,6 +218,13 @@
             <artifactId>twilio</artifactId>
             <version>7.47.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-core</artifactId>
+            <version>${spring-batch.version}</version>
+        </dependency>
+
+
 
 
 

@@ -10,6 +10,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
+import tn.esprit.springfever.Services.Implementation.JobRDVReminderTasklet;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_RDV;
@@ -26,6 +27,9 @@ public class JobRdvController {
     IJobRDV iJobRDV;
     @Autowired
     JobRdvRepository jobRdvRepository;
+
+   @Autowired
+   JobRDVReminderTasklet jobRDVReminderTasklet; //Could not autowire. No beans of 'JobRDVReminderTasklet' type found.
 
 
 
@@ -153,6 +157,17 @@ public class JobRdvController {
         iJobRDV.sendReminderSMS(rdv);
         return ResponseEntity.ok().body("Reminder SMS sent successfully.");
     }
+
+    @PostMapping("/send-reminders")
+    public ResponseEntity<String> sendReminders() {
+        try {
+            jobRDVReminderTasklet.execute(null, null);
+            return ResponseEntity.ok("Reminders sent successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending reminders: " + e.getMessage());
+        }
+    }
+
 
 
 
