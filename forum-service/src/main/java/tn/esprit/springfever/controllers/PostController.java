@@ -1,8 +1,7 @@
 package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,7 +31,6 @@ import java.util.List;
 @RestController
 @RequestMapping("posts")
 @Tag(name = "Posts Module")
-@Api(tags = "Posts Module")
 @Service
 @CrossOrigin
 public class PostController {
@@ -45,14 +43,12 @@ public class PostController {
     @Autowired
     private IMediaService mediaService;
 
-    @ApiOperation(value = "This method is used to add a post ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> addPost(@RequestParam String title, @RequestParam String content, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
         return service.addPost(title, content,  authentication, images);
     }
 
-    @ApiOperation(value = "This method is used to delete a post ")
     @DeleteMapping(value = "/")
     @ResponseBody
     public ResponseEntity<?> deletePost(Long id, HttpServletRequest authentication) throws IOException {
@@ -67,7 +63,6 @@ public class PostController {
     }
 
 
-    @ApiOperation(value = "This method is used to update a post ")
     @PutMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> updatePost(Long id, @RequestParam(required = false) String title, @RequestParam(required = false) String content, @RequestParam(required = false) String topic, @RequestParam(name = "file", required = false) List<MultipartFile> images, HttpServletRequest authentication) throws IOException {
@@ -115,7 +110,6 @@ public class PostController {
     /**
      * The Likes part is implemented here
      **/
-    @ApiOperation(value = "This method is used to like a post ")
     @PostMapping(value = "/like")
     @ResponseBody
     public ResponseEntity<?> like(Long reaction, Long post, HttpServletRequest request) throws JsonProcessingException {
@@ -123,7 +117,6 @@ public class PostController {
         return ResponseEntity.ok().body(response);
     }
 
-    @ApiOperation(value = "This method is used to unlike a post")
     @DeleteMapping(value = "/like")
     public ResponseEntity<String> dislike(Long post, HttpServletRequest request) throws JsonProcessingException {
         return ResponseEntity.ok().body(service.deleteReaction(post, request));

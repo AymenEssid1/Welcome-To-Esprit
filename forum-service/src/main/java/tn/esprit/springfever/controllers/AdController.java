@@ -3,8 +3,6 @@ package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +37,6 @@ import java.util.List;
 @RestController
 @RequestMapping("advertisement")
 @Tag(name = "Advertisement Module")
-@Api(tags = "Advertisement Module")
 @Service
 public class AdController {
     @Autowired
@@ -48,7 +45,6 @@ public class AdController {
     private IAdMediaService mediaService;
 
 
-    @ApiOperation(value = "This method is used to add an advertisement ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> addAd(@RequestParam Channel channel, @RequestParam float cost, @RequestParam String startDate,
@@ -61,7 +57,6 @@ public class AdController {
         return service.addAd(channel, cost, start, end, initialTarget, name, targetPopulation, images, authentication);
     }
 
-    @ApiOperation(value = "This method is used to delete a post ")
     @DeleteMapping(value = "/")
     @ResponseBody
     public ResponseEntity<String> deletePost(Long id, HttpServletRequest authentication) throws JsonProcessingException {
@@ -69,7 +64,6 @@ public class AdController {
 
     }
 
-    @ApiOperation(value = "This method is used to update a post ")
     @PutMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> updatePost(Long id,@RequestParam Channel channel, @RequestParam float cost, @RequestParam String startDate,

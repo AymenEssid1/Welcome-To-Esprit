@@ -1,7 +1,7 @@
 package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.annotations.Api;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/msg")
-@Api(tags = "Messages Module")
 @Tag(name = "Messages Module")
 @CrossOrigin
 public class MessageController {

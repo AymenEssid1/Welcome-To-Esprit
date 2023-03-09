@@ -1,8 +1,7 @@
 package tn.esprit.springfever.controllers;
 
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,6 @@ public class testinController {
     }
 
     @GetMapping(value = "/pdf/{imageId}")
-    @ApiOperation(value = "Download PDF file")
     @Produces(value = {MediaType.APPLICATION_PDF_VALUE})
     public ResponseEntity<FileSystemResource> downloadImage(@PathVariable Long imageId) {
         try {

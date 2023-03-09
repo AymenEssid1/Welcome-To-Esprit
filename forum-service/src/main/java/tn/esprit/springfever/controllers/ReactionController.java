@@ -1,8 +1,7 @@
 package tn.esprit.springfever.controllers;
 
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,20 +23,17 @@ import java.util.List;
 @RestController
 @RequestMapping("reacts")
 @Tag(name = "Reactions Module")
-@Api(tags = "Reactions Module")
 @Service
 public class ReactionController {
     @Autowired
     private IReactionService service;
 
-    @ApiOperation(value = "This method is used to add a reaction ")
     @PostMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Reaction> addReaction(@RequestParam String name, @RequestParam(name = "file", required = false) MultipartFile image) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(image, name));
     }
 
-    @ApiOperation(value = "This method is used to delete a post ")
     @DeleteMapping(value = "/")
     @ResponseBody
     public ResponseEntity<String> deleteReaction(Long id) {
@@ -56,7 +52,6 @@ public class ReactionController {
 
     }
 
-    @ApiOperation(value = "This method is used to add a reaction ")
     @PutMapping(value = "/", consumes = "multipart/form-data", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Reaction> updateReaction(@RequestParam Long id, @RequestParam(required = false) String name, @RequestParam(name = "file", required = false) MultipartFile image) throws Exception {

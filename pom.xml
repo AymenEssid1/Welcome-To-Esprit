@@ -21,6 +21,8 @@
         <module>api-gateway</module>
         <module>forum-service</module>
         <module>openapi-service</module>
+        <module>notification-service</module>
+
     </modules>
 
     <properties>

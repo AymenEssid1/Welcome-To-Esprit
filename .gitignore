@@ -46,3 +46,5 @@ mongo-data
 /postgres-order/
 /grafana/
 /assets/*
+
+.fake
