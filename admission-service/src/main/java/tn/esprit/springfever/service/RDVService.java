@@ -2,6 +2,8 @@ package tn.esprit.springfever.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import tn.esprit.springfever.config.MailConfiguration;
 import tn.esprit.springfever.domain.DemandeAdmission;
@@ -52,6 +54,7 @@ public class RDVService {
     @Autowired
     private  UserRepository userRepository;
 
+
     public RDVService( RDVRepository rDVRepository,  UserRepository userRepository) {
         this.rDVRepository = rDVRepository;
         this.userRepository = userRepository;
@@ -81,7 +84,7 @@ public class RDVService {
         message.setSubject("TEST");
         message.setText(emailBody);
         message.setTo(user.getDemandeAdmissionStudent().getMailParent());
-       // mailConfiguration.sendEmail(message);
+        mailConfiguration.sendEmail(message);
         return rDVRepository.save(rDV).getIdRDV();
 
 
@@ -125,9 +128,14 @@ public class RDVService {
         for(User u:users)
         {
 
-            if((u.getEtatuser().equals("non disponible"))&&( u.getDemandeAdmissionStudent().getDateAdmission().equals(l)))
+
+            if (u.getEtatuser().equals("non disponible") && u.getDemandeAdmissionsEvaluateur()
+                    .stream()
+                    .filter(evaluateur -> evaluateur.getDateAdmission().equals(l))
+                    .anyMatch(evaluateur -> true))
 
             {
+
 
                 System.out.println(u.getEtatuser());
 

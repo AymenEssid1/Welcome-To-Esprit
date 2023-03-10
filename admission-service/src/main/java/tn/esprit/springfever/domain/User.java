@@ -1,6 +1,7 @@
 package tn.esprit.springfever.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userID;
 
+    @Size(max = 20)
     @Column
     private String etatuser;
 
@@ -31,7 +33,7 @@ public class User {
     private  DemandeAdmission DemandeAdmissionStudent ;
 
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JsonIgnore
     private List<DemandeAdmission> demandeAdmissionsEvaluateur;
 

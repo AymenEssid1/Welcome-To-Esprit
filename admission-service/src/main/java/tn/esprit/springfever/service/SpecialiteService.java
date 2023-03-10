@@ -52,7 +52,7 @@ public class SpecialiteService {
         Option o = optionRepository.findById(idoption).orElse(new Option());
          Specialite specialite = new Specialite();
         mapToEntity(specialiteDTO, specialite);
-        specialite.getDemandeAdmissions().add(demandeAdmission);
+       // specialite.getDemandeAdmissions().add(demandeAdmission);
         specialite.setSpecialiteOption(o);
         return specialiteRepository.save(specialite).getIdSpecialite();
     }

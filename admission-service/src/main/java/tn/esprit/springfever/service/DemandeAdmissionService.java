@@ -6,6 +6,10 @@ import com.twilio.type.PhoneNumber;
 import org.hibernate.type.LocalDateTimeType;
 import org.hibernate.type.LocalDateType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.domain.*;
 import tn.esprit.springfever.model.DemandeAdmissionDTO;
 import tn.esprit.springfever.model.Diplome;
@@ -16,8 +20,18 @@ import tn.esprit.springfever.util.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -35,6 +49,9 @@ public class DemandeAdmissionService {
     private SalleRepository salleRepository;
     @Autowired
     private SpecialiteRepository specialiteRepository;
+    @Autowired
+    private JavaMailSender mailSender;
+
 
     // Configurez les informations d'identification de Twilio
     final String ACCOUNT_SID = "votre_SID_Twilio";
@@ -59,10 +76,14 @@ public class DemandeAdmissionService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(DemandeAdmission demandeAdmission, Long IdUser)  {
+    public Long create(DemandeAdmission demandeAdmission, Long IdUser,Long idspecialiter) throws MessagingException {
         User user = userRepository.findById(IdUser).orElse(new User());
         demandeAdmission.setCondidat(user);
+
         DemandeAdmission d = demandeAdmissionRepository.save(demandeAdmission);
+        Specialite s = specialiteRepository.findById(idspecialiter).orElse(new Specialite());
+        s.getDemandeAdmissions().add(demandeAdmission);
+        specialiteRepository.save(s);
         user.setDemandeAdmissionStudent(d);
         userRepository.save(user);
         RDV rdv= new RDV();
@@ -73,7 +94,59 @@ public class DemandeAdmissionService {
         rdv.setDate(LocalDate.now().plusDays(7));
         rdvRepository.save(rdv);
         Salledispo(rdv.getIdRDV());
-        Tuteurdispo(rdv.getIdRDV());
+        Tuteurdispo(d.getIdAdmission());
+
+        //send E-mail au condidat
+        String html = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "  <head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>Notification of your Offer</title>\n" +
+                "    <style>\n" +
+                "      /* Styles pour le corps de l'e-mail */\n" +
+                "      body {\n" +
+                "        font-family: Arial, sans-serif;\n" +
+                "        font-size: 16px;\n" +
+                "        color: #333;\n" +
+                "      }\n" +
+                "      /* Styles pour les en-têtes */\n" +
+                "      h1, h2, h3 {\n" +
+                "        color: #555;\n" +
+                "      }\n" +
+                "      /* Styles pour les boutons */\n" +
+                "      .button {\n" +
+                "        display: inline-block;\n" +
+                "        background-color: #008CBA;\n" +
+                "        color: #fff;\n" +
+                "        padding: 10px 20px;\n" +
+                "        border-radius: 5px;\n" +
+                "        text-decoration: none;\n" +
+                "      }\n" +
+                "    </style>\n" +
+                "  </head>\n" +
+                "  <body>\n" +
+                "    <h1>Notification of your Application For Admission</h1>\n" +
+                "    <p> " + ",</p>\n" +
+                "    <p></p>\n" +
+                "    <p>Here is a summary of your offer:</p>\n" +
+                "    <ul>\n" +
+                "      <li>Company Name :"+ "</li>\n" +
+                "      <li>Phone number : "+"</li>\n" +
+                "      <li>Track :"+"</li>\n" +
+                "      <li>Service :"+ "</li>\n" +
+                "    </ul>\n" +
+                "    <p>The total amount of your order is"+ " €.</p>\n" +
+                "    <p>If you have any questions or concerns, please don't hesitate to contact us.</p>\n" +
+                "    <p>Thank you for your confidence.</p>\n" +
+                "    <p>Cordially,</p>\n" +
+                "    <h2>TECHMASTER</h2>\n" +
+                "    <p><a href=\"[lien vers votre site web]\" class=\"button\">Visit our Web-Site</a></p>\n" +
+                "  </body>\n" +
+                "</html>\n";
+                sendEmail("mondher.souissi@esprit.tn","TEST",html);
+
+
+
 
       /* Twilio.init("ACc2294319aa2eaba8e91273055538a50e", "3d8aaf138dd120e037c4c12ae42a6ccf");
         Message.creator(new PhoneNumber("+21655105372"),
@@ -82,6 +155,15 @@ public class DemandeAdmissionService {
         return demandeAdmission.getIdAdmission();
 
 
+    }
+
+    public void sendEmail(String to, String subject, String html) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(html, true);
+        mailSender.send(message);
     }
     public void affecterSalle(Long idrdv, Long idSalle) {
         RDV rdv = rdvRepository.findById(idrdv)
@@ -154,6 +236,18 @@ public class DemandeAdmissionService {
         }
 
     }
+
+
+    public Map<String,Long> statDiplome(){
+        Map<String,Long> result = new HashMap<>();
+        result.put("PREPA",demandeAdmissionRepository.countByDiplome(Diplome.PREPA));
+        result.put("INGENIEURIE",demandeAdmissionRepository.countByDiplome(Diplome.INGENIEURIE));
+        return result;
+
+    }
+
+
+
     public void update(Long idAdmission,DemandeAdmissionDTO demandeAdmissionDTO) {
          DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(idAdmission)
                 .orElseThrow(NotFoundException::new);
@@ -214,6 +308,22 @@ public class DemandeAdmissionService {
                 .orElseThrow(() -> new NotFoundException("demandeUser not found"));
         demandeAdmission.setRdvDemande(rdv);
         return demandeAdmission;
+    }
+
+
+    public static String saveImage(MultipartFile image, DemandeAdmission demandeAdmission) throws IOException {
+        String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+        Path path = Paths.get("uploads");
+        Files.createDirectories(path);
+        try (InputStream inputStream = image.getInputStream()) {
+            Path filePath = path.resolve(fileName);
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            demandeAdmission.setCIN(filePath.toString());
+            return filePath.toString();
+        } catch (IOException e) {
+            throw new IOException("Could not save file " + fileName, e);
+        }
+
     }
 
 

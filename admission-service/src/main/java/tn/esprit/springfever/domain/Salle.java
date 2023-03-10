@@ -1,6 +1,9 @@
 package tn.esprit.springfever.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,9 +21,12 @@ public class Salle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idsalle;
 
+    @NotBlank
+    @Size(max = 4)
     @Column
     private Integer numSalle;
 
+    @Size(max = 20)
     @Column
     private String etat;
 
