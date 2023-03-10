@@ -1,100 +1,39 @@
+const WebSocket = require('sockjs-client');
 const Stomp = require('stompjs');
-const SockJS = require('sockjs-client');
 
-var stompClient =null;
-const connect =()=>{
-    let Sock = new SockJS('http://localhost:8090/ws');
-    stompClient = Stomp.over(Sock);
-    stompClient.connect({},onConnected, onError);
-}
+const username = process.argv[2]; // Get username from command line argument
 
-const onConnected = () => {
-    setUserData({...userData,"connected": true});
-    stompClient.subscribe('/chatroom/public', onMessageReceived);
-    stompClient.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
-    userJoin();
-}
+// Connect to WebSocket endpoint
+const socket = new WebSocket('http://localhost:8181/notifications/ws');
+const stompClient = Stomp.over(socket);
+console.log(username)
+stompClient.connect({}, function(frame) {
+    console.log('Connected to the WebSocket server');
 
-const userJoin=()=>{
-    var chatMessage = {
-        senderName: userData.username,
-        status:"JOIN"
-    };
-    stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-}
+    // Subscribe to the public chatroom
+    stompClient.subscribe('/chatroom/public', function(message) {
+        console.log('Public message received:', JSON.parse(message.body));
+    });
 
-const onMessageReceived = (payload)=>{
-    var payloadData = JSON.parse(payload.body);
-    switch(payloadData.status){
-        case "JOIN":
-            if(!privateChats.get(payloadData.senderName)){
-                privateChats.set(payloadData.senderName,[]);
-                setPrivateChats(new Map(privateChats));
-            }
-            break;
-        case "MESSAGE":
-            publicChats.push(payloadData);
-            setPublicChats([...publicChats]);
-            break;
-    }
-}
+    // Subscribe to private messages for this user
+    stompClient.subscribe('/user/' + username + '/private', function(message) {
+        console.log('Private message received:', JSON.parse(message.body));
+    });
 
-const onPrivateMessage = (payload)=>{
-    console.log(payload);
-    var payloadData = JSON.parse(payload.body);
-    if(privateChats.get(payloadData.senderName)){
-        privateChats.get(payloadData.senderName).push(payloadData);
-        setPrivateChats(new Map(privateChats));
-    }else{
-        let list =[];
-        list.push(payloadData);
-        privateChats.set(payloadData.senderName,list);
-        setPrivateChats(new Map(privateChats));
-    }
-}
+    // Send a public message
+    stompClient.send('/app/message', {}, JSON.stringify({
+        sender: username,
+        message: 'Hello, everyone!',
+        date: null,
+        status: 'MESSAGE'
+    }));
 
-const onError = (err) => {
-    console.log(err);
-
-}
-
-const handleMessage =(event)=>{
-    const {value}=event.target;
-    setUserData({...userData,"message": value});
-}
-const sendValue=()=>{
-    if (stompClient) {
-        var chatMessage = {
-            senderName: userData.username,
-            message: userData.message,
-            status:"MESSAGE"
-        };
-        console.log(chatMessage);
-        stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-        setUserData({...userData,"message": ""});
-    }
-}
-
-const sendPrivateValue=()=>{
-    if (stompClient) {
-        var chatMessage = {
-            senderName: userData.username,
-            receiverName:tab,
-            message: userData.message,
-            status:"MESSAGE"
-        };
-
-        if(userData.username !== tab){
-            privateChats.get(tab).push(chatMessage);
-            setPrivateChats(new Map(privateChats));
-        }
-        stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
-        setUserData({...userData,"message": ""});
-    }
-}
-
-const handleUsername=(event)=>{
-    const {value}=event.target;
-    setUserData({...userData,"username": value});
-}
-connect();
+    // Send a private message
+    stompClient.send('/app/private-message', {}, JSON.stringify({
+        sender: username,
+        receiver: 'someOtherUser',
+        message: 'Hi, how are you doing?',
+        date: null,
+        status: 'MESSAGE'
+    }));
+});
