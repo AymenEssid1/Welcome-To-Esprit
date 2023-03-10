@@ -11,10 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.domain.*;
-import tn.esprit.springfever.model.DemandeAdmissionDTO;
-import tn.esprit.springfever.model.Diplome;
-import tn.esprit.springfever.model.Niveau;
-import tn.esprit.springfever.model.NomSpecialite;
+import tn.esprit.springfever.model.*;
 import tn.esprit.springfever.repos.*;
 import tn.esprit.springfever.util.NotFoundException;
 import org.springframework.data.domain.Sort;
@@ -95,13 +92,68 @@ public class DemandeAdmissionService {
         rdvRepository.save(rdv);
         Salledispo(rdv.getIdRDV());
         Tuteurdispo(d.getIdAdmission());
-
+        if(demandeAdmission.getTypeDemande().equals(TypeDemande.PRESENTIELLE)){
         //send E-mail au condidat
         String html = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "  <head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
-                "    <title>Notification of your Offer</title>\n" +
+                "    <title >Admission contest</title>\n" +
+                "    <style>\n" +
+                "      /* Styles pour le corps de l'e-mail */\n" +
+                "      body {\n" +
+                "        font-family: Arial, sans-serif;\n" +
+                "        font-size: 16px;\n" +
+                "        color: #333;\n" +
+                "      }\n" +
+                "      /* Styles pour les en-têtes */\n" +
+                "      h1, h2, h3 {\n" +
+                "        color: #555;\n" +
+                "      }\n" +
+                "      /* Styles pour les boutons */\n" +
+                "      .button {\n" +
+                "        display: inline-block;\n" +
+                "        background-color: #008CBA;\n" +
+                "        color: #fff;\n" +
+                "        padding: 10px 20px;\n" +
+                "        border-radius: 5px;\n" +
+                "        text-decoration: none;\n" +
+                "      }\n" +
+                "    </style>\n" +
+                "  </head>\n" +
+                "  <body>\n" +
+                    "    <h1>Notification of your Application For Admission</h1>\n" +
+                "    <p> " + ",</p>\n" +
+                "    <p></p>\n" +
+                "    <p> Bonjour,\n" +
+                "Thank you for your interest in ESPRIT.  "+demandeAdmission.getCondidat().getUserID()+"</p>\n" +
+                "    <ul>\n" +
+                "      <li>Interview Date:"+ demandeAdmission.getDateAdmission().plusDays(7)+"</li>\n" +
+
+                "    </ul>\n" +
+                "    <ul>\n" +
+                "      <li>Interview Classroom:"+ demandeAdmission.getRdvDemande().getSalle()+"</li>\n" +
+
+                "    </ul>\n" +
+                "    <p>If you have any questions or concerns, please don't hesitate to contact us.</p>\n" +
+                "    <p>Thank you for your confidence.</p>\n" +
+                "    <p>Cordially,</p>\n" +
+                "    <h2>Spring Fever</h2>\n" +
+                "    <p><a href=\"[lien vers votre site web]\" class=\"button\">Visit our Web-Site</a></p>\n" +
+                "  </body>\n" +
+                "</html>\n";
+                sendEmail("mondher.souissi@esprit.tn","Admission Contest",html);}
+
+    else {
+        String meetingId = "ksv-wxsg-xwp";
+        String password = "mypassword";
+        String meetingLink = generateGoogleMeetLink(meetingId, password);
+        System.out.println(meetingLink);
+        String htmlgooglemeet="<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "  <head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title >Admission contest</title>\n" +
                 "    <style>\n" +
                 "      /* Styles pour le corps de l'e-mail */\n" +
                 "      body {\n" +
@@ -128,30 +180,27 @@ public class DemandeAdmissionService {
                 "    <h1>Notification of your Application For Admission</h1>\n" +
                 "    <p> " + ",</p>\n" +
                 "    <p></p>\n" +
-                "    <p>Here is a summary of your offer:</p>\n" +
+                "    <p> Bonjour,\n" +
+                "Thank you for your interest in ESPRIT.  "+demandeAdmission.getCondidat().getUserID()+"</p>\n" +
                 "    <ul>\n" +
-                "      <li>Company Name :"+ "</li>\n" +
-                "      <li>Phone number : "+"</li>\n" +
-                "      <li>Track :"+"</li>\n" +
-                "      <li>Service :"+ "</li>\n" +
+                "      <li>Date de le entretien:"+ demandeAdmission.getDateAdmission().plusDays(7)+"</li>\n" +
+
                 "    </ul>\n" +
-                "    <p>The total amount of your order is"+ " €.</p>\n" +
                 "    <p>If you have any questions or concerns, please don't hesitate to contact us.</p>\n" +
                 "    <p>Thank you for your confidence.</p>\n" +
                 "    <p>Cordially,</p>\n" +
-                "    <h2>TECHMASTER</h2>\n" +
-                "    <p><a href=\"[lien vers votre site web]\" class=\"button\">Visit our Web-Site</a></p>\n" +
+                "    <h2>Spring Fever</h2>\n" +
+                "    <p><a href="+generateGoogleMeetLink(meetingId, password)+" class=\"button\">Your Link Meet</a></p>\n" +
                 "  </body>\n" +
                 "</html>\n";
-                sendEmail("mondher.souissi@esprit.tn","TEST",html);
-
-
+        sendEmail("mondher.souissi@esprit.tn","Admission Contest",htmlgooglemeet);
+    }
 
 
       /* Twilio.init("ACc2294319aa2eaba8e91273055538a50e", "3d8aaf138dd120e037c4c12ae42a6ccf");
         Message.creator(new PhoneNumber("+21655105372"),
                 new PhoneNumber("+18654137235"),
-                "Hello from Twilio ").create();*/
+                "Your child's application for admission has been submited successfully  ").create();*/
         return demandeAdmission.getIdAdmission();
 
 
@@ -188,6 +237,15 @@ public class DemandeAdmissionService {
 
 
      }
+    public String generateGoogleMeetLink(String meetingId, String password) {
+        String baseUrl = "https://meet.google.com/";
+        String meetingUrl = baseUrl + meetingId;
+        if (password != null && !password.isEmpty()) {
+            meetingUrl += "?authuser=0#" + password;
+        }
+        return meetingUrl;
+    }
+
     public void Salledispo(Long idRdv) {
         // Récupération de toutes les salles existantes
         List<Salle> salles = salleRepository.findByEtat("disponible");
