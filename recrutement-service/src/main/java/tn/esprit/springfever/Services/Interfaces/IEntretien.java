@@ -10,4 +10,6 @@ public interface IEntretien {
     public List<Entretien> GetAllEntretiens();
     public Entretien UpdateEntretien(Long ID_Job_Entretien , Entretien entretien);
     public String DeleteEntretien(Long ID_Job_Entretien);
+    public void sendEmailToDistrubInterviewRes(Long id, String subject, String body);
+    public String AssignRDVToEntretien(Long ID_Job_Entretien , Long ID_Job_DRV );
 }
