@@ -203,7 +203,7 @@ public class UserController {
         System.out.println("aaaaaaaaaaggghhhh!!!!");
 
         if(image!=null){
-            System.out.println(image.getOriginalFilename());
+           // System.out.println(image.getOriginalFilename());
             Image newImage = iFileLocationService.save(image);
             oguser.setImage(newImage);
         }

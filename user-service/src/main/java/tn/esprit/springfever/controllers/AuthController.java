@@ -3,22 +3,21 @@ package tn.esprit.springfever.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
-import io.swagger.annotations.ApiResponse;
 import org.apache.commons.lang.RandomStringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,27 +26,19 @@ import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.Services.Interface.IFileLocationService;
 import tn.esprit.springfever.Services.Interface.IServiceUser;
-import tn.esprit.springfever.configuration.GeoIpService;
 import tn.esprit.springfever.configuration.MailConfiguration;
-import tn.esprit.springfever.configuration.RequestUtils;
+import tn.esprit.springfever.configuration.UsernameValidator;
 import tn.esprit.springfever.dto.UserDTO;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.payload.Request.LoginRequest;
-import tn.esprit.springfever.payload.Request.SignUpRequest;
 import tn.esprit.springfever.payload.Response.JwtResponse;
-import tn.esprit.springfever.payload.Response.MessageResponse;
 
 
 import javax.validation.Valid;
-import java.io.DataInput;
+import javax.validation.Validator;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -78,8 +69,8 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private MailConfiguration mailConfiguration;
-
-
+    @Autowired
+    private UsernameValidator usernameValidator;
 
 
     @PostMapping("/signinV2")
@@ -135,37 +126,6 @@ public class AuthController {
                 // Authentication failed, return error response
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @PostMapping(value="/signUpV2",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
-    @ResponseBody
-    public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
-        User u = new User();
-        u.setFirstname(userDTO.getFirstname());
-        u.setCin(userDTO.getCin());
-        u.setLastname(userDTO.getLastname());
-        u.setDob(userDTO.getDob());
-        u.setEmail(userDTO.getEmail());
-        u.setPassword(encoder.encode(userDTO.getPassword()));
-        u.setUsername(userDTO.getUsername());
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        u.setCreationDate(currentDateTime);
-        u.setPhoneNumber(userDTO.getPhoneNumber());
-
-        if (roleType.name().equals("STUDENT")){u.setPayment_status(0);} else{u.setPayment_status(-1);}
-
-        if(image!=null){
-            System.out.println(image.getOriginalFilename());
-            Image newImage = iFileLocationService.save(image);
-            u.setImage(newImage);
-        }
-        iServiceUser.addUserAndAssignRole(u,roleType);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(u);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
     @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam String resetPasswordRequest) {
 
@@ -201,6 +161,12 @@ public class AuthController {
 
 
 
+
+
+
+
+
+
     @PostMapping(value="/signUpV3",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
     @ResponseBody
     public ResponseEntity<String> signUpV3(@RequestBody MultipartFile image,
@@ -212,7 +178,15 @@ public class AuthController {
                                            @RequestParam String cin,
                                            @RequestParam String dob,
                                            @RequestParam String password,
-                                           @RequestParam RoleType roleType) throws Exception {
+                                           @RequestParam RoleType roleType
+            ) throws Exception {
+
+        if(!usernameValidator.isValid(username)){
+            JSONObject message = new JSONObject();
+            message.put("message", "Invalid Username!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message.toString());
+        }
+
         String user="{\"username\": \""+username+"\",   \"email\": \""+email+"\",   \"firstname\": \""+firstname+"\",   \"lastname\": \""+lastname+"\",   \"cin\": "+cin+",   \"phoneNumber\": \""+phoneNumber+"\",   \"dob\": \""+dob+"\",   \"password\": \""+password+"\" }";
 
        ObjectMapper objectMapper = new ObjectMapper();
@@ -265,6 +239,37 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(u.toString());
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /*  @PostMapping(value="/signUpV2",consumes = MediaType.MULTIPART_FORM_DATA_VALUE , produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<User> test(@RequestBody MultipartFile image, @RequestParam String user, @RequestParam RoleType roleType) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = objectMapper.readValue(user,UserDTO.class);
+        User u = new User();
+        u.setFirstname(userDTO.getFirstname());
+        u.setCin(userDTO.getCin());
+        u.setLastname(userDTO.getLastname());
+        u.setDob(userDTO.getDob());
+        u.setEmail(userDTO.getEmail());
+        u.setPassword(encoder.encode(userDTO.getPassword()));
+        u.setUsername(userDTO.getUsername());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        u.setCreationDate(currentDateTime);
+        u.setPhoneNumber(userDTO.getPhoneNumber());
+
+        if (roleType.name().equals("STUDENT")){u.setPayment_status(0);} else{u.setPayment_status(-1);}
+
+        if(image!=null){
+            System.out.println(image.getOriginalFilename());
+            Image newImage = iFileLocationService.save(image);
+            u.setImage(newImage);
+        }
+        iServiceUser.addUserAndAssignRole(u,roleType);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(u);
+    }*/
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     /*

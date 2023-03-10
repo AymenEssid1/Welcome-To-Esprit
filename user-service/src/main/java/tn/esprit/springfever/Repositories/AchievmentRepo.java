@@ -10,13 +10,7 @@ import java.util.List;
 
 public interface AchievmentRepo extends JpaRepository<Achievement, Long>  {
 
-     /*   @Query("SELECT u, COUNT(DISTINCT p.id) + COUNT(DISTINCT c.id) AS totalPostsAndComments " +
-                "FROM User u " +
-                "LEFT JOIN Post p ON p.user = u " +
-                "LEFT JOIN Comment c ON c.user = u " +
-                "GROUP BY u " +
-                "ORDER BY totalPostsAndComments DESC")
-        List<User> findTop3ByOrderByTotalPostsAndCommentsDesc();*/
+
 
 
 }

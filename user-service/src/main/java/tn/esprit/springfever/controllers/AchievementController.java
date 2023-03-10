@@ -47,6 +47,22 @@ public class AchievementController {
 
     }
 
+    @GetMapping("/Statistics")
+
+    public String Stats(){
+
+        List<Object> avgPostsPerDayList = userRepository.averagepostsperday();
+        List<Object> avgUsersPerYearList = userRepository.averageUsersCreatedPerYear();
+        List<String> bannedUsersList = userRepository.bannedUsers();
+
+        String ch = "Average posts per day : " + avgPostsPerDayList.get(0).toString() + "\n" +
+                "Average new number of new users by year " + avgUsersPerYearList.get(0).toString() + "\n" +
+                "Users grouped by age : "+userRepository.UsersByAge()+"\n\n"+
+                "List of banned users : " + bannedUsersList.toString();
+
+
+        return ch;
+    }
 
     // Get all achievements
     @GetMapping

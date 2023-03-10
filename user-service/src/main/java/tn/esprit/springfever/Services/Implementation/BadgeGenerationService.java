@@ -90,7 +90,7 @@ public class BadgeGenerationService
                 .object(HtmlToPdfObject.forHtml(getHtml(changeHtml(u))))
                 .convert(pdf);
         if(success){
-            return  "pdf";
+            return  pdf+"\n"+changeHtml(u);
         }
         else {
             return "error";

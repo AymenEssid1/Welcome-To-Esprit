@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @EnableJpaRepositories
 @Repository
-@Cacheable("user")
+
 public interface UserRepo extends JpaRepository<User,Long> {
 
     Optional<User> findByUsername(String username);
@@ -46,13 +46,21 @@ public interface UserRepo extends JpaRepository<User,Long> {
 //Statistics
 
     @Query (value = "SELECT COUNT(*)/DATEDIFF(MAX(created_at), MIN(created_at)) AS avg_posts_per_day FROM post",nativeQuery = true)
-    int averagepostsperday();
+    List<Object> averagepostsperday();
 
 
-    @Query(value ="SELECT COUNT(*) / YEAR(CURDATE()) - YEAR(MIN(creation_date)) + 1 AS avg_users_per_year FROM user",nativeQuery = true)
-    int averageUsersCreatedPerYear();
+    @Query(value ="SELECT COUNT(*) / (YEAR(CURDATE()) - YEAR(MIN(creation_date)) + 1) AS avg_users_per_year FROM user",nativeQuery = true)
+    List<Object> averageUsersCreatedPerYear();
 
 
-   // @Query(value = "",nativeQuery = true)
+    @Query(value = "SELECT FLOOR(DATEDIFF(NOW(), dob)/365) AS age_range, COUNT(*) AS user_count\n" +
+            "FROM user\n" +
+            "GROUP BY age_range\n" +
+            "ORDER BY age_range ASC",nativeQuery = true)
+    List<Object> UsersByAge();
 
+    @Query(value = "SELECT u.username\n" +
+            "FROM user u\n" +
+            "INNER JOIN Ban b ON u.userid = b.user_userid",nativeQuery = true)
+    List<String> bannedUsers();
 }

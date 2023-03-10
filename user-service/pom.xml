@@ -347,6 +347,11 @@
             <artifactId>flying-saucer-pdf</artifactId>
             <version>9.1.22</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-core</artifactId>
+            <version>${spring-batch.version}</version>
+        </dependency>
 
 
 

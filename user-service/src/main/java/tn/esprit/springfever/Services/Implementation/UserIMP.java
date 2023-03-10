@@ -121,7 +121,7 @@ public class UserIMP implements IServiceUser {
     }
 
     @Override
-    public Badge generateQr(User user) throws Exception {
+    public String generateQr(User user) throws Exception {
         String qrCodeData = user.toString();
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
@@ -154,9 +154,9 @@ public class UserIMP implements IServiceUser {
         badge.setQrCode(filePath);
         user.setBadge(badge);
         badgeRepository.save(badge);
-        badgeGenerationService.generate(user);
+       // badgeGenerationService.generate(user);
 
-        return badge;
+        return badgeGenerationService.generate(user);
     }
 
 
@@ -196,6 +196,7 @@ public class UserIMP implements IServiceUser {
 
             LocalDateTime currentDateTime = LocalDateTime.now();
             user.setCreationDate(currentDateTime);
+            user.setPayment_status(-1);
             Role role = roleRepo.findByRolename(RoleType.CANDIDATE);
 
             if (row.getCell(7) == null) {

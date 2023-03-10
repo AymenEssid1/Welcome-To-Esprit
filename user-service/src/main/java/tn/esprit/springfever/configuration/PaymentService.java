@@ -115,7 +115,7 @@ import java.util.Map;
 
 
         //@Scheduled(cron = "0 0 0 * * 0")  //rusn every week
-       // @Scheduled(cron = "0 0/2 * * * ?") // Runs every 5 minutes for testing purposes
+        //@Scheduled(cron = "0 0/3 * * * ?") // Runs every 3 minutes for testing purposes
        // @Scheduled(cron = "*/5 * * * * *")
         public void timeoutAccounts() {
             System.out.println("Running timeoutAccounts()...");
@@ -147,7 +147,7 @@ import java.util.Map;
                         System.out.printf("User %d timed out%n", user.getUserid());
                     } else {
                         System.out.printf("User %d already has an active ban%n", user.getUserid());
-                       // sms_service.sendSmsvalide(user.getPhoneNumber());
+                        sms_service.sendSmsvalide(user.getPhoneNumber());
 
                     }
                 }
