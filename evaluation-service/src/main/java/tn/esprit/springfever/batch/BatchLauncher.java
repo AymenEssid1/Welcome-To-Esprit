@@ -16,9 +16,6 @@ public class BatchLauncher {
 
 	private JobLauncher jobLauncher;
 	private Job job;
-
-	/*2. Lancer le job lancher  avec le job (ou la liste de job à éxécuter) */
-
 	public BatchStatus run() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 		JobParameters parameters = new JobParametersBuilder().addLong("time", System.currentTimeMillis())

@@ -57,17 +57,10 @@ public class FaqController {
 
     @PostMapping("addFaq/")
     public ResponseEntity<?> addFaq(@Valid @RequestBody Faq faq, BindingResult result) {
-        if (result.hasErrors()) {
-            ValidationExceptionHandler.ValidationErrorResponse response = new ValidationExceptionHandler.ValidationErrorResponse();
-            List<FieldError> fieldErrors = result.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                response.addError(error.getField(), error.getDefaultMessage());
-            }
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } else {
+
             Faq addedFaq = faqService.addFaq(faq);
             return new ResponseEntity<>(addedFaq, HttpStatus.CREATED);
-        }
+
     }
 
 

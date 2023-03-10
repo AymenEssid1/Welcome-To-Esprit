@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import tn.esprit.springfever.batch.ProjectProcessor;
 import tn.esprit.springfever.batch.ProjectReader;
 import tn.esprit.springfever.batch.ProjectWriter;
+import tn.esprit.springfever.entities.Claim;
 import tn.esprit.springfever.entities.Faq;
 
 
@@ -47,7 +48,7 @@ public class ProjectBatchConfig {
 
         try {
             return stepBuilderFactory.get(STEP_NAME)
-                    .<Faq, Faq>chunk(2).reader(projectItemReader().read())
+                    .<Claim , Claim>chunk(2).reader(projectItemReader().read())
                     .processor(projectItemProcessor()).writer(projectItemWriter())
                     .exceptionHandler((context, throwable) -> log.error("Skipping record on file. cause="+ throwable.getCause()))
                     .build();
@@ -70,20 +71,15 @@ public class ProjectBatchConfig {
 
         return new ProjectReader();
     }
-    /* 8. étape 2 (ItemProcessor) fait appel à la classe ProjectProcessor
-     * qui se charge de modifier la logique des données selon
-     * nos besoins métiers */
+
     @Bean
-    public ItemProcessor<Faq, Faq> projectItemProcessor() {
+    public ItemProcessor<Claim, Claim> projectItemProcessor() {
         return new ProjectProcessor();
     }
 
 
-    /* 9. étape 3 (ItemWriter) fait appel à la classe ProjectWriter
-     * qui se charge de lancer le service de sauvegarde des
-     * données liées à la partie Equipe dans la BD*/
     @Bean
-    public ItemWriter<Faq> projectItemWriter() {
+    public ItemWriter<Claim> projectItemWriter() {
         return new ProjectWriter();
     }
 }

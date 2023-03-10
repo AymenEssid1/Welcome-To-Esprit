@@ -30,12 +30,9 @@ public class Claim implements Serializable {
     @Getter
     @Setter
 
-    @NotNull
-    @Positive
     private Long idClaim;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank
     private ClaimSubject claimSubject ;
 
     @NotBlank
@@ -46,7 +43,6 @@ public class Claim implements Serializable {
     @Enumerated(EnumType.STRING)
     private ClaimStatus claimStatus ;
 
-    @NotNull
     @Size(max = 500)
     private String decision ;
 

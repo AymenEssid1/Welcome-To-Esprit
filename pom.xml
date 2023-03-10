@@ -16,12 +16,9 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>user-service</module>
         <module>discovery-server</module>
         <module>api-gateway</module>
          <module>evaluation-service</module>
-        <module>faq-service</module>
-        <module>admission-service</module>
           <module>openapi-service</module>
     </modules>
 

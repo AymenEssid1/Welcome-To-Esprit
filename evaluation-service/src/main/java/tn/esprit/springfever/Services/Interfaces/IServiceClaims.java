@@ -27,4 +27,5 @@ public interface IServiceClaims {
  public  boolean badWordsFound(String input ) throws IOException;
  public void deleteClaimHavingBadWords() throws IOException;
 public void  bilanFeedback() ;
+public Claim findClaimById(Long id);
 }

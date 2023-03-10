@@ -8,8 +8,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,36 +24,23 @@ public class User implements Serializable {
     @Getter
     @Setter
     private Long id;
-    @NotBlank
-    @Size(max = 20)
+     @Size(max = 20)
     private String firstname;
 
-
-    @NotBlank
-    @Size(max = 20)
+     @Size(max = 20)
     private String lastname;
 
-    @NotBlank
-    @Size(max = 20)
+     @Size(max = 20)
     private String username;
 
-    @NotBlank
-    @Size(max = 50)
+     @Size(max = 50)
     @Email
     private String email;
 
-
-    @NotBlank
-    @Size(max = 50)
-    @Email
-    private int phonenumber;
-
-    @NotBlank
-    @Size(max = 120)
+     @Size(max = 120)
     private String password;
 
-    @NotBlank
-    private Date dob;
+     private Date dob;
 
 
 

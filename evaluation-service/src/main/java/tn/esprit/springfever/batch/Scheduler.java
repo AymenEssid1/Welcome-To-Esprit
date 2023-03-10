@@ -12,13 +12,8 @@ import tn.esprit.springfever.batch.BatchLauncher;
 public class Scheduler {
 
     private BatchLauncher batchLauncher;
-
-    
-    /*1. Lancer le batch (traitement de lots de données) grace au batch runner */
-
-    @Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay =300000 )
     public void perform() throws Exception {
-
         log.info("Batch programmé pour tourner toutes les 5 minutes");
         batchLauncher.run();
     }

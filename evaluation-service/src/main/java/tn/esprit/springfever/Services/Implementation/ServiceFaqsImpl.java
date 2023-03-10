@@ -122,10 +122,22 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
             // Set the properties of the FAQ object based on the cell values in the row
             faq.setQuestion(row.getCell(0).getStringCellValue());
             faq.setResponse(row.getCell(1).getStringCellValue());
-            while((row.getLastCellNum()-1)>i) {
-                faq.getFaqCategories().add(faqCategoryRepository.findByFaqCategory(Faq_Category_enum.valueOf(row.getCell(i+1).getStringCellValue())));
-                i++ ;
+
+
+            log.info("getLastCellNum" +(row.getLastCellNum()));
+            try {
+                while ((row.getLastCellNum() - 1) > i) {
+                    faq.getFaqCategories().add(faqCategoryRepository.findByFaqCategory(Faq_Category_enum.valueOf(row.getCell(i + 1).getStringCellValue())));
+                    i++;
+                }
+            } catch (Exception e ) {
+                log.error(e.getMessage());
+
             }
+
+
+
+
              faqs.add(faq);
          }
         // Save the list of FAQs to the database

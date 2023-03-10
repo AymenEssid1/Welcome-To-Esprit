@@ -44,13 +44,14 @@ public class ServiceClaimsImpl implements IServiceClaims {
     ClaimMapper claimMapper;
     @Autowired
     JavaMailSender javaMailSender;
+    @Autowired
+    SmsService smsService ;
 
 
 @Override
     public String analyzeSentiment(String text) {
     final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(
             text);
-    System.out.println(sentimentPolarities);
         return "PositivePolarity: " + sentimentPolarities.getPositivePolarity() +
                 "NegativePolarity: " + sentimentPolarities.getNegativePolarity()+
                 "NeutralPolarity: " + sentimentPolarities.getNeutralPolarity() +
@@ -72,7 +73,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
         }
 
     }
-    @Scheduled(fixedRate = 10000)
+    //,c@Scheduled(fixedRate = 10000)
     public void  bilanFeedback() {
     List<Claim> listeClaim = new ArrayList<>() ;
 
@@ -112,15 +113,22 @@ public class ServiceClaimsImpl implements IServiceClaims {
     public Claim addClaim(Claim claim) throws IOException {
 
         if(  (this.badWordsFound(claim.getDescription()))) {
+            // send sms
+            smsService.sendSmsvalide("23583310" , "the claim have bad words please respect the rules ");
             // Send email notification to user
             SimpleMailMessage warning = new SimpleMailMessage();
             warning.setSubject("Warning");
             warning.setText("you have not respect the rules of use of our website ");
             warning.setTo("springforfever@gmail.com"); // to change with the email of the user
             javaMailSender.send(warning);
+
         }
         else {
+
+
             // Send email notification to user
+            smsService.sendSmsvalide("23583310" , "the claim have been submitted successfully " );
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setSubject("New claim submitted");
             message.setText("A new claim has been submitted.");
@@ -128,6 +136,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
             javaMailSender.send(message);
             log.info("claim was successfully added !");
         }
+
         return claimRepository.save(claim);
     }
     // pagination
@@ -280,6 +289,11 @@ public class ServiceClaimsImpl implements IServiceClaims {
             badwords.add(row.getCell(0).getStringCellValue());
         }
         return badwords ;
+    }
+
+
+    public Claim findClaimById(Long id) {
+        return claimRepository.findById(id).get() ;
     }
 
 

@@ -18,6 +18,13 @@ public class Log implements Serializable {
     private Integer idLog;
     @Temporal(TemporalType.DATE)
     private Date dateLog;
-    private Integer nouveauMontant;
-    private String etudiant;
+    private double positive ;
+    private double negative ;
+    private double neutral ;
+    private double compound ;
+
+
+
+
+
 }

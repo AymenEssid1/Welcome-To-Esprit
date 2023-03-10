@@ -40,10 +40,10 @@ public class Faq implements Serializable {
 
     private Long idFaq;
     @NotBlank(message = "Le question ne doit pas être vide")
-    @Size(min = 3, message = "Le question doit contenir au moins 3 caractères")
+    @Size(min = 3,  max = 5000 ,message = "Le question doit contenir au moins 3 caractères")
     private String question ;
     @NotBlank(message = "La response ne doit pas être vide")
-    @Size(min = 3, message = "La response doit contenir au moins 3 caractères")
+    @Size(min = 3, max = 5000,message = "La response doit contenir au moins 3 caractères")
     private String response ;
 
     @ManyToMany(cascade = CascadeType.ALL)

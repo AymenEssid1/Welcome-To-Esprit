@@ -30,9 +30,7 @@ public class FaqCategory implements Serializable {
     @Setter
 
     private Long idFaqCategory;
-    @NotBlank(message = "faq Category cannot be blank")
     @Enumerated(EnumType.STRING)
-    @NotBlank
     private Faq_Category_enum faqCategory ;
 
     @ManyToMany(cascade = CascadeType.ALL , mappedBy = "faqCategories")
