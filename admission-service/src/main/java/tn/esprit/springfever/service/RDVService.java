@@ -123,7 +123,6 @@ public class RDVService {
         List<Salle> salles = salleRepository.findAll();
 
         for (User u : users){
-            System.out.println(u.getEtatuser()+ u.getUserID());
         }
         for(User u:users)
         {
@@ -137,7 +136,6 @@ public class RDVService {
             {
 
 
-                System.out.println(u.getEtatuser());
 
                 u.setEtatuser("disponible");
 

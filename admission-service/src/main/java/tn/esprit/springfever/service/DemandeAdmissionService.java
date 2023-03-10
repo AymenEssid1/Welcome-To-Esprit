@@ -148,7 +148,6 @@ public class DemandeAdmissionService {
         String meetingId = "ksv-wxsg-xwp";
         String password = "mypassword";
         String meetingLink = generateGoogleMeetLink(meetingId, password);
-        System.out.println(meetingLink);
         String htmlgooglemeet="<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "  <head>\n" +
@@ -273,20 +272,15 @@ public class DemandeAdmissionService {
         List<User> users = userRepository.findByetatuser("disponible");
         int nbUsers = users.size();
 
-        System.out.println("liste des tuteurs dispo " + users.size());
 
 
         // Affectation aléatoire d'un user à la demande
         if (nbUsers > 0) {
             int indexUser = new Random().nextInt(nbUsers);
-            System.out.println("index :" + indexUser);
             User evaluator = users.get(indexUser);
-            System.out.println("******** evaluator of the user dispo" + evaluator.getUserID() + evaluator.getEtatuser());
             evaluator.getDemandeAdmissionsEvaluateur().add(demandeAdmission);
             demandeAdmission.setEvaluateur(evaluator);
-            System.out.println("tutor who would be affected " + evaluator.getUserID());
             evaluator.setEtatuser("non disponible");
-            System.out.println(evaluator.getUserID() + evaluator.getEtatuser());
             demandeAdmission.setEvaluateur(evaluator);
             demandeAdmissionRepository.save(demandeAdmission);
             userRepository.save(evaluator);
