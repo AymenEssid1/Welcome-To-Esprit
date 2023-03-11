@@ -21,7 +21,7 @@ stompClient.connect({}, function(frame) {
     });
 
     // Send a public message
-    stompClient.send('/app/message', {}, JSON.stringify({
+    stompClient.send('/app/notification', {}, JSON.stringify({
         sender: username,
         message: 'Hello, everyone!',
         date: null,
@@ -29,7 +29,7 @@ stompClient.connect({}, function(frame) {
     }));
 
     // Send a private message
-    stompClient.send('/app/private-message', {}, JSON.stringify({
+    stompClient.send('/app/private-notification', {}, JSON.stringify({
         sender: username,
         receiver: 'someOtherUser',
         message: 'Hi, how are you doing?',
