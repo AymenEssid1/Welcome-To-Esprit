@@ -28,12 +28,44 @@ services:
       - ./mysql-data:/var/lib/mysql
 
 ## MySQL UI Container
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   restart: always
+  #   container_name: "phpmyadmin"
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PMA_ARBITRARY=1
   adminer:
     container_name: adminer
     image: adminer
     restart: always
     ports:
       - "8080:8080"
+
+
+## Redis Container
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+
+  ## RabbitMQ Container
+  rabbit1:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit1"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    container_name: rabbitmq
+    volumes:
+      - "./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins"
 
 # # Eureka Server Container
 #   discovery-server:

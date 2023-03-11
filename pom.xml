@@ -19,9 +19,7 @@
         <module>user-service</module>
         <module>discovery-server</module>
         <module>api-gateway</module>
-
         <module>event-service</module>
-
         <module>openapi-service</module>
     </modules>
 
@@ -52,6 +50,12 @@
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>1.5.12</version>
             </dependency>
+            <dependency>
+                <groupId>com.thetransactioncompany</groupId>
+                <artifactId>cors-filter</artifactId>
+                <version>2.10</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
