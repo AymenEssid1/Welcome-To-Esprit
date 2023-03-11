@@ -55,6 +55,12 @@ public class ServiceProjectImpl implements IServiceProject{
         return projectRepository.save(project);
     }
 
+
+@Override
+    public List<Object[]> getAllProjectsAndNotes() {
+        return projectRepository.findAllProjectsAndNotes();
+    }
+
     public Project save(byte[] rapport, String imageName) throws Exception {
         return projectRepository.save(new Project(rapport));
     }

@@ -86,4 +86,10 @@ public class Note implements Serializable{
     public Note() {
 
     }
+
+
+    public boolean filterBadWords() {
+        return BadWords.containsBadWord(comment);
+    }
+
 }

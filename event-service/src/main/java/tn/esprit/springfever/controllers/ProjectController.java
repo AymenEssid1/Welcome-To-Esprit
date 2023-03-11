@@ -135,4 +135,12 @@ public class ProjectController {
     }
 
 
+
+
+    @GetMapping("/notes")
+    public List<Object[]> getAllProjectsAndNotes() {
+        return iServiceProject.getAllProjectsAndNotes();
+    }
+
+
 }

@@ -60,10 +60,13 @@ public class NoteController {
 
     @PostMapping("/add")
     @ResponseBody
-    public Note addNote(@Valid @RequestBody Note note) throws IOException {
-        //iServiceNote.sendSmsvalide();
-        return  iServiceNote.addNote(note);}
-
+    public ResponseEntity<Note> createNote(@RequestBody Note note) {
+        if (note.filterBadWords()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        // save the note
+        return new ResponseEntity<>(note, HttpStatus.CREATED);
+    }
 
     /*********  update note  ***********/
     @PutMapping("/update/{idNote}")

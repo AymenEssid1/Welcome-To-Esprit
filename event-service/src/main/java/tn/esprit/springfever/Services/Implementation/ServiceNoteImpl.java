@@ -46,6 +46,8 @@ public class ServiceNoteImpl implements IServiceNote {
 
     @Override
     public Note addNote(Note note) {
+
+
         log.info("event was successfully added !");
         return noteRepository.save(note);
     }

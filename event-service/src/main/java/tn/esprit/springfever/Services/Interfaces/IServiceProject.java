@@ -27,6 +27,6 @@ public interface IServiceProject {
 
     public String assignNoteToProject(Long idNote, Long idProject);
 
-
+    public List<Object[]> getAllProjectsAndNotes();
 
 }
