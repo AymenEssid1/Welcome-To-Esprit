@@ -2,12 +2,12 @@ package tn.esprit.springfever.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import tn.esprit.springfever.entity.Message;
+import tn.esprit.springfever.entity.Notification;
 
 import java.util.List;
 
 @EnableJpaRepositories
-public interface MessageRepository extends JpaRepository<Message, Long> {
-    List<Message> findByReceiver(String receiver);
+public interface MessageRepository extends JpaRepository<Notification, Long> {
+    List<Notification> findByReceiver(String receiver);
 }
 

@@ -70,6 +70,10 @@ public class PostService implements IPostService {
     @Autowired
     private ReactionRepository reactionRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+
 
     @Override
     public ResponseEntity<?> addPost(
@@ -446,8 +450,8 @@ public class PostService implements IPostService {
                 if (p != null) {
                     p.getLikes().add(like);
                     repo.save(p);
-                    String notif = userService.getUserDetailsFromId(like.getUser()).getUsername()+" reacted to your post!";
-                    //notificationConfig.socketIOServer().getRoomOperations("").sendEvent("like",notif);
+                    UserDTO userDTO = userService.getUserDetailsFromId(p.getUser());
+                    notificationService.sendNotification("reacted to your post", user.getUsername(), userDTO.getUsername() );
                     return "Liked!";
                 } else {
                     return "The post you're trying to react to is not found!";
@@ -562,7 +566,6 @@ public class PostService implements IPostService {
             postDTO.setUser(users.get(posts.indexOf(post)));
             postDTOS.add(postDTO);
         }
-        log.info(String.valueOf(postDTOS.size()));
         return postDTOS;
     }
 
