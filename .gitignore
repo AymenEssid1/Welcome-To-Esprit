@@ -3,7 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+/assets
 mysql-data
+sql
 
 ### STS ###
 .apt_generated
@@ -41,3 +43,4 @@ mongo-data
 /postgres-inventory/
 /postgres-order/
 /grafana/
+/assets/*

@@ -1,13 +1,13 @@
 package tn.esprit.springfever.Services.Interfaces;
 
 
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserEvaluation;
 
 import java.util.List;
 
 public interface IServiceUser {
 
- public List<User> getAllUsers() ;
+ public List<UserEvaluation> getAllUsers() ;
  public String getusernamefromtoken(String header) ;
 
 

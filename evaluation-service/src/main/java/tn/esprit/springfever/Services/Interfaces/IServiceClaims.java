@@ -17,7 +17,7 @@ public interface IServiceClaims {
  public  List<Claim> getAllClaims() ;
  public  boolean deleteClaim(Long idClaim) ;
  public Claim updateClaim(Long idClaim , ClaimDTO claimDTO) ;
- public  List<Claim> getClaimsByUser(String username) ;
+ public  List<Claim> getClaimsByUser(Long id) ;
  public Claim findById(Long id) ;
  public Claim treatClaim( Long id , String descision);
  public long getTimeTreatmentClaim(Long id );

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import   tn.esprit.springfever.Services.Interfaces.*;
-import  tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserEvaluation;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class TestController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<User> allAccess() {
+    public List<UserEvaluation> allAccess() {
         return iServiceUser.getAllUsers();
     }
 

@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.Security.jwt.JwtUtils;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.enums.ERole;
-import tn.esprit.springfever.entities.Role;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.RoleEvaluation;
+import tn.esprit.springfever.entities.UserEvaluation;
 import tn.esprit.springfever.payload.Request.LoginRequest;
 import tn.esprit.springfever.payload.Request.SignupRequest;
 import tn.esprit.springfever.payload.Response.JwtResponse;
@@ -92,34 +92,34 @@ public class AuthController {
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
+        UserEvaluation user = new UserEvaluation(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
 
         Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
+        Set<RoleEvaluation> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+            RoleEvaluation userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                        RoleEvaluation adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
 
                         break;
                     case "mod":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                        RoleEvaluation modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
 
                         break;
                     default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                        RoleEvaluation userRole = roleRepository.findByName(ERole.ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(userRole);
                 }

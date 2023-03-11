@@ -1,8 +1,9 @@
 package tn.esprit.springfever.Services.Implementation;
 
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
-import java.lang.System ;
+
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
@@ -24,12 +25,12 @@ import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.analyzer.SentimentAnalyzer;
 import tn.esprit.springfever.analyzer.SentimentPolarities;
 import tn.esprit.springfever.entities.Claim;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserEvaluation;
 import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
-import java.util.*;
 
+import java.util.*;
 
 
 @Service
@@ -45,62 +46,62 @@ public class ServiceClaimsImpl implements IServiceClaims {
     @Autowired
     JavaMailSender javaMailSender;
     @Autowired
-    SmsService smsService ;
+    SmsService smsService;
 
 
-@Override
+    @Override
     public String analyzeSentiment(String text) {
-    final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(
-            text);
+        final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(
+                text);
         return "PositivePolarity: " + sentimentPolarities.getPositivePolarity() +
-                "NegativePolarity: " + sentimentPolarities.getNegativePolarity()+
+                "NegativePolarity: " + sentimentPolarities.getNegativePolarity() +
                 "NeutralPolarity: " + sentimentPolarities.getNeutralPolarity() +
-                "CompoundPolarity: " + sentimentPolarities.getCompoundPolarity() ;
+                "CompoundPolarity: " + sentimentPolarities.getCompoundPolarity();
     }
 
     @Override
-    public String sentFeedback( Long idClaim, String feedback) {
+    public String sentFeedback(Long idClaim, String feedback) {
         Claim existingClaim = claimRepository.findById(idClaim).orElse(null);
-        if(existingClaim!=null) {
+        if (existingClaim != null) {
             existingClaim.setFeedback(feedback);
             log.info("feedback sent");
             claimRepository.save(existingClaim);
-            return this.analyzeSentiment(feedback) ;
-        }
-        else {
+            return this.analyzeSentiment(feedback);
+        } else {
             log.info("claim not found");
-            return "claim not found" ;
+            return "claim not found";
         }
 
     }
-    //,c@Scheduled(fixedRate = 10000)
-    public void  bilanFeedback() {
-    List<Claim> listeClaim = new ArrayList<>() ;
 
-    double sumpos=0,sumNeg=0,sumComp=0,sumNeut = 0 ;
-        for (Claim claim: claimRepository.findAll()) {
-            if(claim.getFeedback()!=null) {
+    //,c@Scheduled(fixedRate = 10000)
+    public void bilanFeedback() {
+        List<Claim> listeClaim = new ArrayList<>();
+
+        double sumpos = 0, sumNeg = 0, sumComp = 0, sumNeut = 0;
+        for (Claim claim : claimRepository.findAll()) {
+            if (claim.getFeedback() != null) {
                 listeClaim.add(claim);
             }
         }
 
         for (Claim claim : listeClaim) {
             final SentimentPolarities sentimentPolarities = SentimentAnalyzer.getScoresFor(claim.getFeedback());
-            sumpos += sentimentPolarities.getPositivePolarity() ;
-            sumComp+= sentimentPolarities.getCompoundPolarity();
-            sumNeg += sentimentPolarities.getNegativePolarity() ;
-            sumNeut+= sentimentPolarities.getNeutralPolarity();
+            sumpos += sentimentPolarities.getPositivePolarity();
+            sumComp += sentimentPolarities.getCompoundPolarity();
+            sumNeg += sentimentPolarities.getNegativePolarity();
+            sumNeut += sentimentPolarities.getNeutralPolarity();
         }
 
         log.info("Feedbacks Bilan :  \n" +
                 " Average of Postive feedbacks :  \n" +
-                String.valueOf(sumpos/listeClaim.size()) + "\n" +
+                String.valueOf(sumpos / listeClaim.size()) + "\n" +
                 " Average of negative feedbacks :   \n" +
-                String.valueOf(sumNeg/listeClaim.size()) + "\n" +
+                String.valueOf(sumNeg / listeClaim.size()) + "\n" +
                 " Average of compound feedbacks :   \n" +
-                String.valueOf(sumComp/listeClaim.size()) + "\n" +
+                String.valueOf(sumComp / listeClaim.size()) + "\n" +
                 " Average of neutral feedbacks :   \n" +
-                        String.valueOf(sumNeut/listeClaim.size()) + "\n"
+                String.valueOf(sumNeut / listeClaim.size()) + "\n"
 
         );
 
@@ -108,13 +109,12 @@ public class ServiceClaimsImpl implements IServiceClaims {
     }
 
 
-
     @Override
     public Claim addClaim(Claim claim) throws IOException {
 
-        if(  (this.badWordsFound(claim.getDescription()))) {
+        if ((this.badWordsFound(claim.getDescription()))) {
             // send sms
-            smsService.sendSmsvalide("23583310" , "the claim have bad words please respect the rules ");
+            smsService.sendSmsvalide("23583310", "the claim have bad words please respect the rules ");
             // Send email notification to user
             SimpleMailMessage warning = new SimpleMailMessage();
             warning.setSubject("Warning");
@@ -122,12 +122,11 @@ public class ServiceClaimsImpl implements IServiceClaims {
             warning.setTo("springforfever@gmail.com"); // to change with the email of the user
             javaMailSender.send(warning);
 
-        }
-        else {
+        } else {
 
 
             // Send email notification to user
-            smsService.sendSmsvalide("23583310" , "the claim have been submitted successfully " );
+            smsService.sendSmsvalide("23583310", "the claim have been submitted successfully ");
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setSubject("New claim submitted");
@@ -139,6 +138,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
         return claimRepository.save(claim);
     }
+
     // pagination
     @Override
     public List<Claim> getAllClaims() {
@@ -146,7 +146,8 @@ public class ServiceClaimsImpl implements IServiceClaims {
         Page<Claim> claimPage = claimRepository.findAll(pageRequest);
         return claimPage.getContent();
     }
-     @Override
+
+    @Override
     public boolean deleteClaim(Long idclaim) {
         Claim existingClaim = claimRepository.findById(idclaim).orElse(null);
         if (existingClaim != null) {
@@ -187,16 +188,9 @@ public class ServiceClaimsImpl implements IServiceClaims {
     }
 
     @Override
-    public List<Claim> getClaimsByUser(String username) {
-        User existingUser = userRepository.findByUsername(username).orElse(null);
-        if (existingUser != null) {
-            log.info("claims list of the user  : " + existingUser.getUsername());
-            return claimRepository.getClaimByUserUsername(username);
-        } else {
-            log.info("user not found ");
-        }
+    public List<Claim> getClaimsByUser(Long id) {
+        return claimRepository.findByUser(id);
 
-        return null;
     }
 
 
@@ -231,24 +225,24 @@ public class ServiceClaimsImpl implements IServiceClaims {
     }
 
     @Override
-    public long predicateTreatmentClaim(Long  id ) {
+    public long predicateTreatmentClaim(Long id) {
         Claim claim = claimRepository.findById(id).orElse(null);
         List<Claim> claims = claimRepository.findAllByClaimSubjectAndClaimStatus(claim.getClaimSubject(), ClaimStatus.treated);
-        long estimatedPeriod =0 ;
-        for(Claim c : claims) {
-             estimatedPeriod += (c.getDateTreatingClaim().getTime() - c.getDateSendingClaim().getTime())/(60*60*1000) ;
-          }
-        long avg = estimatedPeriod/claims.size();
-        return avg ;
+        long estimatedPeriod = 0;
+        for (Claim c : claims) {
+            estimatedPeriod += (c.getDateTreatingClaim().getTime() - c.getDateSendingClaim().getTime()) / (60 * 60 * 1000);
+        }
+        long avg = estimatedPeriod / claims.size();
+        return avg;
     }
 
 
-    public  boolean badWordsFound(String input ) throws IOException {
+    public boolean badWordsFound(String input) throws IOException {
         // Tokenize the claim body
         InputStream modelIn = new FileInputStream("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\en-token.bin");
         TokenizerModel model = new TokenizerModel(modelIn);
         Tokenizer tokenizer = new TokenizerME(model);
-        if(input!=null) {
+        if (input != null) {
             String[] tokens = tokenizer.tokenize(input);
             for (String word : tokens) {
                 for (String badWord : this.excelToStringArray()) {
@@ -258,17 +252,17 @@ public class ServiceClaimsImpl implements IServiceClaims {
                 }
             }
         }
-        return false ;
+        return false;
     }
 
     // at 12:00 AM every day
-    @Scheduled(cron="0 0 0 * * ?")
-        @Override
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Override
     public void deleteClaimHavingBadWords() throws IOException {
         List<Claim> allClaims = claimRepository.findAll();
         for (Claim claim : allClaims) {
 
-            if(this.badWordsFound(claim.getDescription())) {
+            if (this.badWordsFound(claim.getDescription())) {
                 this.deleteClaim(claim.getIdClaim());
             }
 
@@ -288,23 +282,13 @@ public class ServiceClaimsImpl implements IServiceClaims {
         for (Row row : sheet) {
             badwords.add(row.getCell(0).getStringCellValue());
         }
-        return badwords ;
+        return badwords;
     }
 
 
     public Claim findClaimById(Long id) {
-        return claimRepository.findById(id).get() ;
+        return claimRepository.findById(id).get();
     }
-
-
-
-
-
-
-
-
-
-
 
 
 }

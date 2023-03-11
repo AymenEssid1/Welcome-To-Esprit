@@ -2,8 +2,7 @@ package tn.esprit.springfever.DTO;
 
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserEvaluation;
 import tn.esprit.springfever.enums.ClaimRate;
 import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.enums.ClaimSubject;
@@ -33,7 +32,7 @@ public class ClaimDTO implements Serializable  {
     private String decision ;
     @Enumerated(EnumType.STRING)
     private ClaimRate claimRate ;
-     private User user ;
+     private Long user ;
 
     public ClaimDTO(Long idClaim, ClaimSubject claimSubject, String description, ClaimStatus claimStatus,
                     String decision, ClaimRate claimRate) {

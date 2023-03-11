@@ -15,7 +15,6 @@ import  tn.esprit.springfever.enums.ClaimStatus;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
@@ -56,9 +55,8 @@ public class Claim implements Serializable {
     @Size(max = 500)
     private String feedback ;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private User user ;
+
+    private Long user ;
 
 
     public Claim(Long ClaimId, String test_claim) {

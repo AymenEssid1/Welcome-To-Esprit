@@ -65,9 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
        // http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class) ;
 
          http.authorizeRequests()
-                .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();

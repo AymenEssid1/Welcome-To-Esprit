@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.entities.Deliberation;
-import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.entities.UserEvaluation;
 import tn.esprit.springfever.repositories.DeliberationRepository;
 import tn.esprit.springfever.repositories.UserRepository;
 import tn.esprit.springfever.Services.Interfaces.IServiceDeliberation;
@@ -59,7 +59,7 @@ public class ServiceDeliberationImpl implements IServiceDeliberation {
 
     @Override
     public Deliberation getDeliberationOfUser(String username) {
-        User user = userRepository.findByUsername(username).get();
+        UserEvaluation user = userRepository.findByUsername(username).get();
         if (user == null) {
             log.info("User with username: " + username + " does not exist!");
             return null;
