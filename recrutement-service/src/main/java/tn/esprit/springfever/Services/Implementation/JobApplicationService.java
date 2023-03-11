@@ -18,6 +18,14 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.*;
 import opennlp.tools.util.Span;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -50,6 +58,7 @@ import opennlp.tools.chunker.ChunkerModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import tn.esprit.springfever.repositories.JobOfferRepository;
+import tn.esprit.springfever.repositories.UserRepository;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -71,6 +80,8 @@ public class JobApplicationService implements IJobApplication {
     private JavaMailSender mailSender;
     @Autowired
     JobOfferRepository jobOfferRepository;
+    @Autowired
+    UserRepository userRepository;
 
 
     public Job_Application AddJobApplication (Job_Application job_application){
@@ -98,20 +109,7 @@ public class JobApplicationService implements IJobApplication {
 
     }
 
-    /*public Job_Application UpdateJobApplication(Long Id_Job_Application , Job_Application job_application){
-        Job_Application JobApplicationExisted=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
-        if(JobApplicationExisted!=null){
-            JobApplicationExisted.setJobOffer(job_application.getJobOffer());
-            JobApplicationExisted.setCv(job_application.getCv());
-            JobApplicationExisted.setUser(job_application.getUser());
-            JobApplicationExisted.setRdv(job_application.getRdv());
-            JobApplicationExisted.setLettreMotivation(job_application.getLettreMotivation());
-            return jobApplicationRepository.save(JobApplicationExisted);
-        }
-        log.info("Job Application does not exist ! ");
-        return JobApplicationExisted;
 
-    }*/
 
     public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv, String location_LettreMotivation) throws Exception {
         Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
@@ -125,6 +123,66 @@ public class JobApplicationService implements IJobApplication {
 
         return jobApplicationRepository.save(new Job_Application( cvLocation, lettreLocation));
     }
+
+    public String AssignJobOfferAndCandidateToJobApplication(Long Id_Job_Offer,Long Id_Job_Application, Long idUser, String address){
+        String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet httpGet = new HttpGet(url);
+        HttpResponse httpResponse;
+        Job_Offer job_offer=jobOfferRepository.findById(Id_Job_Offer).orElse(null);
+        Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
+        User Candidate=userRepository.findById(idUser).orElse(null);
+        if(job_offer!=null && job_application!=null &&Candidate !=null) {
+            try {
+                httpResponse = httpClient.execute(httpGet); //RequiredType:httpResponse
+                HttpEntity httpEntity = httpResponse.getEntity(); //getEntity en rouge : No candidates found for method call httpResponse.getEntity().
+                String response = EntityUtils.toString(httpEntity);
+                JSONArray jsonArray = new JSONArray(response);
+                JSONObject jsonObject = jsonArray.getJSONObject(0); //Cannot resolve method 'getJSONObject' in 'JSONArray'
+                String latitude = jsonObject.getString("lat"); //Cannot resolve method 'getString' in 'JSONObject'
+                String longitude = jsonObject.getString("lon");
+                //Job_Application job_application = jobApplicationRepository.findById(idJobApplication).orElse(null);
+                job_application.setLocationCandidate(address);
+                job_application.setLatitudeCandidate(Double.parseDouble(latitude));
+                job_application.setLongitudeCandidate(Double.parseDouble(longitude));
+
+                job_application.setJobOffer(job_offer);
+                job_application.setUser(Candidate);
+                jobApplicationRepository.save(job_application);
+                return "Candidate , CandidateLocation And Job Offer are successffully assigned ";
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // handle error
+                System.out.println("Not Ok HERE ");
+            }
+        }
+        return "Job Offer Or Job Application Or Candidate are not found ! ";
+    }
+    /*public void updateCandidateLocation(Long idJobApplication, String address) {
+        String url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&addressdetails=1";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet httpGet = new HttpGet(url);
+        HttpResponse httpResponse;
+        try {
+            httpResponse = httpClient.execute(httpGet); //RequiredType:httpResponse
+            HttpEntity httpEntity = httpResponse.getEntity(); //getEntity en rouge : No candidates found for method call httpResponse.getEntity().
+            String response = EntityUtils.toString(httpEntity);
+            JSONArray jsonArray = new JSONArray(response);
+            JSONObject jsonObject = jsonArray.getJSONObject(0); //Cannot resolve method 'getJSONObject' in 'JSONArray'
+            String latitude = jsonObject.getString("lat"); //Cannot resolve method 'getString' in 'JSONObject'
+            String longitude = jsonObject.getString("lon");
+            //Job_Application job_application = jobApplicationRepository.findById(idJobApplication).orElse(null);
+            job_application.setLocationCandidate(address);
+            job_application.setLatitudeCandidate(Double.parseDouble(latitude));
+            job_application.setLongitudeCandidate(Double.parseDouble(longitude));
+            jobApplicationRepository.save(job_application);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // handle error
+            System.out.println("Not Ok HERE ");
+        }
+    }*/
+
 
     public FileSystemResource findCV(Long Id_Job_Application) {
 
@@ -167,26 +225,6 @@ public class JobApplicationService implements IJobApplication {
     }
 
 
-    /*public String extractTextFromPdf(Long id){
-        String text = null;
-        try {
-            FileSystemResource fileSystemResource = findLettreMotivation(id);
-
-            PdfReader reader = new PdfReader(fileSystemResource.getPath());
-
-            int n = reader.getNumberOfPages();
-            text = "";
-            for (int i = 0; i < n; i++) {
-                text += PdfTextExtractor.getTextFromPage(reader, i + 1).trim() + "\n";
-            }
-            reader.close();
-            System.out.println(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return text;
-    }*/
-
 
     public void sendEmail(Long id, String subject, String body){
         SimpleMailMessage message = new SimpleMailMessage();
@@ -213,71 +251,7 @@ public class JobApplicationService implements IJobApplication {
 
 
 
-    //Bonne Code
 
-    /*public String extractSkills(Long id) throws IOException {
-        String text=extractTextFromPdf2(id);
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        String sentenceModelPath = "C:/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
-
-        String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
-        String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
-        String chunkerModelPath = "/en-chunker.bin";
-
-
-        // Load the model for sentence detection
-        SentenceModel sentenceModel = new SentenceModel(new FileInputStream(sentenceModelPath));
-        SentenceDetectorME sentenceDetector = new SentenceDetectorME(sentenceModel);
-
-// Load the model for tokenization
-        TokenizerModel tokenizerModel = new TokenizerModel(new FileInputStream(tokenizerModelPath));
-        TokenizerME tokenizer = new TokenizerME(tokenizerModel);
-
-// Load the model for POS tagging
-        POSModel posModel = new POSModel(new FileInputStream(posModelPath));
-        POSTaggerME posTagger = new POSTaggerME(posModel);
-
-// Load the model for chunking
-        ChunkerModel chunkerModel = new ChunkerModel(new FileInputStream(chunkerModelPath));
-        ChunkerME chunker = new ChunkerME(chunkerModel);
-        // Split the text into sentences
-        String[] sentences = sentenceDetector.sentDetect(text);
-
-        // Extract the skills from each sentence
-        for (String sentence : sentences) {
-
-            // Tokenize the sentence
-            String[] tokens = tokenizer.tokenize(sentence);
-
-            // Tag the parts of speech of each token
-            String[] tags = posTagger.tag(tokens);
-
-            // Chunk the tagged tokens to extract noun phrases
-            Span[] chunks = chunker.chunkAsSpans(tokens, tags);
-
-            // Extract the noun phrases that represent skills
-            for (Span chunk : chunks) {
-                String chunkText = "";
-                for (int i = chunk.getStart(); i < chunk.getEnd(); i++) {
-                    chunkText += tokens[i] + " ";
-                }
-                chunkText = chunkText.trim();
-                if (chunk.getType().equals("NP") && isSkill(chunkText)) {
-                    System.out.println(chunkText);
-                    return chunkText;
-                }
-
-            }
-        }
-        if (text == null || text.trim().isEmpty()) {
-            return "Aucun texte n'a été extrait du PDF";
-        }
-
-        return "chaima";
-
-
-    }*/
 
 
 //Ce code est le meme sauf qu'il retourne toute une liste de skills

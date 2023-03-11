@@ -38,34 +38,9 @@ public class JobApplicationController {
     @Autowired
     JobApplicationRepository jobApplicationRepository;
 
-    /*@PostMapping(value="addJobApplication/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void AddJobApplication (@RequestPart("job_application") Job_Application job_application,
-                                              @RequestPart("cv") MultipartFile cvFile,
-                                              @RequestPart("lettreMotivation") MultipartFile lettreMotivationFile) {
-        byte[] cv = null;
-        byte[] lettreMotivation = null;
-        try {
-            cv = cvFile.getBytes();
-            lettreMotivation = lettreMotivationFile.getBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        job_application.setCv(cv);
-        job_application.setLettreMotivation(lettreMotivation);
-
-    }*/
-    /*@PostMapping(value = "/JobAdd" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<Job_Application> uploadImage(@RequestParam("cv") MultipartFile cvFile, @RequestPart("lettreMotivation") MultipartFile lettreMotivationFile) {
-        try {
-            Job_Application savedImageData = iJobApplication.save(cvFile.getBytes(),lettreMotivationFile.getBytes(),cvFile.getOriginalFilename());
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedImageData);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }*/
 
 
-    @PostMapping(value = "/JobAdd2" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    @PostMapping(value = "/AddJobApplication" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public ResponseEntity<Job_Application> uploadImage(@RequestParam("cv") MultipartFile cvFile,@RequestParam("lettreMotivation") MultipartFile lettreMotivationFile ) {
         try {
             Job_Application savedImageData = iJobApplication.savef(cvFile.getBytes(), lettreMotivationFile.getBytes(),cvFile.getOriginalFilename(),lettreMotivationFile.getOriginalFilename());
@@ -76,12 +51,19 @@ public class JobApplicationController {
     }
 
 
+    @PutMapping("AssignJobOfferAndCandidateToJobApplication/")
+    public String AssignJobOfferAndCandidateToJobApplication(Long Id_Job_Offer,Long Id_Job_Application, Long idUser, String address){
+        return iJobApplication.AssignJobOfferAndCandidateToJobApplication(Id_Job_Offer,Id_Job_Application,idUser,address);
+
+    }
 
 
 
 
 
-    @GetMapping(value = "/GetCV/{id}")
+
+
+    /*@GetMapping(value = "/GetCV/{id}")
     public ResponseEntity<FileSystemResource> downloadPDFCV(@PathVariable("id") Long Id) {
         try {
             System.out.println("mriguel");
@@ -112,11 +94,7 @@ public class JobApplicationController {
 
             return ResponseEntity.notFound().build();
         }
-    }
-
-
-
-
+    }*/
 
     @GetMapping("getAllJobApplications/")
     public List<Job_Application> GetAllJobApplications() {
@@ -124,11 +102,7 @@ public class JobApplicationController {
 
     }
 
-    /*@PutMapping("updateJobApplication/{id}")
-    public Job_Application UpdateJobApplication(@PathVariable("id") Long Id_Job_Application , @RequestBody Job_Application job_application){
-        return iJobApplication.UpdateJobApplication(Id_Job_Application,job_application);
 
-    }*/
 
 
     @DeleteMapping("deleteJobApplication/{id}")
@@ -138,14 +112,11 @@ public class JobApplicationController {
     }
 
 
-    /*@GetMapping(value = "/pdf-text/{id}")
-    public String extractTextFromPdf(@PathVariable("id") Long Id) {
-        return iJobApplication.extractTextFromPdf(Id);
-    }*/
-    @GetMapping(value = "/pdf-text-testNLP/{id}")
+
+    /*@GetMapping(value = "/pdf-text-testNLP/{id}")
     public String extractTextFromPdf2(@PathVariable("id") Long Id) throws IOException {
         return iJobApplication.extractTextFromPdf2(Id);
-    }
+    }*/
 
 
     @GetMapping(value = "/FilterCv/{id}")
@@ -154,13 +125,11 @@ public class JobApplicationController {
 
     }
 
-    /*@GetMapping(value = "/FilterCv/{id}")
-    public Boolean FilterCv(@PathVariable("id") Long Id_Job_Application) throws IOException {
-        return iJobApplication.extractSkillsFromCv(Id_Job_Application);}*/
 
 
-    @PostMapping("/send-email/{id}")
-    public ResponseEntity<String> sendEmail(@PathVariable ("id")Long id) {
+
+    @PostMapping("/send-email")
+    public ResponseEntity<String> sendEmail(Long id) {
 
 
         if(iJobApplication.FilterCv(id)==true){
@@ -192,11 +161,11 @@ public class JobApplicationController {
 
 
         }
-    @GetMapping(value = "/FilterCvCompetences/{id}")
+    /*@GetMapping(value = "/FilterCvCompetences/{id}")
     public String extractSkills(@PathVariable("id") Long id) throws IOException{
         return iJobApplication.extractSkills(id);
 
-    }
+    }*/
     @GetMapping("StatNbApplicationByJob_Offer/")
     public String countApplicationsByJobOffer() {
         List<Object[]> jobOfferApplicationCount = iJobApplication.countApplicationsByJobOffer();

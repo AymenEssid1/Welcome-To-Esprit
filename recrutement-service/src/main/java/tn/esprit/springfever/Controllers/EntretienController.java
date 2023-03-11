@@ -36,25 +36,30 @@ public class EntretienController {
 
     }
 
-    @PutMapping("updateEntretien/{id}")
+    /*@PutMapping("updateEntretien/{id}")
     public Entretien UpdateEntretien(@PathVariable("id") Long ID_Job_Entretien ,@RequestBody Entretien entretien){
         return iEntretien.UpdateEntretien(ID_Job_Entretien,entretien);
 
-    }
+    }*/
 
 
-    @DeleteMapping("deleteEntretien/{id}")
-    public String DeleteEntretien(@PathVariable("id") Long ID_Job_Entretien){
+    @DeleteMapping("deleteEntretien/")
+    public String DeleteEntretien(Long ID_Job_Entretien){
         return iEntretien.DeleteEntretien(ID_Job_Entretien);
 
     }
-    @PutMapping("AssignRDVToEntretien/{ID_Job_Entretien}/{ID_Job_DRV}")
+    /*@PutMapping("AssignRDVToEntretien/{ID_Job_Entretien}/{ID_Job_DRV}")
     public String AssignRDVToEntretien(@PathVariable("ID_Job_Entretien") Long ID_Job_Entretien ,@PathVariable("ID_Job_DRV") Long ID_Job_DRV ){
         return iEntretien.AssignRDVToEntretien(ID_Job_Entretien,ID_Job_DRV);
 
+    }*/
+    @PutMapping("AssignRDVToEntretien/")
+    public String AssignRDVToEntretien(Long ID_Job_Entretien , Long ID_Job_DRV ){
+        return iEntretien.AssignRDVToEntretien(ID_Job_Entretien,ID_Job_DRV);
+
     }
-    @PostMapping("/send-emailToDistrubInterviewResult/{id}")
-    public ResponseEntity<String> sendEmailToDistrubInterviewResult(@PathVariable ("id")Long id) {
+    @PostMapping("/send-emailToDistrubInterviewResult/")
+    public ResponseEntity<String> sendEmailToDistrubInterviewResult(Long id) {
         Entretien entretien=entretienRepository.findById(id).orElse(null);
         if(entretien.getResultat()== Entretien_Res.ACCEPTED){
             String subject = "Result Of a Job Interview ";

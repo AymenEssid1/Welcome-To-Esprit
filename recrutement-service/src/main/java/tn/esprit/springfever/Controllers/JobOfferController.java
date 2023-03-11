@@ -46,30 +46,22 @@ public class JobOfferController  {
     public  String deleteJobOffer(@PathVariable("id") Long  Id_Job_Offer){
         return iJobOffer.deleteJobOffer(Id_Job_Offer);
     }
-    @PutMapping("AssignJobOfferToCategory/{Id_Job_Offer}/{Id_Job_Category}")
+    /*@PutMapping("AssignJobOfferToCategory/{Id_Job_Offer}/{Id_Job_Category}")
     public String AssignCategoryToJobOffer( Long Id_Job_Offer, Long Id_Job_Category){
         return iJobOffer.AssignCategoryToJobOffer(Id_Job_Offer,Id_Job_Category);
 
-    }
+    }*/
 
 
-    @PutMapping("AssignImageToJobOffer/{Id_Job_Offer}/{id}")
-    public String AssignImageToJobOffer(@PathVariable("Id_Job_Offer") Long Id_Job_Offer ,@PathVariable("id") Long id ){
-        return iJobOffer.AssignImageToJobOffer(Id_Job_Offer,id);
-
-    }
-
-    @PutMapping("AssignJobApplicationToJobOffer/{Id_Job_Offer}/{id}")
-    public String AssignJobApplicationToJobOffer(@PathVariable("Id_Job_Offer") Long Id_Job_Offer ,@PathVariable("id") Long id ){
-        return iJobOffer.AssignJobApplicationToJobOffer(Id_Job_Offer,id);
+    @PutMapping("AssignImageAndJobCategoryToJobOffer/")
+    public String AssignImageAndJobCategoryToJobOffer(Long Id_Job_Offer , Long id , Long Id_Job_Category ){
+        return iJobOffer.AssignImageAndJobCategoryToJobOffer(Id_Job_Offer,id,Id_Job_Category);
 
     }
 
-    @PutMapping("AssignUserToJobApplication/{id}/{Id_Job_Application}")
-    public String AssignUserToJobApplication(@PathVariable("id") Long id ,@PathVariable("Id_Job_Application") Long Id_Job_Application ){
-         return iJobOffer.AssignUserToJobApplication(id,Id_Job_Application);
 
-    }
+
+
     @GetMapping(value = "/rss", produces = MediaType.ALL_VALUE)
     public ResponseEntity<String> getRSSFeed() throws FeedException {
         String rssFeed = iJobOffer.generateRSSFeed();

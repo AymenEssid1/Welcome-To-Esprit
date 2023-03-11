@@ -68,43 +68,36 @@ public class JobOfferService implements IJobOffer {
         }
         return "job Offer Does not Exist !";
     }
-    public String AssignCategoryToJobOffer( Long Id_Job_Offer, Long Id_Job_Category){
-        Job_Offer jobOfferExisted=jobOfferRepository.findById(Id_Job_Offer).orElse(null);
-        Job_Category JobCategoryExisted = jobCategoryRepository.findById(Id_Job_Category).orElse(null);
-        if(jobOfferExisted !=null && JobCategoryExisted!=null){
-            JobCategoryExisted.getJobOffers().add(jobOfferExisted);
-            jobOfferExisted.setJobCategory(JobCategoryExisted);
-            jobOfferRepository.save(jobOfferExisted);
-            return "Job Offer is sucessffully affected To Job Job Category !";
-        }
-        return "Job Offer or Job Catgory Does not exist !";
 
-    }
 
-    public String AssignImageToJobOffer(Long Id_Job_Offer , Long id ){
+    public String AssignImageAndJobCategoryToJobOffer(Long Id_Job_Offer , Long id , Long Id_Job_Category ){
         Job_Offer job_offer =jobOfferRepository.findById(Id_Job_Offer).orElse(null);
         Image_JobOffer image_jobOffer=image_jobOfferRepository.findById(id).orElse(null);
-        if(job_offer!=null && image_jobOffer!=null){
+        Job_Category JobCategoryExisted = jobCategoryRepository.findById(Id_Job_Category).orElse(null);
+        if(job_offer!=null && image_jobOffer!=null && JobCategoryExisted!=null){
             job_offer.setImage(image_jobOffer);
+            job_offer.setJobCategory(JobCategoryExisted);
             jobOfferRepository.save(job_offer);
-            return "Image Is successffully affected To Job Offer ! ";
+            return "Image And JobCategory Are  successffully affected To Job Offer ! ";
         }
-        return "Job Offer Or Image Does not Exist ";
+        return "Job Offer Or Image Or JobCategory Does not Exist ";
     }
 
 
-    public String AssignJobApplicationToJobOffer(Long Id_Job_Offer,Long Id_Job_Application){
+    /*public String AssignJobOfferAndCandidateToJobApplication(Long Id_Job_Offer,Long Id_Job_Application, Long idUser){
         Job_Offer job_offer=jobOfferRepository.findById(Id_Job_Offer).orElse(null);
         Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
-        if(job_offer!=null && job_application!=null){
+        User Candidate=userRepository.findById(idUser).orElse(null);
+        if(job_offer!=null && job_application!=null &&Candidate !=null){
             job_application.setJobOffer(job_offer);
+            job_application.setUser(Candidate);
             jobApplicationRepository.save(job_application);
-            return "Job Application is succesffuly affected to job Offer !";
+            return "Candidate and Job Offer are successffully assigned ";
         }
-        return "Job Offer Or Job Application are not found ! ";
-    }
+        return "Job Offer Or Job Application Or Candidate are not found ! ";
+    }*/
 
-    public String AssignUserToJobApplication(Long id , Long Id_Job_Application ){
+    /*public String AssignUserToJobApplication(Long id , Long Id_Job_Application ){
         User user=userRepository.findById(id).orElse(null);
         Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
         if(job_application!=null && user!=null){
@@ -116,7 +109,7 @@ public class JobOfferService implements IJobOffer {
         return "User Or Job Application are not Fouund !";
 
 
-    }
+    }*/
 
 
     public String generateRSSFeed() throws FeedException {

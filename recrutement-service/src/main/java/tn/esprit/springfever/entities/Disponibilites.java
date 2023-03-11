@@ -24,9 +24,9 @@ public class Disponibilites implements Serializable {
     private LocalDateTime start_date;
     private LocalDateTime end_date;
      private LocalDateTime preferDateTime;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_rdv_id")
     @JsonIgnore
-    private User user;
+    private Job_RDV jobRDV;
 
 }

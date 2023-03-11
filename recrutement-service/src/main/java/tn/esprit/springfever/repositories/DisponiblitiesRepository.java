@@ -15,8 +15,7 @@ import java.util.List;
 public interface DisponiblitiesRepository extends JpaRepository<Disponibilites,Long> {
 
 
-        @Query("SELECT d FROM Disponibilites d WHERE d.user.id = :userId")
-        List<Disponibilites> findByUserId(@Param("userId") Long userId);
+
 
 
 

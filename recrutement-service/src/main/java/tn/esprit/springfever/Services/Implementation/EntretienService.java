@@ -38,8 +38,6 @@ public class EntretienService implements IEntretien {
             entretien1.setAppreciation(entretien.getAppreciation());
             entretien1.setNote(entretien.getNote());
             entretien1.setRdv(entretien.getRdv());
-            entretien1.setUser(entretien.getUser());
-            entretien1.setUser2(entretien.getUser2());
             entretienRepository.save(entretien1);
             log.info("Entity Entretien is Updated !");
             return entretien1;
@@ -60,7 +58,7 @@ public class EntretienService implements IEntretien {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("chaima.dammak@espri.tn");
         Entretien entretien=entretienRepository.findById(id).orElse(null);
-        String to=entretien.getUser().getEmail();
+        String to=entretien.getRdv().getJobApplication().getUser().getEmail();
         System.out.println(to);
         message.setTo(to);
         message.setSubject(subject);
@@ -75,11 +73,10 @@ public class EntretienService implements IEntretien {
         Job_RDV jobRdv=jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if(entretien!=null &&jobRdv!=null){
             entretien.setRdv(jobRdv);
-            entretien.setUser(jobRdv.getCandidate());
-            entretien.setUser2(jobRdv.getJury());
+
             entretienRepository.save(entretien);
-            log.info("Job RDV , Jury ANd Canddate are affected Successfully !");
-            return "Job RDV , Jury ANd Canddate are affected Successfully !";
+            log.info("Job RDV affected Successfully !");
+            return "Job RDV affected Successfully !";
         }
         log.info("Job RDV Or Entretien are not Found ");
         return "Job RDV Or Entretien are not Found ";

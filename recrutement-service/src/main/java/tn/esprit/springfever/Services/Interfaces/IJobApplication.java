@@ -19,6 +19,7 @@ public interface IJobApplication {
    public Job_Application save(byte[] cv, byte[] lettre, String imageName) throws Exception ;
     public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv,String location_LettreMotivation ) throws Exception ;
     public FileSystemResource findCV(Long Id_Job_Application);
+    public String AssignJobOfferAndCandidateToJobApplication(Long Id_Job_Offer,Long Id_Job_Application, Long idUser, String address);
     public FileSystemResource findLettreMotivation(Long Id_Job_Application);
 
     //public Resource[] find(Long Id_Job_Application);

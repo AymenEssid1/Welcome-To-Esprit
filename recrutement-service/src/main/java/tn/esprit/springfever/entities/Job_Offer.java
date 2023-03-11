@@ -29,8 +29,10 @@ public class Job_Offer implements Serializable {
     //Formula: permet de spécifier une requête SQL qui sera utilisée pour calculer la valeur d'un attribut de l'entité
     //on va calculer avec Formula le nombre d'applications pour chaque Job_offer
     @Formula("(select count(*) from Job_Application ja where ja.Id_Job_Offer = Id_Job_Offer)")
+    @JsonIgnore
     private Long applicationCount;
     @ManyToOne
+    @JsonIgnore
     Job_Category jobCategory;
 
     @OneToMany(mappedBy = "jobOffer", cascade = CascadeType.ALL)
@@ -38,6 +40,7 @@ public class Job_Offer implements Serializable {
     private List<Job_Application> jobApplications;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
+    @JsonIgnore
     private Image_JobOffer image;
 
 
