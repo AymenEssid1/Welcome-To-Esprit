@@ -1,5 +1,11 @@
 package tn.esprit.springfever.Security.jwt;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,11 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.springfever.Repositories.UserRepo;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.entities.User;
-import tn.esprit.springfever.Repositories.UserRepo;
 
-
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.Date;
 
 @Component
@@ -35,7 +43,12 @@ public class JwtUtils {
                 .compact();
     }
 
+
+
+
+
     public String getUserNameFromJwtToken(String token) {
+        logger.info(token);
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -70,4 +83,7 @@ public class JwtUtils {
         User u =  userRepository.findByUsername(username).orElse(null);
         return u;
     }
+
+
+
 }

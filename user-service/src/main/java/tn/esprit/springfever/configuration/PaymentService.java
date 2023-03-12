@@ -116,7 +116,7 @@ import java.util.Map;
 
         //@Scheduled(cron = "0 0 0 * * 0")  //rusn every week
         //@Scheduled(cron = "0 0/3 * * * ?") // Runs every 3 minutes for testing purposes
-     @Scheduled(cron = "*/5 * * * * *")
+     //@Scheduled(cron = "*/5 * * * * *")
         public void timeoutAccounts() {
             System.out.println("Running timeoutAccounts()...");
             List<User> users = userRepository.findAll();
