@@ -11,15 +11,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.UserDTO;
- import tn.esprit.springfever.Services.Interfaces.IServiceUser;
 import tn.esprit.springfever.Services.Interfaces.IUserService;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
- import tn.esprit.springfever.Services.Interfaces.IUserService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,9 +36,11 @@ public class UserService implements IUserService {
     private String rabbitmqRoutingIds;
     @Autowired
     private RabbitTemplate amqpTemplate;
-
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
 
     @Override
+    @Cacheable("user")
     public UserDTO getUserDetailsFromToken(String token) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(token.substring("Bearer ".length()));
@@ -59,8 +56,7 @@ public class UserService implements IUserService {
             String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
         }
-
-
+        redisTemplate.opsForValue().set("user" + token, userDetails);
         return userDetails;
     }
 
@@ -84,6 +80,7 @@ public class UserService implements IUserService {
         return userDetails;
     }
 
+    @Cacheable("user")
     @Override
     public List<UserDTO> getUserDetailsFromIds(List<Long> list) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
