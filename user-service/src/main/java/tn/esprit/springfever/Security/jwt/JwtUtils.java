@@ -1,11 +1,5 @@
 package tn.esprit.springfever.Security.jwt;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import tn.esprit.springfever.Repositories.UserRepo;
 import tn.esprit.springfever.Security.services.UserDetailsImpl;
 import tn.esprit.springfever.entities.User;
+import tn.esprit.springfever.Repositories.UserRepo;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
+
 import java.util.Date;
 
 @Component
@@ -28,27 +20,22 @@ public class JwtUtils {
     private UserRepo userRepository;
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-     private String jwtSecret="404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+    private String jwtSecret="404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
-     private int jwtExpirationMs;
+    private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-         return Jwts.builder()
+        return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() +  999999999 ))
+                .setExpiration(new Date((new Date()).getTime() +  999999 ))
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
     }
 
-
-
-
-
     public String getUserNameFromJwtToken(String token) {
-        logger.info(token);
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -83,7 +70,4 @@ public class JwtUtils {
         User u =  userRepository.findByUsername(username).orElse(null);
         return u;
     }
-
-
-
 }
