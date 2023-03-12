@@ -19,6 +19,7 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
          <module>evaluation-service</module>
+        <module>recrutement-service</module>
         <module>openapi-service</module>
         <module>user-service</module>
 

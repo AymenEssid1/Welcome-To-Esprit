@@ -1,8 +1,8 @@
 package tn.esprit.springfever.Services.Interfaces;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import tn.esprit.springfever.DTO.UserDTO;
-
 import java.util.List;
 
 public interface IUserService {

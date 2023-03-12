@@ -11,14 +11,11 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.UserDTO;
-import tn.esprit.springfever.Services.Interfaces.IServiceUser;
-import tn.esprit.springfever.Services.Interfaces.IUserService;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import tn.esprit.springfever.Services.Interfaces.IUserService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -40,6 +37,8 @@ public class UserService implements IUserService {
     private String rabbitmqRoutingIds;
     @Autowired
     private RabbitTemplate amqpTemplate;
+    @Autowired
+    RedisTemplate <String,Object> redisTemplate;
 
 
     @Override
@@ -58,7 +57,9 @@ public class UserService implements IUserService {
             String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
             userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
         }
-       return userDetails;
+
+        redisTemplate.opsForValue().set("user" + token, userDetails);
+        return userDetails;
     }
 
     @Override
