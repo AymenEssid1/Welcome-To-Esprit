@@ -47,13 +47,10 @@ public class SpecialiteService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( SpecialiteDTO specialiteDTO, Long IdAdmission,Long idoption) {
-        DemandeAdmission demandeAdmission= demandeAdmissionRepository.findById(IdAdmission).orElse(new DemandeAdmission());
-        Option o = optionRepository.findById(idoption).orElse(new Option());
+    public Long create( SpecialiteDTO specialiteDTO) {
+
          Specialite specialite = new Specialite();
         mapToEntity(specialiteDTO, specialite);
-       // specialite.getDemandeAdmissions().add(demandeAdmission);
-        specialite.setSpecialiteOption(o);
         return specialiteRepository.save(specialite).getIdSpecialite();
     }
 

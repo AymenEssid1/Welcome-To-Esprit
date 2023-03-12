@@ -21,8 +21,6 @@ public class Salle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idsalle;
 
-    @NotBlank
-    @Size(max = 4)
     @Column
     private Integer numSalle;
 

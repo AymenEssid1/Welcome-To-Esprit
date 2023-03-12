@@ -4,7 +4,6 @@ package tn.esprit.springfever.model;
 import lombok.Getter;
 import lombok.Setter;
 import tn.esprit.springfever.domain.RDV;
-import tn.esprit.springfever.domain.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -85,10 +84,10 @@ public class DemandeAdmissionDTO {
         }
 
 
-        private User condidat;
+        private Long condidat;
 
 
-        private User evaluateeur ;
+        private Long evaluateeur ;
 
 
         private RDV rdvDemande;

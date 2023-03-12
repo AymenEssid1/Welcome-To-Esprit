@@ -1,39 +1,19 @@
 package tn.esprit.springfever.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Scheduled;
 import tn.esprit.springfever.config.MailConfiguration;
 import tn.esprit.springfever.domain.DemandeAdmission;
 import tn.esprit.springfever.domain.RDV;
-import tn.esprit.springfever.domain.Salle;
-import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.RDVDTO;
-import tn.esprit.springfever.model.SalleDTO;
 import tn.esprit.springfever.repos.DemandeAdmissionRepository;
 import tn.esprit.springfever.repos.RDVRepository;
 import tn.esprit.springfever.repos.SalleRepository;
-import tn.esprit.springfever.repos.UserRepository;
 import tn.esprit.springfever.util.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 
 @Service
@@ -51,13 +31,12 @@ public class RDVService {
 
     @Autowired
     private  RDVRepository rDVRepository;
-    @Autowired
-    private  UserRepository userRepository;
 
 
-    public RDVService( RDVRepository rDVRepository,  UserRepository userRepository) {
+
+    public RDVService( RDVRepository rDVRepository) {
         this.rDVRepository = rDVRepository;
-        this.userRepository = userRepository;
+
     }
 
 
@@ -75,20 +54,6 @@ public class RDVService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( RDVDTO rDVDTO,Long idUser) throws MessagingException {
-        User user= userRepository.findById(idUser).orElse(new User());
-         RDV rDV = new RDV();
-        mapToEntity(rDVDTO, rDV);
-         String emailBody = "TEST ";
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("TEST");
-        message.setText(emailBody);
-        message.setTo(user.getDemandeAdmissionStudent().getMailParent());
-        mailConfiguration.sendEmail(message);
-        return rDVRepository.save(rDV).getIdRDV();
-
-
-    }
 
     public void update( Long idRDV,  RDVDTO rDVDTO) {
          RDV rDV = rDVRepository.findById(idRDV)
@@ -116,7 +81,7 @@ public class RDVService {
         return rDV;
     }
 
-    @Scheduled(fixedRate = 100000)
+ /*   @Scheduled(fixedRate = 100000)
     public void etatTuteur(){
         LocalDate l = LocalDate.now();
         List<User> users = userRepository.findAll();
@@ -156,6 +121,6 @@ public class RDVService {
 
     }
 
-
+*/
 
 }

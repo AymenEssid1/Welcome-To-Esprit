@@ -33,12 +33,13 @@ public class SpecialiteResource {
         return ResponseEntity.ok(specialiteService.get(idSpecialite));
     }
 
-    @PostMapping("/{iddemande}/{idOption}")
+    @PostMapping("/")
     public ResponseEntity<Long> createSpecialite(
-            @RequestBody @Valid SpecialiteDTO specialiteDTO,
-            @PathVariable Long iddemande,
-            @PathVariable Long idOption) {
-        return new ResponseEntity<>(specialiteService.create(specialiteDTO, iddemande, idOption), HttpStatus.CREATED);
+            @RequestBody @Valid SpecialiteDTO specialiteDTO)
+            //@PathVariable Long iddemande,
+            //@PathVariable Long idOption)
+            {
+        return new ResponseEntity<>(specialiteService.create(specialiteDTO), HttpStatus.CREATED);
     }
 
 

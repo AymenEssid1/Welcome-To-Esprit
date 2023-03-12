@@ -76,15 +76,10 @@ public class DemandeAdmission {
         this.dateAdmission = LocalDate.now();
     }
 
-    @OneToOne
-    @JoinColumn(name = "condidat")
-    @JsonIgnore
-    private User condidat;
 
-    @ManyToOne
-    @JoinColumn(name = "evaluateur")
-    @JsonIgnore
-    private User evaluateur ;
+    private Long condidat;
+
+    private Long evaluateur ;
 
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "demandeRdv")

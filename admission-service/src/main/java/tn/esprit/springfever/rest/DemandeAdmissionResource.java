@@ -1,5 +1,6 @@
 package tn.esprit.springfever.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twilio.Twilio;
 import com.twilio.type.*;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.domain.DemandeAdmission;
 import tn.esprit.springfever.domain.Image;
-import tn.esprit.springfever.domain.User;
 import tn.esprit.springfever.model.*;
 import tn.esprit.springfever.service.DemandeAdmissionService;
 
@@ -128,7 +128,7 @@ public class DemandeAdmissionResource {
 */
     @PutMapping("/{idAdmission}")
     public ResponseEntity<Void> updateDemandeAdmission(@PathVariable  Long idAdmission,
-            @RequestBody @Valid  DemandeAdmissionDTO demandeAdmissionDTO) {
+            @RequestBody @Valid  DemandeAdmissionDTO demandeAdmissionDTO) throws JsonProcessingException {
         demandeAdmissionService.update(idAdmission, demandeAdmissionDTO);
         return ResponseEntity.ok().build();
     }

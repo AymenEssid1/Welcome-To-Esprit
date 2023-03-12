@@ -1,5 +1,6 @@
 package tn.esprit.springfever.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -26,10 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -39,8 +37,6 @@ public class DemandeAdmissionService {
     @Autowired
     private  DemandeAdmissionRepository demandeAdmissionRepository;
     @Autowired
-    private  UserRepository userRepository;
-    @Autowired
     private RDVRepository rdvRepository;
     @Autowired
     private SalleRepository salleRepository;
@@ -48,16 +44,16 @@ public class DemandeAdmissionService {
     private SpecialiteRepository specialiteRepository;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private UserService userService;
 
 
     // Configurez les informations d'identification de Twilio
     final String ACCOUNT_SID = "votre_SID_Twilio";
     final String AUTH_TOKEN = "votre_token_Twilio";
 
-    public DemandeAdmissionService( DemandeAdmissionRepository demandeAdmissionRepository,
-             UserRepository userRepository) {
+    public DemandeAdmissionService( DemandeAdmissionRepository demandeAdmissionRepository) {
         this.demandeAdmissionRepository = demandeAdmissionRepository;
-        this.userRepository = userRepository;
     }
 
     public List<DemandeAdmissionDTO> findAll() {
@@ -73,16 +69,20 @@ public class DemandeAdmissionService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(DemandeAdmission demandeAdmission, Long IdUser,Long idspecialiter) throws MessagingException {
-        User user = userRepository.findById(IdUser).orElse(new User());
-        demandeAdmission.setCondidat(user);
+    public Long create(DemandeAdmission demandeAdmission, Long IdUser,Long idspecialiter) throws Exception {
+        UserDTO user = userService.getUserDetailsFromId(IdUser);
+        demandeAdmission.setCondidat(user.getId());
 
         DemandeAdmission d = demandeAdmissionRepository.save(demandeAdmission);
         Specialite s = specialiteRepository.findById(idspecialiter).orElse(new Specialite());
-        s.getDemandeAdmissions().add(demandeAdmission);
+        if (s.getDemandeAdmissions() == null){
+            List<DemandeAdmission> list = new ArrayList<>();
+            list.add(demandeAdmission);
+            s.setDemandeAdmissions(list);
+        }else {
+            s.getDemandeAdmissions().add(demandeAdmission);
+        }
         specialiteRepository.save(s);
-        user.setDemandeAdmissionStudent(d);
-        userRepository.save(user);
         RDV rdv= new RDV();
         d.setRdvDemande(rdv);
         rdv.setDemande(d);
@@ -125,8 +125,8 @@ public class DemandeAdmissionService {
                     "    <h1>Notification of your Application For Admission</h1>\n" +
                 "    <p> " + ",</p>\n" +
                 "    <p></p>\n" +
-                "    <p> Bonjour,\n" +
-                "Thank you for your interest in ESPRIT.  "+demandeAdmission.getCondidat().getUserID()+"</p>\n" +
+                "    <p> Greetings,\n" +user.getUsername()+
+                "<br>Thank you for your interest in ESPRIT.  </p>\n" +
                 "    <ul>\n" +
                 "      <li>Interview Date:"+ demandeAdmission.getDateAdmission().plusDays(7)+"</li>\n" +
 
@@ -147,7 +147,7 @@ public class DemandeAdmissionService {
     else {
         String meetingId = "ksv-wxsg-xwp";
         String password = "mypassword";
-        String meetingLink = generateGoogleMeetLink(meetingId, password);
+        String meetingLink = generateGoogleMeetLink(meetingId);
         String htmlgooglemeet="<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "  <head>\n" +
@@ -179,8 +179,8 @@ public class DemandeAdmissionService {
                 "    <h1>Notification of your Application For Admission</h1>\n" +
                 "    <p> " + ",</p>\n" +
                 "    <p></p>\n" +
-                "    <p> Bonjour,\n" +
-                "Thank you for your interest in ESPRIT.  "+demandeAdmission.getCondidat().getUserID()+"</p>\n" +
+                "    <p> Greetings,\n" +user.getUsername()+
+                "<br>Thank you for your interest in ESPRIT.  </p>\n" +
                 "    <ul>\n" +
                 "      <li>Date de le entretien:"+ demandeAdmission.getDateAdmission().plusDays(7)+"</li>\n" +
 
@@ -189,7 +189,7 @@ public class DemandeAdmissionService {
                 "    <p>Thank you for your confidence.</p>\n" +
                 "    <p>Cordially,</p>\n" +
                 "    <h2>Spring Fever</h2>\n" +
-                "    <p><a href="+generateGoogleMeetLink(meetingId, password)+" class=\"button\">Your Link Meet</a></p>\n" +
+                "    <p><a href="+generateGoogleMeetLink(meetingId)+" class=\"button\">Your Link Meet</a></p>\n" +
                 "  </body>\n" +
                 "</html>\n";
         sendEmail("mondher.souissi@esprit.tn","Admission Contest",htmlgooglemeet);
@@ -223,25 +223,10 @@ public class DemandeAdmissionService {
 
         rdvRepository.save(rdv);
     }
-    public void affecterTuteur(Long demandeid, Long idUser ) {
-        DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(demandeid)
-                .orElseThrow(() -> new NotFoundException("Demande d'admission non trouvée avec l'ID : " + demandeid));
 
-       User Evaluateur= userRepository.findById(idUser).get();
-        Evaluateur.getDemandeAdmissionsEvaluateur().add(demandeAdmission);
-        demandeAdmission.setEvaluateur(Evaluateur);
-
-        demandeAdmissionRepository.save(demandeAdmission) ;
-        userRepository.save(Evaluateur) ;
-
-
-     }
-    public String generateGoogleMeetLink(String meetingId, String password) {
+    public String generateGoogleMeetLink(String meetingId) {
         String baseUrl = "https://meet.google.com/";
         String meetingUrl = baseUrl + meetingId;
-        if (password != null && !password.isEmpty()) {
-            meetingUrl += "?authuser=0#" + password;
-        }
         return meetingUrl;
     }
 
@@ -262,14 +247,14 @@ public class DemandeAdmissionService {
 
         }
     }
-    public void Tuteurdispo(Long demandeid){
+    public void Tuteurdispo(Long demandeid) throws JsonProcessingException {
 
         // demande
         DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(demandeid).get();
 
 
         // Récupération de toutes les users existantes
-        List<User> users = userRepository.findByetatuser("disponible");
+        List<UserDTO> users = userService.getAvailableTuttors("disponible");
         int nbUsers = users.size();
 
 
@@ -277,13 +262,10 @@ public class DemandeAdmissionService {
         // Affectation aléatoire d'un user à la demande
         if (nbUsers > 0) {
             int indexUser = new Random().nextInt(nbUsers);
-            User evaluator = users.get(indexUser);
-            evaluator.getDemandeAdmissionsEvaluateur().add(demandeAdmission);
-            demandeAdmission.setEvaluateur(evaluator);
-            evaluator.setEtatuser("non disponible");
-            demandeAdmission.setEvaluateur(evaluator);
+            UserDTO evaluator = users.get(indexUser);
+            userService.changeUser(evaluator.getId());
+            demandeAdmission.setEvaluateur(evaluator.getId());
             demandeAdmissionRepository.save(demandeAdmission);
-            userRepository.save(evaluator);
 
         }
 
@@ -300,7 +282,7 @@ public class DemandeAdmissionService {
 
 
 
-    public void update(Long idAdmission,DemandeAdmissionDTO demandeAdmissionDTO) {
+    public void update(Long idAdmission,DemandeAdmissionDTO demandeAdmissionDTO) throws JsonProcessingException {
          DemandeAdmission demandeAdmission = demandeAdmissionRepository.findById(idAdmission)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(demandeAdmissionDTO, demandeAdmission);
@@ -333,7 +315,7 @@ public class DemandeAdmissionService {
     }
 
     private DemandeAdmission mapToEntity( DemandeAdmissionDTO demandeAdmissionDTO,
-             DemandeAdmission demandeAdmission) {
+             DemandeAdmission demandeAdmission) throws JsonProcessingException {
         demandeAdmission.setDateAdmission(demandeAdmissionDTO.getDateAdmission());
         demandeAdmission.setTypeDemande(demandeAdmissionDTO.getTypeDemande());
         demandeAdmission.setDiplome(demandeAdmissionDTO.getDiplome());
@@ -346,13 +328,12 @@ public class DemandeAdmissionService {
         demandeAdmission.setTelParent(demandeAdmissionDTO.getTelParent());
 
 
-        User condidat = demandeAdmissionDTO.getCondidat() == null ? null : userRepository.findById(demandeAdmissionDTO.getCondidat().getUserID())
-                .orElseThrow(() -> new NotFoundException("condidat not found"));
+        Long condidat = demandeAdmissionDTO.getCondidat() == null ? null : userService.getUserDetailsFromId(demandeAdmission.getCondidat()).getId();
+
         demandeAdmission.setCondidat(condidat);
 
+        Long evaluateur = demandeAdmissionDTO.getEvaluateeur() == null ? null : userService.getUserDetailsFromId(demandeAdmission.getEvaluateur()).getId();
 
-        User evaluateur = demandeAdmissionDTO.getEvaluateeur() == null ? null : userRepository.findById(demandeAdmissionDTO.getEvaluateeur().getUserID())
-                .orElseThrow(() -> new NotFoundException("evaluateur not found"));
         demandeAdmission.setEvaluateur(evaluateur);
 
 

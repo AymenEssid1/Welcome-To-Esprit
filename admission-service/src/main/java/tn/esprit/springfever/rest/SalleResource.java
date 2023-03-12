@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.springfever.domain.Salle;
 import tn.esprit.springfever.model.SalleDTO;
 import tn.esprit.springfever.service.SalleService;
 
@@ -34,8 +35,8 @@ public class SalleResource {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createSalle(@RequestBody @Valid  SalleDTO salleDTO) {
-        return new ResponseEntity<>(salleService.create(salleDTO), HttpStatus.CREATED);
+    public ResponseEntity<Salle> createSalle(int numSalle) {
+        return new ResponseEntity<>(salleService.create(numSalle), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

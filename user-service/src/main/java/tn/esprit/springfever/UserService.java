@@ -1,6 +1,6 @@
 package tn.esprit.springfever;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -11,6 +11,7 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 @EnableSpringConfigured
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
 @EnableEurekaClient
+@EnableRabbit
 public class UserService {
     public static void main(String[] args) {
         SpringApplication.run(UserService.class, args);

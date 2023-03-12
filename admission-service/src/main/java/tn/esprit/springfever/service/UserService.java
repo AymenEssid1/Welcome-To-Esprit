@@ -1,66 +1,143 @@
 package tn.esprit.springfever.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import tn.esprit.springfever.domain.User;
-import tn.esprit.springfever.model.UserDTO;
-import tn.esprit.springfever.repos.UserRepository;
-import tn.esprit.springfever.util.NotFoundException;
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import tn.esprit.springfever.model.UserDTO;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Service
+@Slf4j
 public class UserService {
+    @Value("${spring.rabbitmq.template.exchange.forum}")
+    private String rabbitmqExchange;
+
+
+    @Value("${spring.rabbitmq.template.routing-key.forum.token}")
+    private String rabbitmqRoutingKey;
+    @Value("${spring.rabbitmq.template.routing-key.forum.id}")
+    private String rabbitmqRoutingId;
+
+    @Value("${spring.rabbitmq.template.routing-key.forum.ids}")
+    private String rabbitmqRoutingIds;
     @Autowired
+    private RabbitTemplate amqpTemplate;
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
+    @Value("${spring.rabbitmq.template.routing-key.admission.disponible}")
+    private String routingForumTop;
 
-    private  UserRepository userRepository;
+    @Value("${spring.rabbitmq.template.routing-key.admission.indisponible}")
+    private String routingAdmission;
 
-    public UserService( UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Cacheable("user")
+    public UserDTO getUserDetailsFromToken(String token) throws JsonProcessingException {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(token.substring("Bearer ".length()));
+            MessageProperties messageProperties = new MessageProperties();
+            messageProperties.setContentType("application/json");
+            Message message = MessageBuilder
+                    .withBody(json.getBytes())
+                    .andProperties(messageProperties)
+                    .build();
+            Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, rabbitmqRoutingKey, message);
+            UserDTO userDetails = null;
+            if (response != null && response.getBody() != null && response.getBody().length > 0) {
+                String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+                userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
+            }
+            redisTemplate.opsForValue().set("user" + token, userDetails);
+            return userDetails;
     }
 
-    public List<UserDTO> findAll() {
-         List<User> users = userRepository.findAll(Sort.by("userID"));
-        return users.stream()
-                .map((user) -> mapToDTO(user, new UserDTO()))
-                .collect(Collectors.toList());
+    public UserDTO getUserDetailsFromId(Long id) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token= String.valueOf(id);
+        String json = objectMapper.writeValueAsString(token);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message message = MessageBuilder
+                .withBody(json.getBytes())
+                .andProperties(messageProperties)
+                .build();
+        Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, rabbitmqRoutingId, message);
+        UserDTO userDetails = null;
+        if (response != null && response.getBody() != null && response.getBody().length > 0) {
+            String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+            userDetails = objectMapper.readValue(jsonResponse, UserDTO.class);
+        }
+        return userDetails;
     }
 
-    public UserDTO get( Long userID) {
-        return userRepository.findById(userID)
-                .map(user -> mapToDTO(user, new UserDTO()))
-                .orElseThrow(NotFoundException::new);
+    @Cacheable("user")
+    public List<UserDTO> getUserDetailsFromIds(List<Long> list) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+    log.info(String.valueOf(list.toString()));
+        String jsonStr = JSONArray.toJSONString(list);
+        String json = objectMapper.writeValueAsString(jsonStr);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message message = MessageBuilder
+                .withBody(json.getBytes())
+                .andProperties(messageProperties)
+                .build();
+        Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, rabbitmqRoutingIds, message);
+        List<?> userDetails = null;
+        List<UserDTO> userDTOS = new ArrayList<>();
+        if (response != null && response.getBody() != null && response.getBody().length > 0) {
+            String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+            userDetails = objectMapper.readValue(jsonResponse, List.class);
+        }
+        for (Object o : userDetails){
+            String jsonString = objectMapper.writeValueAsString(o);
+            UserDTO user = objectMapper.readValue(jsonString, UserDTO.class);
+            userDTOS.add(user);
+        }
+        return userDTOS;
     }
 
-    public Long create( UserDTO userDTO) {
-         User user = new User();
-        mapToEntity(userDTO, user);
-        user.setEtatuser("disponible");
-        return userRepository.save(user).getUserID();
+
+    @Cacheable("user")
+    public List<UserDTO> getAvailableTuttors(String x) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(x);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message message = MessageBuilder
+                .withBody(json.getBytes())
+                .andProperties(messageProperties)
+                .build();
+        Message response = amqpTemplate.sendAndReceive(rabbitmqExchange, routingForumTop, message);
+        List<?> userDetails = null;
+        List<UserDTO> userDTOS = new ArrayList<>();
+        if (response != null && response.getBody() != null && response.getBody().length > 0) {
+            String jsonResponse = new String(response.getBody(), StandardCharsets.UTF_8);
+            userDetails = objectMapper.readValue(jsonResponse, List.class);
+        }
+        for (Object o : userDetails){
+            String jsonString = objectMapper.writeValueAsString(o);
+            UserDTO user = objectMapper.readValue(jsonString, UserDTO.class);
+            userDTOS.add(user);
+        }
+        return userDTOS;
     }
 
-    public void update( Long userID,  UserDTO userDTO) {
-         User user = userRepository.findById(userID)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(userDTO, user);
-        userRepository.save(user);
-    }
 
-    public void delete( Long userID) {
-        userRepository.deleteById(userID);
-    }
-
-    private UserDTO mapToDTO( User user,  UserDTO userDTO) {
-        userDTO.setUserID(user.getUserID());
-        return userDTO;
-    }
-
-    private User mapToEntity( UserDTO userDTO,  User user) {
-        user.setEtatuser(userDTO.getEtatUser());
-        return user;
+    public void changeUser(Long id){
+        amqpTemplate.convertAndSend(rabbitmqExchange,routingAdmission,id);
     }
 
 }

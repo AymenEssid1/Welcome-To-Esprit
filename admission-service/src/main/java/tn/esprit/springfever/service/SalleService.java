@@ -36,10 +36,11 @@ public class SalleService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create( SalleDTO salleDTO ) {
+    public Salle create( int numSalle ) {
          Salle salle = new Salle();
-        mapToEntity(salleDTO, salle);
-        return salleRepository.save(salle).getIdsalle();
+         salle.setEtat("disponible");
+         salle.setNumSalle(numSalle);
+        return salleRepository.save(salle);
     }
 
     public void update( Long id,  SalleDTO salleDTO) {
