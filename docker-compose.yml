@@ -1,0 +1,240 @@
+---
+version: '3.7'
+services:
+#Nginx WebServer Container
+  #nginx:
+   #container_name: nginx
+   #image: nginx:1.13
+   #restart: always
+   #ports:
+  #- 80:80
+  #- 443:443
+  #volumes:
+  #- ./nginx/conf.d:/etc/nginx/conf.d
+  #- ./nginx/webserver:/usr/share/nginx/html
+
+  ## MySQL Container
+  mysql:
+    container_name: mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_DATABASE: welcomeToEsprit
+      MYSQL_ROOT_PASSWORD: springfever
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+## MySQL UI Container
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   restart: always
+  #   container_name: "phpmyadmin"
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+
+## Redis Container
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+
+  ## RabbitMQ Container
+  rabbit1:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit1"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    container_name: rabbitmq
+    volumes:
+      - "./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+
+# # Eureka Server Container
+#   discovery-server:
+#     build:
+#       context: ./discovery-server
+#       dockerfile: ./Dockerfile
+#     container_name: discovery-server
+#     ports:
+#       - "8761:8761"
+#     working_dir: /app
+#     volumes:
+#       - ./discovery-server:/app
+#       - ~/.m2:/root/.m2
+# #API Gateway Container
+#   api-gateway:
+#     build:
+#       context: ./api-gateway
+#       dockerfile: ./Dockerfile
+#     container_name: api-gateway
+#     ports:
+#       - "8181:8181"
+#     expose:
+#       - "8181"
+#     working_dir: /app
+#     volumes:
+#       - ./api-gateway:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+
+#   ## User-Service Container
+#   user-service:
+#     build:
+#       context: ./user-service
+#       dockerfile: ./Dockerfile
+#     container_name: user-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./user-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## Forum-Service Container
+#   forum-service:
+#     build:
+#       context: ./forum-service
+#       dockerfile: ./Dockerfile
+#     container_name: forum-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./forum-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## FAQ-Service Container
+#   faq-service:
+#     build:
+#       context: ./faq-service
+#       dockerfile: ./Dockerfile
+#     container_name: faq-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./faq-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## Evaluation-Service Container
+#   evaluation-service:
+#     build:
+#       context: ./evaluation-service
+#       dockerfile: ./Dockerfile
+#     container_name: evaluation-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./evaluation-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## Admission-Service Container
+#   admission-service:
+#     build:
+#       context: ./admission-service
+#       dockerfile: ./Dockerfile
+#     container_name: admission-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./admission-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## Event-Service Container
+#   event-service:
+#     build:
+#       context: ./event-service
+#       dockerfile: ./Dockerfile
+#     container_name: event-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./event-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   ## Recrutement-Service Container
+#   recrutement-service:
+#     build:
+#       context: ./recrutement-service
+#       dockerfile: ./Dockerfile
+#     container_name: recrutement-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./recrutement-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
+
+#   documentation-service:
+#     build:
+#       context: ./openapi-service
+#       dockerfile: ./Dockerfile
+#     container_name: openapi-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#     working_dir: /app
+#     volumes:
+#       - ./openapi-service:/app
+#       - ~/.m2:/root/.m2
+#     depends_on:
+#       - discovery-server
+#       - api-gateway
+#       - mysql
+#     restart: always
