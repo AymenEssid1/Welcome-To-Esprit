@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Entity
 @ToString
 @Data
-
+@Table(name = "fake_role")
 
 public class RoleEvaluation implements Serializable {
     @Id

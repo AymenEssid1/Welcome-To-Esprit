@@ -17,7 +17,7 @@ import java.util.Set;
 @Entity
 @ToString
 @Data
-
+@Table(name = "fake_user")
 public class UserEvaluation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,9 +46,9 @@ public class UserEvaluation implements Serializable {
 
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(	name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(	name = "user_roles_evaluation",
+            joinColumns = @JoinColumn(name = "user_idd"),
+            inverseJoinColumns = @JoinColumn(name = "role_idd"))
     private Set<RoleEvaluation> roles = new HashSet<>();
 
 
