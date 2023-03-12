@@ -6,10 +6,9 @@ import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IDisponibilites;
 import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_RDV;
-import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.DisponiblitiesRepository;
 import tn.esprit.springfever.repositories.JobRdvRepository;
-import tn.esprit.springfever.repositories.UserRepository;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,8 +17,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class DisponibilitesService implements IDisponibilites {
-    @Autowired
-    UserRepository userRepository;
+
     @Autowired
     DisponiblitiesRepository disponiblitiesRepository;
     @Autowired

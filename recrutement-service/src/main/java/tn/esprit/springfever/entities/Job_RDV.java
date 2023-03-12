@@ -30,13 +30,7 @@ public class Job_RDV implements Serializable {
     private Long ID_Job_DRV;
 
 
-
-
-
-    @ManyToOne
-    @JoinColumn(name = "Jury_ID")
-    @JsonIgnore
-    private User jury;
+    private Long jury;
 
     //private Date date_Rdv ;
     //@NotBlank(message = "La salle de RDV ne peut pas être vide.")
@@ -51,17 +45,17 @@ public class Job_RDV implements Serializable {
     @JsonIgnore
     private LocalDateTime appointmentDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "Id_Job_Application")
     @JsonIgnore
     private Job_Application jobApplication;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "disponibilites_candidat_id")
     @JsonIgnore
     private Disponibilites disponibilitesCandidat;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "disponibilites_jury_id")
     @JsonIgnore
     private Disponibilites disponibilitesJury;

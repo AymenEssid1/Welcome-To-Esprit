@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import tn.esprit.springfever.entities.Image_JobOffer;
@@ -25,7 +26,7 @@ public interface IJobApplication {
     //public Resource[] find(Long Id_Job_Application);
     public Boolean FilterCv(Long Id_Job_Application);
     //public String extractTextFromPdf(Long id);
-    public void sendEmail(Long id, String subject, String body);
+    public void sendEmail(Long id, String subject, String body) throws JsonProcessingException;
 
     public  String extractTextFromPdf2(Long id) throws IOException ;
     public String extractSkills(Long id) throws IOException;

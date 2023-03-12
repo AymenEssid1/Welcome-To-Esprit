@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.netflix.discovery.shared.Pair;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.entities.Disponibilites;
@@ -29,7 +30,7 @@ public interface IJobRDV {
     public String generateJitsiMeetLink(Long id);
 
     public double calculateDistance(Long idRDV);
-    public void FixationRDV(Long id);
+    public void FixationRDV(Long id) throws JsonProcessingException;
     public void sendReminderSMS(Job_RDV rdv);
 
 }

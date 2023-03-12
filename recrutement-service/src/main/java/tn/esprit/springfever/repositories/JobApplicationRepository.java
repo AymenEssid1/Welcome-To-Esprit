@@ -17,6 +17,6 @@ public interface JobApplicationRepository extends JpaRepository<Job_Application,
             "GROUP BY jo.Id_Job_Offer",
             nativeQuery = true)
     List<Object[]> getJobOfferApplicationCount();
-    Job_Application findJob_ApplicationByUserId(Long idCandidate);
+    Job_Application findJob_ApplicationByUser(Long idCandidate);
 
 }

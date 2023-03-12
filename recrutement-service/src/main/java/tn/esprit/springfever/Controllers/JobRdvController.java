@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.netflix.discovery.shared.Pair;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +64,8 @@ public class JobRdvController {
 
 
 
-    @DeleteMapping("deleteJobRDV/{id}")
-    public  String deleteJobOffer(@PathVariable("id") Long  ID_Job_DRV) {
+    @DeleteMapping("deleteJobRDV")
+    public  String deleteJobOffer( Long  ID_Job_DRV) {
         return iJobRDV.deleteJobOffer(ID_Job_DRV);
 
     }
@@ -106,7 +107,7 @@ public class JobRdvController {
     }*/
 
     @GetMapping("/send-email-To-Fix-RDV-For-Interview/{id}")
-    public void FixationRDV(@PathVariable("id") Long id){
+    public void FixationRDV(@PathVariable("id") Long id) throws JsonProcessingException {
         iJobRDV.FixationRDV(id);
 
     }

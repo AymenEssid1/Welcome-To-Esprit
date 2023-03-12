@@ -1,6 +1,7 @@
 package tn.esprit.springfever.Controllers;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
@@ -129,7 +130,7 @@ public class JobApplicationController {
 
 
     @PostMapping("/send-email")
-    public ResponseEntity<String> sendEmail(Long id) {
+    public ResponseEntity<String> sendEmail(Long id) throws JsonProcessingException {
 
 
         if(iJobApplication.FilterCv(id)==true){

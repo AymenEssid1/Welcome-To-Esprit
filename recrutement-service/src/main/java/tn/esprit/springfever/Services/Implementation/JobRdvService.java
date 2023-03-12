@@ -2,6 +2,7 @@ package tn.esprit.springfever.Services.Implementation;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -14,7 +15,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Configurations.TwilioConfig;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
+import tn.esprit.springfever.DTO.UserDTO;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
+import tn.esprit.springfever.Services.Interfaces.IUserService;
 import tn.esprit.springfever.Services.Interfaces.JobMapper;
 import tn.esprit.springfever.entities.*;
 import tn.esprit.springfever.enums.RDV_Type;
@@ -46,7 +49,7 @@ public class JobRdvService implements IJobRDV {
     @Autowired
     JobApplicationRepository jobApplicationRepository;
     @Autowired
-    UserRepository userRepository;
+    IUserService userService;
 
     @Autowired
     DisponiblitiesRepository disponiblitiesRepository;
@@ -115,11 +118,16 @@ public class JobRdvService implements IJobRDV {
 
     public String AssignJobApplicationAndJuryToRDV(Long Id_Job_Application, Long ID_Job_DRV, Long idJury) {
         Job_Application job_application = jobApplicationRepository.findById(Id_Job_Application).orElse(null);
-        User jury = userRepository.findById(idJury).orElse(null);
+        UserDTO jury =null;
+        try {
+            jury = userService.getUserDetailsFromId(idJury);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
         Job_RDV jobRdv = jobRdvRepository.findById(ID_Job_DRV).orElse(null);
         if (job_application != null && jobRdv != null &&jury!=null) {
             jobRdv.setJobApplication(job_application);
-            jobRdv.setJury(jury);
+            jobRdv.setJury(jury.getId());
             jobRdvRepository.save(jobRdv);
             return "JobApplication And Jury are affected To JobRDV";
         }
@@ -134,8 +142,8 @@ public class JobRdvService implements IJobRDV {
     public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury, int interviewDuration) {
         Disponibilites disponiblityCandidate = disponiblitiesRepository.findById(dispoCandidate).orElse(null);
         Disponibilites disponiblityJury = disponiblitiesRepository.findById(dispoJury).orElse(null);
-        Long idJury =disponiblityJury.getJobRDV().getJury().getId();
-        Job_RDV jobRdv = jobRdvRepository.findJob_RDVByJury_Id(idJury);
+        Long idJury =disponiblityJury.getJobRDV().getJury();
+        Job_RDV jobRdv = jobRdvRepository.findJob_RDVByJury(idJury);
         LocalDateTime candidatePreferredDateTime = disponiblityCandidate.getPreferDateTime();
         LocalDateTime juryPreferredDateTime = disponiblityJury.getPreferDateTime();
 
@@ -236,11 +244,11 @@ public class JobRdvService implements IJobRDV {
         return -1;
     }
 
-    public void sendEmailToFIXRDV(Long id, String subject, String body) {
+    public void sendEmailToFIXRDV(Long id, String subject, String body) throws JsonProcessingException {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("chaima.dammak@espri.tn");
         Job_Application job_application = jobApplicationRepository.findById(id).orElse(null);
-        String to = job_application.getUser().getEmail();
+        String to = userService.getUserDetailsFromId(job_application.getUser()).getEmail();
         System.out.println(to);
         message.setTo(to);
         message.setSubject(subject);
@@ -249,7 +257,7 @@ public class JobRdvService implements IJobRDV {
         mailSender.send(message);
     }
 
-    public void FixationRDV(Long id) {
+    public void FixationRDV(Long id) throws JsonProcessingException {
         Job_RDV jobRdv = jobRdvRepository.findById(id).orElse(null);
         Long idJobApplication=jobRdv.getJobApplication().getId_Job_Application();
         double distance = calculateDistance(idJobApplication);

@@ -38,16 +38,14 @@ public class Job_Application implements Serializable  {
     @Column(name = "Candidate_lettre_motivation")
     private byte[] lettreMotivation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "Id_Job_Offer")
     private Job_Offer jobOffer;
 
     @OneToOne(mappedBy = "jobApplication", cascade = CascadeType.ALL, optional = true)
     private Job_RDV rdv;
 
-    @ManyToOne
-    @JsonIgnore
-    private User user ;
+    private Long user ;
 
     public Job_Application(byte[] cv, byte[]lettreMotivation ) {
         this.cv = cv;

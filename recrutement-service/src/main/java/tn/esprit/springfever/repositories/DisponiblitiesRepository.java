@@ -13,13 +13,4 @@ import java.util.List;
 
 @Repository
 public interface DisponiblitiesRepository extends JpaRepository<Disponibilites,Long> {
-
-
-
-
-
-
-
-
-
 }

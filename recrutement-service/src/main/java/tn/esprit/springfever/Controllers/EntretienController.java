@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -59,7 +60,7 @@ public class EntretienController {
 
     }
     @PostMapping("/send-emailToDistrubInterviewResult/")
-    public ResponseEntity<String> sendEmailToDistrubInterviewResult(Long id) {
+    public ResponseEntity<String> sendEmailToDistrubInterviewResult(Long id) throws JsonProcessingException {
         Entretien entretien=entretienRepository.findById(id).orElse(null);
         if(entretien.getResultat()== Entretien_Res.ACCEPTED){
             String subject = "Result Of a Job Interview ";

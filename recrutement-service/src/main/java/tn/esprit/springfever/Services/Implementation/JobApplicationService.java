@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.text.Annotation;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.pdf.PdfReader;
@@ -18,6 +19,7 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.*;
 import opennlp.tools.util.Span;
+import org.apache.catalina.User;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -34,11 +36,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import tn.esprit.springfever.DTO.UserDTO;
 import tn.esprit.springfever.Services.Interfaces.IJobApplication;
+import tn.esprit.springfever.Services.Interfaces.IUserService;
 import tn.esprit.springfever.entities.Image_JobOffer;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.entities.Job_Offer;
-import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.JobApplicationRepository;
 import tn.esprit.springfever.repositories.JobApplicatonPdfRepository;
 
@@ -58,7 +61,6 @@ import opennlp.tools.chunker.ChunkerModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import tn.esprit.springfever.repositories.JobOfferRepository;
-import tn.esprit.springfever.repositories.UserRepository;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -81,7 +83,7 @@ public class JobApplicationService implements IJobApplication {
     @Autowired
     JobOfferRepository jobOfferRepository;
     @Autowired
-    UserRepository userRepository;
+    IUserService userService;
 
 
     public Job_Application AddJobApplication (Job_Application job_application){
@@ -131,7 +133,12 @@ public class JobApplicationService implements IJobApplication {
         HttpResponse httpResponse;
         Job_Offer job_offer=jobOfferRepository.findById(Id_Job_Offer).orElse(null);
         Job_Application job_application=jobApplicationRepository.findById(Id_Job_Application).orElse(null);
-        User Candidate=userRepository.findById(idUser).orElse(null);
+        UserDTO Candidate= null;
+        try {
+            Candidate= userService.getUserDetailsFromId(idUser);
+        } catch (JsonProcessingException e) {
+           log.error(e.getMessage());
+        }
         if(job_offer!=null && job_application!=null &&Candidate !=null) {
             try {
                 httpResponse = httpClient.execute(httpGet); //RequiredType:httpResponse
@@ -147,7 +154,7 @@ public class JobApplicationService implements IJobApplication {
                 job_application.setLongitudeCandidate(Double.parseDouble(longitude));
 
                 job_application.setJobOffer(job_offer);
-                job_application.setUser(Candidate);
+                job_application.setUser(Candidate.getId());
                 jobApplicationRepository.save(job_application);
                 return "Candidate , CandidateLocation And Job Offer are successffully assigned ";
             } catch (Exception ex) {
@@ -226,11 +233,11 @@ public class JobApplicationService implements IJobApplication {
 
 
 
-    public void sendEmail(Long id, String subject, String body){
+    public void sendEmail(Long id, String subject, String body) throws JsonProcessingException {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("chaima.dammak@espri.tn");
         Job_Application job_application=jobApplicationRepository.findById(id).orElse(null);
-        String to=job_application.getUser().getEmail();
+        String to=userService.getUserDetailsFromId(job_application.getUser()).getEmail();
         System.out.println(to);
         message.setTo(to);
         message.setSubject(subject);

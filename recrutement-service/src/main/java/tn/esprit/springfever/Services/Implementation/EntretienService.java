@@ -1,11 +1,13 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.Services.Interfaces.IEntretien;
+import tn.esprit.springfever.Services.Interfaces.IUserService;
 import tn.esprit.springfever.entities.Entretien;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.entities.Job_RDV;
@@ -23,6 +25,9 @@ public class EntretienService implements IEntretien {
     JobRdvRepository jobRdvRepository;
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private IUserService userService;
 
     public Entretien AddEntretien(Entretien entretien){
         return entretienRepository.save(entretien);
@@ -54,11 +59,11 @@ public class EntretienService implements IEntretien {
         }
         return "Entretien Not Found !";
     }
-    public void sendEmailToDistrubInterviewRes(Long id, String subject, String body){
+    public void sendEmailToDistrubInterviewRes(Long id, String subject, String body) throws JsonProcessingException {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("chaima.dammak@espri.tn");
         Entretien entretien=entretienRepository.findById(id).orElse(null);
-        String to=entretien.getRdv().getJobApplication().getUser().getEmail();
+        String to=userService.getUserDetailsFromId(entretien.getRdv().getJobApplication().getUser()).getEmail();
         System.out.println(to);
         message.setTo(to);
         message.setSubject(subject);

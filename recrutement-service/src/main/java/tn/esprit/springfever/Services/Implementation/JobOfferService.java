@@ -35,8 +35,6 @@ public class JobOfferService implements IJobOffer {
 
     @Autowired
     JobApplicationRepository jobApplicationRepository;
-    @Autowired
-    UserRepository userRepository;
 
     public Job_Offer addJobOffer(Job_Offer job_offer){
         return jobOfferRepository.save(job_offer);

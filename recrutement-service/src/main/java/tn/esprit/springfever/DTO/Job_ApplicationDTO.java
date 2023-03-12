@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 import tn.esprit.springfever.entities.Job_Offer;
 import tn.esprit.springfever.entities.Job_RDV;
-import tn.esprit.springfever.entities.User;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -32,9 +31,7 @@ public class Job_ApplicationDTO  {
     @OneToOne(mappedBy = "jobApplication", cascade = CascadeType.ALL, optional = true)
     private Job_RDV rdv;
 
-    @ManyToOne
-    @JsonIgnore
-    private User user ;
+    private Long user ;
 
 
 
