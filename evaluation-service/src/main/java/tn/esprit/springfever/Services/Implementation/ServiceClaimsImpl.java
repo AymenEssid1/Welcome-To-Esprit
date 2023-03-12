@@ -25,7 +25,6 @@ import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 import tn.esprit.springfever.analyzer.SentimentAnalyzer;
 import tn.esprit.springfever.analyzer.SentimentPolarities;
 import tn.esprit.springfever.entities.Claim;
-import tn.esprit.springfever.entities.UserEvaluation;
 import tn.esprit.springfever.enums.ClaimStatus;
 import tn.esprit.springfever.repositories.ClaimRepository;
 import tn.esprit.springfever.repositories.UserRepository;
@@ -78,6 +77,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
     public void bilanFeedback() {
         List<Claim> listeClaim = new ArrayList<>();
 
+
         double sumpos = 0, sumNeg = 0, sumComp = 0, sumNeut = 0;
         for (Claim claim : claimRepository.findAll()) {
             if (claim.getFeedback() != null) {
@@ -95,13 +95,13 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
         log.info("Feedbacks Bilan :  \n" +
                 " Average of Postive feedbacks :  \n" +
-                String.valueOf(sumpos / listeClaim.size()) + "\n" +
+                sumpos / listeClaim.size() + "\n" +
                 " Average of negative feedbacks :   \n" +
-                String.valueOf(sumNeg / listeClaim.size()) + "\n" +
+                sumNeg / listeClaim.size() + "\n" +
                 " Average of compound feedbacks :   \n" +
-                String.valueOf(sumComp / listeClaim.size()) + "\n" +
+                sumComp / listeClaim.size() + "\n" +
                 " Average of neutral feedbacks :   \n" +
-                String.valueOf(sumNeut / listeClaim.size()) + "\n"
+                sumNeut / listeClaim.size() + "\n"
 
         );
 
@@ -206,6 +206,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
         if (claim != null) {
             claim.setDecision(descision);
             claim.setDateTreatingClaim(new Date());
+            claim.setClaimStatus(ClaimStatus.treated);
             claimRepository.save(claim);
             log.info("claim was treated ");
 
@@ -219,27 +220,50 @@ public class ServiceClaimsImpl implements IServiceClaims {
     public long getTimeTreatmentClaim(Long id) {
         Claim claim = claimRepository.findById(id).orElse(null);
         // Calculate the period between the two dates
-        long diffMillis = claim.getDateTreatingClaim().getTime() - claim.getDateSendingClaim().getTime();
-        long diffDays = diffMillis / (24 * 60 * 60 * 1000);
-        return diffMillis;
+        if(claim!=null) {
+            if(claim.getDateTreatingClaim()!=null && claim.getDateSendingClaim()!=null) {
+                long diffMillis = claim.getDateTreatingClaim().getTime() - claim.getDateSendingClaim().getTime();
+                long diffDays = diffMillis / (24 * 60 * 60 * 1000);
+                long diffHours = diffMillis / (60 * 60 * 1000);
+                log.info("the estimated time :  in hours : " + diffHours +"\n"
+                + "in days : " + diffDays + " \n"  );
+                return diffHours;
+            }
+            else
+            {
+                log.info("claim not yet  treated ");
+                return 0 ;
+            }
+        }
+        else {
+            log.info("claim not found ");
+            return 0 ;
+        }
     }
 
     @Override
     public long predicateTreatmentClaim(Long id) {
         Claim claim = claimRepository.findById(id).orElse(null);
-        List<Claim> claims = claimRepository.findAllByClaimSubjectAndClaimStatus(claim.getClaimSubject(), ClaimStatus.treated);
-        long estimatedPeriod = 0;
-        for (Claim c : claims) {
-            estimatedPeriod += (c.getDateTreatingClaim().getTime() - c.getDateSendingClaim().getTime()) / (60 * 60 * 1000);
+        if(claim!=null) {
+            List<Claim> claims = claimRepository.findAllByClaimSubjectAndClaimStatus(claim.getClaimSubject(), ClaimStatus.treated);
+            long estimatedPeriod = 0;
+            for (Claim c : claims) {
+                estimatedPeriod += (c.getDateTreatingClaim().getTime() - c.getDateSendingClaim().getTime()) / (60 * 60 * 1000);
+            }
+            return estimatedPeriod / claims.size();
         }
-        long avg = estimatedPeriod / claims.size();
-        return avg;
+        else {
+            log.info("claim not found ");
+            return 0 ;
+        }
     }
 
 
     public boolean badWordsFound(String input) throws IOException {
+        String userDirectory = System.getProperty("user.dir");
+
         // Tokenize the claim body
-        InputStream modelIn = new FileInputStream("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\en-token.bin");
+        InputStream modelIn = new FileInputStream(userDirectory+"\\evaluation-service\\en-token.bin");
         TokenizerModel model = new TokenizerModel(modelIn);
         Tokenizer tokenizer = new TokenizerME(model);
         if (input != null) {
@@ -271,23 +295,23 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
 
     public List<String> excelToStringArray() throws IOException {
-        List<String> badwords = new ArrayList<>();
-
-        FileInputStream file = new FileInputStream(new File("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\badwords.xlsx"));
+        List<String> badWords = new ArrayList<>();
+        String userDirectory = System.getProperty("user.dir");
+        FileInputStream file = new FileInputStream(userDirectory+"\\evaluation-service\\assets\\excel_files\\badwords.xlsx");
         Workbook workbook = new XSSFWorkbook(file);
 
         // Get the first sheet of the workbook
         Sheet sheet = workbook.getSheetAt(0);
         // Loop through the rows of the sheet
         for (Row row : sheet) {
-            badwords.add(row.getCell(0).getStringCellValue());
+            badWords.add(row.getCell(0).getStringCellValue());
         }
-        return badwords;
+        return badWords;
     }
 
 
     public Claim findClaimById(Long id) {
-        return claimRepository.findById(id).get();
+        return claimRepository.findById(id).orElse(null);
     }
 
 

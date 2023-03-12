@@ -148,11 +148,13 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
     @Override
     public List<Faq> search(String query) {
-        writeToFile(("User searched for "+query) ,"M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt")  ;
+        String userDirectory = System.getProperty("user.dir");
+
+        writeToFile(("User searched for "+query) ,userDirectory+"/evaluation-service/src/main/resources/logs.txt")  ;
          log.info("User searched for {}", query);
              List<String> allQueries = new ArrayList<>();
             // Read the SFlogs.log file and extract the search queries
-            try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt"))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(userDirectory+"/evaluation-service/src/main/resources/logs.txt"))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (line.contains("User searched for ")) {
@@ -171,9 +173,11 @@ import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
     @Override
     public List<String> topSearchedQueries() {
+        String userDirectory = System.getProperty("user.dir");
+
         List<String> allQueries = new ArrayList<>();
         // Read the SFlogs.log file and extract the search queries
-        try (BufferedReader br = new BufferedReader(new FileReader("M:/piSpring/welcome-to-esprit/evaluation-service/src/main/resources/logs.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(userDirectory+"/evaluation-service/src/main/resources/logs.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains("User searched for ")) {

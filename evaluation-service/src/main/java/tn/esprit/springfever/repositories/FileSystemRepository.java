@@ -14,7 +14,9 @@ public class FileSystemRepository  {
 
 
     public String save(byte[] content, String imageName) throws Exception {
-         Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\pictures\\" + new Date().getTime() + "-" + imageName);
+        String userDirectory = System.getProperty("user.dir");
+
+        Path newFile = Paths.get(userDirectory+"\\evaluation-service\\assets\\pictures\\" + new Date().getTime() + "-" + imageName);
          Files.createDirectories(newFile.getParent());
         Files.write(newFile, content);
         return newFile.toAbsolutePath()
@@ -22,7 +24,8 @@ public class FileSystemRepository  {
     }
 
     public String saveVideo(byte[] data, String videoName) throws Exception {
-          Path newFile = Paths.get("M:\\piSpring\\welcome-to-esprit\\evaluation-service\\videos\\"+ new Date().getTime() + "-" + videoName);
+        String userDirectory = System.getProperty("user.dir");
+        Path newFile = Paths.get(userDirectory+"\\evaluation-service\\assets\\videos\\"+ new Date().getTime() + "-" + videoName);
         Files.createDirectories(newFile.getParent());
         Files.write(newFile, data);
         return newFile.toAbsolutePath()
