@@ -34,10 +34,7 @@ import tn.esprit.springfever.tools.ResourceNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -258,6 +255,33 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+
+    @GetMapping("/FILTER_USERS")
+    public List<User> getUsersByRoleAndYear(@RequestParam(value = "role", required = false) RoleType roleType,
+                                            @RequestParam(value = "year", required = false) Integer year) {
+        List<User> users = new ArrayList<>();
+        if (roleType != null && year != null) {
+            LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+            LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59, 59);
+            users = userRepository.findByRolesRolenameAndCreationDateBetween(roleType, startOfYear, endOfYear);
+        } else if (roleType != null) {
+            users = userRepository.findByRolesRolename(roleType);
+        } else if (year != null) {
+            LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+            LocalDateTime endOfYear = LocalDateTime.of(year, 12, 31, 23, 59, 59);
+            users = userRepository.findByCreationDateBetween(startOfYear, endOfYear);
+        } else {
+            users = userRepository.findAll();
+        }
+        return users;
+    }
+
+
+
+
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     private Map<String, String> getRequestHeaders() {
