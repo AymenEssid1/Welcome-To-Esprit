@@ -1,12 +1,13 @@
 package tn.esprit.springfever.payload.Request;
 
+
 import javax.validation.constraints.NotBlank;
 
 public class LoginRequest {
     @NotBlank
     private String username;
 
-    private String password;
+     private String password;
 
     public String getUsername() {
         return username;
