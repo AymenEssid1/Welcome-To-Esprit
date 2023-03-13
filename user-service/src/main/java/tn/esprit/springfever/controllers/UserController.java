@@ -238,10 +238,28 @@ public class UserController {
 
 
     @PostMapping(value = "/users/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadUsersFile(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadUsersFile(@RequestParam("file") MultipartFile file,
+                                                  HttpServletRequest request) throws IOException {
         List<User> users = iServiceUser.readUsersFromExcelFile(file.getInputStream());
+
+        if (request != null && request.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+            User authentificateduser = jwtUtils.getUserFromUserName(jwtUtils.getUserNameFromJwtToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length())));
+            List<RoleType> roles=authentificateduser.getRoles().stream().map(Role::getRolename).collect(Collectors.toList());
+            if (roles.contains(RoleType.SUPER_ADMIN)) {
+
+
+
         iServiceUser.saveAll(users);
         return ResponseEntity.ok("Users uploaded successfully.");
+
+
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("YOU NEED TO BE A SUPER ADMIN TO ACCESS THIS ");
+            }
+
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
+        }
     }
 
 

@@ -51,7 +51,7 @@ public interface UserRepo extends JpaRepository<User,Long> {
 //Statistics
 
     @Query (value = "SELECT COUNT(*)/DATEDIFF(MAX(created_at), MIN(created_at)) AS avg_posts_per_day FROM post",nativeQuery = true)
-    List<Object> averagepostsperday();
+    List<String> averagepostsperday();
 
 
     @Query(value ="SELECT COUNT(*) / (YEAR(CURDATE()) - YEAR(MIN(creation_date)) + 1) AS avg_users_per_year FROM user",nativeQuery = true)
@@ -62,7 +62,7 @@ public interface UserRepo extends JpaRepository<User,Long> {
             "FROM user\n" +
             "GROUP BY age_range\n" +
             "ORDER BY age_range ASC",nativeQuery = true)
-    List<Object> UsersByAge();
+    List<String> UsersByAge();
 
     @Query(value = "SELECT u.username\n" +
             "FROM user u\n" +

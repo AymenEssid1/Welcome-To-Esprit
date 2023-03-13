@@ -273,7 +273,7 @@ public class JobApplicationService implements IJobApplication {
 
        String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
        String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
-       String chunkerModelPath = "/en-chunker.bin";
+       String chunkerModelPath = "C:/en-chunker.bin";
 
 
         // Load the model for sentence detection
