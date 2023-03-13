@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 @Configuration
 @OpenAPIDefinition(servers = {@Server(url = "/evaluation")})
+
 public class OpenAPIConfig {
 
     @Bean

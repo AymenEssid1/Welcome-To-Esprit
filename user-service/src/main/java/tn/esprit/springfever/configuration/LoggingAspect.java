@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,8 @@ public class LoggingAspect {
     private MailConfiguration mailConfiguration;
 
     private static final Logger logger = LogManager.getLogger(LoggingAspect.class);
+
+
 
     @After("execution(* tn.esprit.springfever.controllers.UserController.getAllUsers())")
     public void logGetAllUsers(JoinPoint joinPoint) {

@@ -44,8 +44,11 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.template.queue.forum}")
     private String rabbitmqRoutingForumQueue;
 
-    @Value("${spring.rabbitmq.template.routing-key.forum.top}")
+    @Value("${spring.rabbitmq.template.routing-key.admission.disponible}")
     private String routingForumTop;
+
+    @Value("${spring.rabbitmq.template.routing-key.admission.indisponible}")
+    private String routingAdmission;
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -115,5 +118,10 @@ public class RabbitMQConfig {
     @Bean
     public Binding forumtopBinding(Queue forumQueue, DirectExchange forumExchange) {
         return BindingBuilder.bind(forumQueue).to(forumExchange).with(routingForumTop);
+    }
+
+    @Bean
+    public Binding admissionBinding(Queue forumQueue, DirectExchange forumExchange) {
+        return BindingBuilder.bind(forumQueue).to(forumExchange).with(routingAdmission);
     }
 }

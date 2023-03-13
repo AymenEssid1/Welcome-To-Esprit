@@ -219,6 +219,7 @@ public class AuthController {
         u.setUsername(userDTO.getUsername());
         LocalDateTime currentDateTime = LocalDateTime.now();
         u.setCreationDate(currentDateTime);
+        u.setEtatUser("disponible");
         u.setPhoneNumber(userDTO.getPhoneNumber());
 
         if (roleType.name().equals("STUDENT")) {

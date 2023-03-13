@@ -9,6 +9,7 @@ import com.twilio.type.PhoneNumber;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -139,7 +140,7 @@ public class JobRdvService implements IJobRDV {
 
 
 
-    public LocalDateTime findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury, int interviewDuration) {
+    public void findFirstAvailableDateTime(Long dispoCandidate, Long dispoJury, int interviewDuration) {
         Disponibilites disponiblityCandidate = disponiblitiesRepository.findById(dispoCandidate).orElse(null);
         Disponibilites disponiblityJury = disponiblitiesRepository.findById(dispoJury).orElse(null);
         Long idJury =disponiblityJury.getJobRDV().getJury();
@@ -163,7 +164,7 @@ public class JobRdvService implements IJobRDV {
                         if (candidateStart.isEqual(candidatePreferredDateTime) && juryStart.isEqual(juryPreferredDateTime)) {
                             jobRdv.setAppointmentDate(candidateStart);
                             jobRdvRepository.save(jobRdv);
-                            return candidateStart;
+                            //return candidateStart;
                         }
 
                         // Si c'est la première plage horaire disponible pour l'entretien, la sauvegarder
@@ -179,19 +180,19 @@ public class JobRdvService implements IJobRDV {
         if (firstAvailableDateTime != null) {
             jobRdv.setAppointmentDate(firstAvailableDateTime);
             jobRdvRepository.save(jobRdv);
-            return firstAvailableDateTime;
+            //return firstAvailableDateTime;
 
         } else {
             jobRdv.setAppointmentDate(juryAvailability.get(0));
             jobRdvRepository.save(jobRdv);
-            return juryAvailability.get(0);
+            //return juryAvailability.get(0);
         }
     }
 
     public String generateJitsiMeetLink(Long id) {
         Job_RDV jobRdv = jobRdvRepository.findById(id).orElse(null);
         if (jobRdv.getType_RDV() == RDV_Type.ONLIGNE) {
-            String roomName = "my-room-name"; // Remplacez "my-room-name" par un nom de salle de réunion valide.
+            String roomName = "Esprit-recrutement/"+  UUID.randomUUID().toString() ;// Unique Lien
             String domain = "meet.jit.si"; // Remplacez "meet.jit.si" par le nom de domaine Jitsi Meet de votre choix.
 
             String link = "https://" + domain + "/" + roomName;
@@ -265,6 +266,7 @@ public class JobRdvService implements IJobRDV {
         jobRdv.setType_RDV(rdvType);
         jobRdvRepository.save(jobRdv);
         if (jobRdv.getType_RDV() == RDV_Type.ONLIGNE) {
+            jobRdv.setSalle_Rdv(null);
             String subject = "Invitation to online interview for Job  position";
             String body = "Dear Candidate ,\n" + "\n" +
                     "\n" +
