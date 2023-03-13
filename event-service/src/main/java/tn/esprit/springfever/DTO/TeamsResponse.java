@@ -1,20 +1,20 @@
 package tn.esprit.springfever.DTO;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import tn.esprit.springfever.entities.CategorieEvent;
 
-import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
 
-public class TeamsDTO implements Serializable{
+public class TeamsResponse {
 
     private Long idTeam;
 
@@ -26,12 +26,16 @@ public class TeamsDTO implements Serializable{
     @NotBlank
     private String NiveauEtude ;
 
-    public TeamsDTO(Long idTeam, String NameTeam, String QRcertificat, String NiveauEtude) {
+    List<UserDTO> users;
+
+    public TeamsResponse(Long idTeam, String NameTeam, String QRcertificat, String NiveauEtude, List<UserDTO> users) {
         this.idTeam = idTeam;
         this.NameTeam = NameTeam;
         this.QRcertificat = QRcertificat;
         this.NiveauEtude = NiveauEtude;
+        this.users =users;
 
     }
 
 }
+

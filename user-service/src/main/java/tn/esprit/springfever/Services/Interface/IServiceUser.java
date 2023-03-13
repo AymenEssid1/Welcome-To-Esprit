@@ -8,11 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
-import tn.esprit.springfever.entities.Badge;
-import tn.esprit.springfever.entities.Image;
-import tn.esprit.springfever.entities.RoleType;
-import tn.esprit.springfever.entities.User;
-import tn.esprit.springfever.payload.Request.LoginRequest;
+import tn.esprit.springfever.entities.*;
+
 
 import java.io.IOException;
 import java.io.InputStream;

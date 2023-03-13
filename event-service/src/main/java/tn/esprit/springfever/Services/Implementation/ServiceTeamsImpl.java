@@ -1,5 +1,6 @@
 package tn.esprit.springfever.Services.Implementation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.zxing.BarcodeFormat;
 //import com.itextpdf.text.pdf.qrcode.BitMatrix;
 //import com.itextpdf.text.pdf.qrcode.EncodeHintType;
@@ -13,11 +14,13 @@ import com.itextpdf.text.pdf.qrcode.ErrorCorrectionLevel;
 //import com.twilio.rest.api.v2010.account.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import tn.esprit.springfever.DTO.TeamsDTO;
-import tn.esprit.springfever.Security.services.UserDetailsImpl;
+import tn.esprit.springfever.DTO.TeamsResponse;
+import tn.esprit.springfever.DTO.UserDTO;
 import tn.esprit.springfever.Services.Interfaces.TeamsMapper;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.*;
@@ -26,6 +29,7 @@ import tn.esprit.springfever.repositories.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.zxing.WriterException;
 
@@ -39,8 +43,6 @@ import javax.mail.internet.MimeMessage;
 @Slf4j
 
 public class ServiceTeamsImpl implements IServiceTeams{
-    @Autowired
-    UserRepository userRepository;
     @Autowired
     NoteRepository noteRepository;
     @Autowired
@@ -57,6 +59,12 @@ public class ServiceTeamsImpl implements IServiceTeams{
 
     @Autowired
     JavaMailSender javaMailSender;
+
+    @Autowired
+    ParticpantRepository particpantRepository;
+
+    @Autowired
+    UserService userService;
 
     @Override
     public Teams addTeams(Teams teams) {
@@ -111,7 +119,17 @@ public class ServiceTeamsImpl implements IServiceTeams{
     }
 */
     @Override
-    public List<Teams> getAllTeams() {return teamsRepository.findAll();}
+    public List<TeamsResponse> getAllTeams() throws JsonProcessingException {return convertToResponse(teamsRepository.findAll());}
+    public List<TeamsResponse> convertToResponse(List<Teams> teams) throws JsonProcessingException {
+        List<TeamsResponse> responses = new ArrayList<>();
+        for (Teams t : teams){
+            List<Long> ids = t.getUser().stream().map(Participant::getIdUser).collect(Collectors.toList());
+            List<UserDTO> users = userService.getUserDetailsFromIds(ids);
+            TeamsResponse response = new TeamsResponse(t.getIdTeam(), t.getNameTeam(), t.getQRcertificat(), t.getNiveauEtude(), users);
+            responses.add(response);
+        }
+        return  responses;
+    }
 
 
     @Override
@@ -153,9 +171,13 @@ public class ServiceTeamsImpl implements IServiceTeams{
  */
 
     @Override
-    public void assignUserToTeams() {
-        List<User> users = userRepository.findAll();
+    public void assignUserToTeams() throws JsonProcessingException {
+        //List<User> users = userRepository.findAll();
+        registerParticipants();
+        List<Participant> participants = particpantRepository.findAll();
+        List<Long> ids = participants.stream().map(Participant::getIdUser).collect(Collectors.toList());
 
+        List<UserDTO>  users = userService.getUserDetailsFromIds(ids);
         Event event = new Event();
 
         int numUsers = users.size();
@@ -169,9 +191,10 @@ public class ServiceTeamsImpl implements IServiceTeams{
             teamsRepository.save(team);
 
             for (int j = i*5; j < Math.min((i+1)*5, numUsers); j++) {
-                User user = users.get(j);
-                user.setTeams(team);
-                userRepository.save(user);
+                UserDTO user = users.get(j);
+                Participant participant = participants.get(j);
+                participant.setTeams(team);
+                particpantRepository.save(participant);
 
                 String subject = "You have been assigned to a team for APP0 event";
                 String message = "Dear " + user.getUsername()+ ",\n\n"
@@ -189,6 +212,20 @@ public class ServiceTeamsImpl implements IServiceTeams{
         }
     }
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    public void registerParticipants(){
+        String sql = "INSERT INTO participant (id_user)\n" +
+                "SELECT u.userid\n" +
+                "FROM user u\n" +
+                "JOIN user_roles ur ON u.userid = ur.user_id\n" +
+                "JOIN role r ON ur.role_id = r.id\n" +
+                "LEFT JOIN participant p ON u.userid = p.id_user\n" +
+                "WHERE r.rolename = 'STUDENT' AND p.id_user IS NULL;";
+        jdbcTemplate.update(sql);
+
+    }
+
     private void sendEmail(String to, String subject, String message) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
@@ -201,14 +238,16 @@ public class ServiceTeamsImpl implements IServiceTeams{
    // private static final String USERNAME = "nounou@gmail.com";
   //  private static final String PASSWORD = "nounou";
 @Override
-    public void sendOnlineEventInvitation() throws MessagingException {
+    public void sendOnlineEventInvitation() throws MessagingException, JsonProcessingException {
 
-    List<User> users = userRepository.findAll();
+    List<Participant> participants = particpantRepository.findAll();
+    List<Long> ids = participants.stream().map(Participant::getIdUser).collect(Collectors.toList());
+    List<UserDTO>  users = userService.getUserDetailsFromIds(ids);
 
     Event event = new Event();
     event.setEspace("online");
 
-    for (User user : users) {
+    for (UserDTO user : users) {
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
             if (event.getEspace().equalsIgnoreCase("online")) {
                 String googleMeetLink = "https://meet.google.com/odn-qtfp-tcs";
@@ -218,6 +257,8 @@ public class ServiceTeamsImpl implements IServiceTeams{
             }
         }
     }
+
+
 
 
 

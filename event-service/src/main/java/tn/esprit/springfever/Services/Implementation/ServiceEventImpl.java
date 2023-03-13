@@ -13,7 +13,6 @@ import tn.esprit.springfever.Services.Interfaces.IServiceEvent;
 import tn.esprit.springfever.entities.Event;
 import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
-import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.repositories.EventRepository;
 import tn.esprit.springfever.repositories.TeamsRepository;
 

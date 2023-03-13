@@ -1,5 +1,6 @@
 package tn.esprit.springfever.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.pdf.qrcode.WriterException;
 import io.swagger.annotations.Api;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.TeamsDTO;
 //import tn.esprit.springfever.Security.jwt.JwtUtils;
+import tn.esprit.springfever.DTO.TeamsResponse;
 import tn.esprit.springfever.Services.Interfaces.IFileLocationService;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
 import tn.esprit.springfever.entities.ImageData;
@@ -81,7 +83,7 @@ public class TeamsController {
     /*********  get all teams   ***********/
     @GetMapping("/getAllTeams")
     @ResponseBody
-    public List<Teams> getAllTeams()  {return  iServiceTeams.getAllTeams();}
+    public List<TeamsResponse> getAllTeams() throws JsonProcessingException {return  iServiceTeams.getAllTeams();}
 
 
     /*********  delete teams  ***********/
@@ -91,13 +93,13 @@ public class TeamsController {
 
 
     @PostMapping("/assign-users-and-send-mail")
-    public ResponseEntity<Void> affectusertoteams() {
+    public ResponseEntity<Void> affectusertoteams() throws JsonProcessingException {
         iServiceTeams.assignUserToTeams();
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/sendInvitation")
-    public ResponseEntity<String> sendInvitation() {
+    public ResponseEntity<String> sendInvitation() throws JsonProcessingException {
         try {
             iServiceTeams.sendOnlineEventInvitation();
             return ResponseEntity.ok("Invitation sent successfully");
@@ -105,7 +107,7 @@ public class TeamsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send invitation: " + e.getMessage());
         }
     }
-    public void sendOnlineEventInvitation() throws MessagingException {
+    public void sendOnlineEventInvitation() throws MessagingException, JsonProcessingException {
         String recipient = "nour.yahyaoui@esprit.tn";
         String googleMeetLink = "https://meet.google.com/odn-qtfp-tcs";
         iServiceTeams.sendOnlineEventInvitation();

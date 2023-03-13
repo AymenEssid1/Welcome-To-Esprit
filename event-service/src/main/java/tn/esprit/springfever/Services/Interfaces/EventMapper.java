@@ -13,7 +13,7 @@ import tn.esprit.springfever.entities.Event;
 
 @Service
 public interface EventMapper {
-    EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);
+    EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);    // indique à MapStruct qu'il doit générer le code source de l'interface
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEventFromDto(EventDTO eventDTO, @MappingTarget Event event);

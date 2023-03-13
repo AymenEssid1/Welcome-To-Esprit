@@ -1,7 +1,6 @@
 package tn.esprit.springfever.Services.Interfaces;
 import tn.esprit.springfever.DTO.EventDTO;
 import tn.esprit.springfever.entities.Event;
-import tn.esprit.springfever.entities.User;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
-import tn.esprit.springfever.entities.Role;
 import tn.esprit.springfever.entities.Video;
 
 import java.util.List;

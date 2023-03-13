@@ -45,7 +45,7 @@ public class Teams implements Serializable{
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="teams")
     @JsonIgnore
-    private java.util.Set<User> User;
+    private java.util.Set<Participant> User;
 
     @OneToOne
     @JsonIgnore

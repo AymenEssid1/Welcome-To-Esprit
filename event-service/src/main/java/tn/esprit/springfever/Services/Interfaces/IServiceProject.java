@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.springfever.DTO.ProjectDTO;
 import tn.esprit.springfever.entities.Project;
 
-import tn.esprit.springfever.entities.User;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

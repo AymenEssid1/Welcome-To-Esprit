@@ -1,7 +1,6 @@
 package tn.esprit.springfever.DTO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import tn.esprit.springfever.entities.User;
 import tn.esprit.springfever.entities.CategorieEvent;
 
 import javax.persistence.*;

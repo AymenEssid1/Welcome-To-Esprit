@@ -15,8 +15,8 @@ import tn.esprit.springfever.DTO.NoteDTO;
 import tn.esprit.springfever.Services.Interfaces.IServiceNote;
 import tn.esprit.springfever.Services.Interfaces.IServiceProject;
 import tn.esprit.springfever.Services.Interfaces.IServiceTeams;
+
 import tn.esprit.springfever.entities.Note;
-import tn.esprit.springfever.entities.Project;
 import tn.esprit.springfever.entities.Teams;
 import tn.esprit.springfever.repositories.NoteRepository;
 
@@ -60,13 +60,14 @@ public class NoteController {
 
     @PostMapping("/add")
     @ResponseBody
-    public ResponseEntity<Note> createNote(@RequestBody Note note) {
-        if (note.filterBadWords()) {
+    public Note createNote(@RequestBody Note note) throws IOException {
+      /*  if (note.filterBadWords()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        }*/
         // save the note
-        return new ResponseEntity<>(note, HttpStatus.CREATED);
+        return (iServiceNote.addNote(note));
     }
+
 
     /*********  update note  ***********/
     @PutMapping("/update/{idNote}")
@@ -157,10 +158,7 @@ public class NoteController {
         // get the user with the max project note
         Teams teams = iServiceTeams.getTeamsWithMaxProjectNote();
 
-        if (teams == null) {
-            // return an error response if there are no users
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No teams found");
-        }
+
 
         // get the Twilio client
         AuthTokenPromotion twilioConfig = null;
