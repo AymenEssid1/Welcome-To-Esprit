@@ -20,7 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.springfever.Services.Interfaces.IDisponibilites;
 import tn.esprit.springfever.Services.Interfaces.IJobApplication;
+import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_Application;
 import tn.esprit.springfever.repositories.JobApplicationRepository;
 
@@ -38,25 +40,62 @@ public class JobApplicationController {
     IJobApplication iJobApplication;
     @Autowired
     JobApplicationRepository jobApplicationRepository;
+    @Autowired
+    IDisponibilites iDisponibilites;
 
 
 
-    @PostMapping(value = "/AddJobApplication" ,  consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<Job_Application> uploadImage(@RequestParam("cv") MultipartFile cvFile,@RequestParam("lettreMotivation") MultipartFile lettreMotivationFile ) {
+
+
+
+    @PostMapping(value = "/AddJobApplication" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<String> addJobApplicationAndSendEmail(@RequestParam("cv") MultipartFile cvFile,
+                                                                @RequestParam("lettreMotivation") MultipartFile lettreMotivationFile,
+                                                                @RequestParam("Id_Job_Offer") Long idJobOffer,
+                                                                @RequestParam("idUser") Long idUser,
+                                                                @RequestParam("address") String address
+                                                                ) {
         try {
-            Job_Application savedImageData = iJobApplication.savef(cvFile.getBytes(), lettreMotivationFile.getBytes(),cvFile.getOriginalFilename(),lettreMotivationFile.getOriginalFilename());
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedImageData);
+            //Ajouter la Candidature
+            Job_Application jobApplication = iJobApplication.savef(cvFile.getBytes(), lettreMotivationFile.getBytes(),
+                    cvFile.getOriginalFilename(), lettreMotivationFile.getOriginalFilename());
+            iJobApplication.AssignJobOfferAndCandidateToJobApplication(idJobOffer,jobApplication.getId_Job_Application(),idUser,address);
+
+            //Envoyer Mail aprés le filtrage du CV
+            if (iJobApplication.FilterCv(jobApplication.getId_Job_Application()) == true) {
+                String subject = "Answer on the Job offer";
+                String text = " Dear Candidate , \n" + "Congratulations \n" +
+                        " We are pleased to inform you that your CV has been accepted for the position  at our company.\n " +
+                        "We would like to congratulate you on your selection and thank you for your interest in working with us.\n" +
+                        "We will be contacting you shortly to schedule an interview and discuss the next steps in the hiring process.\n" +
+                        " Please be prepared to provide us with any additional information or documentation that we may require."
+                        + "We look forward to meeting with you and discussing your qualifications further."
+                        + "Sincerely!";
+
+                iJobApplication.sendEmail(jobApplication.getId_Job_Application(), subject, text);
+            } else {
+                String subject = "Answer on the Job offer";
+                String text = "Dear Candidate \n " +
+                        "Thank you for your interest in the job opportunity at our company. After carefully reviewing your application, " +
+                        "we regret to inform you that your CV does not meet our current requirements for the position.\n" + "Please note that this decision is in no way a reflection of your qualifications or experience, " +
+                        "and we encourage you to apply for future positions that match your skills\n"
+                        + "We appreciate the time and effort you put into your application and wish you all the best in your job search.\n"
+                        + "Sincerely!";
+
+                iJobApplication.sendEmail(jobApplication.getId_Job_Application(), subject, text);
+            }
+
+            String result = iJobApplication.AssignJobOfferAndCandidateToJobApplication(idJobOffer, jobApplication.getId_Job_Application(), idUser, address);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
 
-    @PutMapping("AssignJobOfferAndCandidateToJobApplication/")
-    public String AssignJobOfferAndCandidateToJobApplication(Long Id_Job_Offer,Long Id_Job_Application, Long idUser, String address){
-        return iJobApplication.AssignJobOfferAndCandidateToJobApplication(Id_Job_Offer,Id_Job_Application,idUser,address);
 
-    }
+
 
 
 
@@ -129,39 +168,8 @@ public class JobApplicationController {
 
 
 
-    @PostMapping("/send-email")
-    public ResponseEntity<String> sendEmail(Long id) throws JsonProcessingException {
 
 
-        if(iJobApplication.FilterCv(id)==true){
-            String subject = "Answer on the Job offer";
-            String text = " Dear Candidate , \n"+"Congratulations \n"+
-                    " We are pleased to inform you that your CV has been accepted for the position  at our company.\n " +
-                    "We would like to congratulate you on your selection and thank you for your interest in working with us.\n"+
-                    "We will be contacting you shortly to schedule an interview and discuss the next steps in the hiring process.\n" +
-                    " Please be prepared to provide us with any additional information or documentation that we may require."
-                    +"We look forward to meeting with you and discussing your qualifications further."
-                    +"Sincerely!";
-
-            iJobApplication.sendEmail(id,subject,text);
-
-            return ResponseEntity.ok("Email sent successfully!");
-        }
-        String subject = "Answer on the Job offer";
-        String text ="Dear Candidate \n "+
-                "Thank you for your interest in the job opportunity at our company. After carefully reviewing your application, " +
-                "we regret to inform you that your CV does not meet our current requirements for the position.\n"+"Please note that this decision is in no way a reflection of your qualifications or experience, " +
-                "and we encourage you to apply for future positions that match your skills\n"
-                +"We appreciate the time and effort you put into your application and wish you all the best in your job search.\n"
-                +"Sincerely!";
-
-        iJobApplication.sendEmail(id,subject,text);
-
-        return ResponseEntity.ok("Email sent successfully!");
-
-
-
-        }
     /*@GetMapping(value = "/FilterCvCompetences/{id}")
     public String extractSkills(@PathVariable("id") Long id) throws IOException{
         return iJobApplication.extractSkills(id);
