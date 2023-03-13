@@ -67,8 +67,8 @@ public class ServiceProjectImpl implements IServiceProject{
 
 
     public Project savef(byte[] rapport, String location_rapport,byte[] bytes, String videoName) throws Exception {
-        Path rapportFile = Paths.get(System.getProperty("user.dir") + new Date().getTime() + "-" + location_rapport);
-        Path video =Paths.get(System.getProperty("user.dir")+"/assets" + new Date().getTime() + "-" + videoName);
+        Path rapportFile = Paths.get(System.getProperty("user.dir")+"/assets/event/" + new Date().getTime() + "-" + location_rapport);
+        Path video =Paths.get(System.getProperty("user.dir")+"/assets/event/"  + new Date().getTime() + "-" + videoName);
         Files.write(rapportFile, rapport);
         String location = fileSystemRepository.saveVideo(bytes, videoName);
          videoRepository.save(new Video(videoName, location));
