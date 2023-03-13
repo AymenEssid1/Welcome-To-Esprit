@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.springfever.DTO.Job_RDV_DTO;
 import tn.esprit.springfever.Services.Implementation.JobRDVReminderTasklet;
+import tn.esprit.springfever.Services.Interfaces.IDisponibilites;
 import tn.esprit.springfever.Services.Interfaces.IJobRDV;
 import tn.esprit.springfever.entities.Disponibilites;
 import tn.esprit.springfever.entities.Job_RDV;
@@ -29,17 +30,37 @@ public class JobRdvController {
     @Autowired
     JobRdvRepository jobRdvRepository;
 
-   @Autowired
-   JobRDVReminderTasklet jobRDVReminderTasklet; //Could not autowire. No beans of 'JobRDVReminderTasklet' type found.
+    @Autowired
+    JobRDVReminderTasklet jobRDVReminderTasklet; //Could not autowire. No beans of 'JobRDVReminderTasklet' type found.
+    @Autowired
+    IDisponibilites iDisponibilites;
 
 
 
 
 
 
-    @PostMapping("addJobRDV/")
+    /*@PostMapping("addJobRDV1/")
     public Job_RDV addJobRDV(@RequestBody Job_RDV job_rdv){
         return iJobRDV.addJobRDV(job_rdv);
+
+    }*/
+
+    @PostMapping("addJobRDVAAndAssign/")
+    public Job_RDV addJobRDV(@RequestParam ("salle") String salle,@RequestParam("Id_JobApplication") Long Id_Job_Application,
+                             @RequestParam("IdJury") Long idJury,@RequestParam("IdDispoCandidate") Long idDispoCandidate,
+                             @RequestParam("IdDidpoJury")Long idDispoJury,@RequestParam("interviewDuration") int interviewDuration) throws JsonProcessingException {
+        Long idJobRDV = iJobRDV.addJobRDV(new Job_RDV()).getID_Job_DRV(); // créer un nouveau Job_RDV et récupérer son ID
+        System.out.println("hereeee");
+        System.out.println("h");
+        Job_RDV jobRdv =jobRdvRepository.findById(idJobRDV).orElse(null);
+        jobRdv.setSalle_Rdv(salle);
+        iJobRDV.AssignJobApplicationAndJuryToRDV(Id_Job_Application,jobRdv.getID_Job_DRV(),idJury);
+        iDisponibilites.AssignJobRdvTODisponibilities(idDispoCandidate,idDispoJury,jobRdv.getID_Job_DRV());
+        iJobRDV.findFirstAvailableDateTime(idDispoCandidate,idDispoJury,interviewDuration);
+        iJobRDV.FixationRDV(jobRdv.getID_Job_DRV());
+        return jobRdv;
+
 
     }
 
@@ -57,7 +78,7 @@ public class JobRdvController {
 
     }*/
 //updateJobRDV(Long ID_Job_DRV, Job_RDV_DTO jobRdvDto)
-   @PutMapping("/updateJobRDv/{id}")
+    @PutMapping("/updateJobRDv/{id}")
     @ResponseBody
 
     public Job_RDV updateJobRDV(@PathVariable("id") Long ID_Job_DRV, @RequestBody Job_RDV_DTO jobRdvDto )  {return  iJobRDV.updateJobRDV(ID_Job_DRV,jobRdvDto);}
@@ -72,12 +93,12 @@ public class JobRdvController {
 
 
 
-    @PutMapping("AssignJobApplicationAndJuryToRDV/")
+    /*@PutMapping("AssignJobApplicationAndJuryToRDV/")
     public String AssignJobApplicationAndJuryToRDV(Long Id_Job_Application, Long ID_Job_DRV, Long idJury){
         return iJobRDV.AssignJobApplicationAndJuryToRDV(Id_Job_Application,ID_Job_DRV,idJury);
 
 
-    }
+    }*/
 
 
 
@@ -106,11 +127,11 @@ public class JobRdvController {
 
     }*/
 
-    @GetMapping("/send-email-To-Fix-RDV-For-Interview/{id}")
+    /*@GetMapping("/send-email-To-Fix-RDV-For-Interview/{id}")
     public void FixationRDV(@PathVariable("id") Long id) throws JsonProcessingException {
         iJobRDV.FixationRDV(id);
 
-    }
+    }*/
 
     /*@PostMapping("/jobRDV/{id}/sendReminderSMS")
     public ResponseEntity<String> sendReminderSMS(@PathVariable(value = "id") Long id) {

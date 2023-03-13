@@ -114,10 +114,13 @@ public class JobApplicationService implements IJobApplication {
 
 
     public Job_Application savef(byte[] cv, byte[] lettre, String location_Cv, String location_LettreMotivation) throws Exception {
-        Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
-        Path lettreFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_LettreMotivation);
+        String userDirectory = System.getProperty("user.dir");
+        Path cvFile = Paths.get(userDirectory+"\\Images\\" + new Date().getTime() + "-"  +location_Cv);
+        //Path cvFile = Paths.get("C:\\Users\\User\\Desktop\\" + new Date().getTime() + "-" + location_Cv);
+        Path lettreFile = Paths.get(userDirectory+"\\Images\\" + new Date().getTime() + "-"  +location_LettreMotivation);
 
         Files.write(cvFile, cv);
+
         Files.write(lettreFile, lettre);
 
         String cvLocation = cvFile.toAbsolutePath().toString();
@@ -266,11 +269,11 @@ public class JobApplicationService implements IJobApplication {
         String text=extractTextFromPdf2(id);
         ClassLoader classLoader = getClass().getClassLoader();
 
-        String sentenceModelPath = "C:/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
+       String sentenceModelPath = "C:/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
 
-        String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
-        String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
-        String chunkerModelPath = "/en-chunker.bin";
+       String tokenizerModelPath = "C:/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin";
+       String posModelPath = "C:/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin";
+       String chunkerModelPath = "/en-chunker.bin";
 
 
         // Load the model for sentence detection
