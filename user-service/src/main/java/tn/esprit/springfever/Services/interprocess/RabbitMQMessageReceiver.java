@@ -57,6 +57,11 @@ public class RabbitMQMessageReceiver {
     @Value("${spring.rabbitmq.template.routing-key.forum.token}")
     private String routingKeyForumToken;
 
+    @Value("${spring.rabbitmq.template.routing-key.admission.disponible}")
+    private String routingForumTop;
+    @Value("${spring.rabbitmq.template.routing-key.admission.indisponible}")
+    private String routingAdmission;
+
     @Cacheable("user")
     @RabbitListener(bindings = {
             @QueueBinding(value =
@@ -70,6 +75,14 @@ public class RabbitMQMessageReceiver {
         }
         if (routingKey.equals(routingKeyForumIds)) {
             return getUsersByIds(message);
+        }
+
+        if (routingKey.equals(routingForumTop)) {
+            return getAvailableUsers(message);
+        }
+
+        if (routingKey.equals(routingAdmission)) {
+            setDisponibility(message);
         }
         return null;
     }
@@ -89,6 +102,7 @@ public class RabbitMQMessageReceiver {
                 JSONArray jsonRoles = new JSONArray();
                 obj.put("id", user.getUserid());
                 obj.put("username", user.getUsername());
+                obj.put("etatUser", user.getEtatUser());
                 obj.put("email", user.getEmail());
                 for (Role role : user.getRoles()) {
                     jsonRoles.add(role.getRolename());
@@ -100,7 +114,7 @@ public class RabbitMQMessageReceiver {
                     obj.put("image", null);
                 }
                 jsonText = obj.toJSONString();
-            }else{
+            } else {
                 return null;
             }
         }
@@ -125,6 +139,7 @@ public class RabbitMQMessageReceiver {
             JSONArray jsonRoles = new JSONArray();
             obj.put("id", user.getUserid());
             obj.put("username", user.getUsername());
+            obj.put("etatUser", user.getEtatUser());
             for (Role role : user.getRoles()) {
                 jsonRoles.add(role.getRolename());
             }
@@ -153,15 +168,17 @@ public class RabbitMQMessageReceiver {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Long> list = objectMapper.readValue(token, new TypeReference<List<Long>>(){});
+        List<Long> list = objectMapper.readValue(token, new TypeReference<List<Long>>() {
+        });
         JSONArray jsonUsers = new JSONArray();
-        for (Long i : list){
+        for (Long i : list) {
             User user = userRepo.findById(i).orElse(null);
             JSONObject obj = new JSONObject();
             JSONArray jsonRoles = new JSONArray();
             if (user != null) {
                 obj.put("id", user.getUserid());
                 obj.put("username", user.getUsername());
+                obj.put("etatUser", user.getEtatUser());
                 obj.put("email", user.getEmail());
                 for (Role role : user.getRoles()) {
                     jsonRoles.add(role.getRolename());
@@ -183,6 +200,52 @@ public class RabbitMQMessageReceiver {
                 .andProperties(messageProperties)
                 .build();
         return response;
+    }
+
+    @Cacheable("user")
+    public Message getAvailableUsers(Message message) throws JsonProcessingException {
+        String token = new String(message.getBody(), StandardCharsets.UTF_8);
+        token = token.substring(1, token.length() - 1);
+        List<User> list = userRepo.findByEtatUser("disponible");
+        JSONArray jsonUsers = new JSONArray();
+        for (User user : list) {
+            JSONObject obj = new JSONObject();
+            JSONArray jsonRoles = new JSONArray();
+            obj.put("id", user.getUserid());
+            obj.put("username", user.getUsername());
+            obj.put("etatUser", user.getEtatUser());
+            obj.put("email", user.getEmail());
+            for (Role role : user.getRoles()) {
+                jsonRoles.add(role.getRolename());
+            }
+            obj.put("roles", jsonRoles);
+            if (user.getImage() != null) {
+                obj.put("image", user.getImage().getLocation());
+            } else {
+                obj.put("image", null);
+            }
+            jsonUsers.add(obj);
+        }
+        String jsonText = jsonUsers.toJSONString();
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message response = MessageBuilder
+                .withBody(jsonText.getBytes())
+                .andProperties(messageProperties)
+                .build();
+        return response;
+    }
+
+    @Cacheable("user")
+    public void setDisponibility(Message message){
+        String token = new String(message.getBody(), StandardCharsets.UTF_8);
+        token = token.substring(1, token.length() - 1);
+        Long id = Long.valueOf(token);
+        User u = userRepo.findById(id).orElse(null);
+        if ( u != null){
+            u.setEtatUser("non disponible");
+            userRepo.save(u);
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 
-package tn.esprit.springfever.DTO;
-
+package tn.esprit.springfever.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

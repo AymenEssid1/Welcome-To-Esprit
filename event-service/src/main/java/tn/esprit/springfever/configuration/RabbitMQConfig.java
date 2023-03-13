@@ -1,10 +1,9 @@
 
+
 package tn.esprit.springfever.configuration;
 
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -12,9 +11,9 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import java.util.List;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.*;
 
 
 @Configuration
@@ -44,6 +43,7 @@ public class RabbitMQConfig {
 
     @Value("${spring.rabbitmq.template.queue.forum}")
     private String rabbitmqRoutingForumQueue;
+
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -109,4 +109,5 @@ public class RabbitMQConfig {
     public Binding forumIdsBinding(Queue forumQueue, DirectExchange forumExchange) {
         return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingForumIds);
     }
+
 }

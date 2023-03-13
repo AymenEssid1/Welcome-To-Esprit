@@ -37,6 +37,8 @@ public class User implements Serializable {
 
     private int cin;
 
+    private String etatUser;
+
 
     @NotBlank
     @Size(max = 8)

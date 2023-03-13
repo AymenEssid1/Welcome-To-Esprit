@@ -68,4 +68,6 @@ public interface UserRepo extends JpaRepository<User,Long> {
             "FROM user u\n" +
             "INNER JOIN Ban b ON u.userid = b.user_userid",nativeQuery = true)
     List<String> bannedUsers();
+
+    List<User> findByEtatUser(String etat);
 }
