@@ -14,7 +14,8 @@ public class FileSystemRepository {
 
 
     public String save(byte[] content, String imageName) throws Exception {
-         Path newFile = Paths.get("C:\\Users\\User\\Desktop\\Images" + new Date().getTime() + "-" + imageName); // to change
+        String userDirectory = System.getProperty("user.dir");
+        Path newFile = Paths.get(userDirectory+"\\Images\\" + new Date().getTime() + "-" + imageName); // to change
          Files.createDirectories(newFile.getParent());
         Files.write(newFile, content);
         return newFile.toAbsolutePath()
