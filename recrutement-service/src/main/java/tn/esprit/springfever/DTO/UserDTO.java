@@ -14,7 +14,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
-
+    private String etatUser;
     private String image;
     private List<String> roles = new ArrayList<>();
 

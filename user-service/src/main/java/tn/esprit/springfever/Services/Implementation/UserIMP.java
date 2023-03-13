@@ -122,7 +122,7 @@ public class UserIMP implements IServiceUser {
 
     @Override
     public String generateQr(User user) throws Exception {
-        String qrCodeData = user.toString();
+        String qrCodeData = user.getFirstname()+"\n"+user.getLastname()+"\n"+user.getEmail()+"\n"+user.getPhoneNumber();
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.MARGIN, 2);
@@ -236,6 +236,7 @@ public class UserIMP implements IServiceUser {
         String ipAddress = requestUtils.getClientIpAddress();
         System.out.println("******************************" + ipAddress);
         String city = geoIpService.getCity(ipAddress);
+        if(city==null){city="ariana soghra";}
         String country = geoIpService.getCountry(ipAddress);
         String emailBody = "someone signed in with 3 failed attempts from " + country + "," + city + " from the IP adress " + ipAddress + "\n Your Account is temporarily locked. Please try again later.";
         SimpleMailMessage message = new SimpleMailMessage();

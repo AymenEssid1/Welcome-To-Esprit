@@ -26,14 +26,14 @@ public class OpenAPIConfig {
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt", Arrays.asList("read", "write")));
     }
     public Info infoAPI() {
-        return new Info().title("Forum Microservice")
+        return new Info().title("Evaluation Microservice")
                 .description("This is a springboot exam")
                 .contact(contactAPI());
     }
     public Contact contactAPI() {
-        Contact contact = new Contact().name("Ahmed_Debbiche-4SE4")
-                .email("ahmed.debbiche@esprit.tn")
-                .url("https://github.com/Ahmed-Debbiche007%22");
+        Contact contact = new Contact().name("Ahmed_Gouiaa-4SE4")
+                .email("ahmed.gouiaa@esprit.tn");
+
         return contact;
     }
 }

@@ -23,7 +23,7 @@ public class UserDTO {
     private String password;
     private String email;
     private String phoneNumber;
-
+    private String etatUser;
     private Set<Role> roles = new HashSet<>();
     private Image image;
     private Badge badge;

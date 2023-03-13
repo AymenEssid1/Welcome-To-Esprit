@@ -183,7 +183,7 @@ public class AuthController {
 
         if(!usernameValidator.isValid(username)){
             JSONObject message = new JSONObject();
-            message.put("message", "Invalid Username!");
+            message.put("message", "Username contains a reserved word or an illegal word ");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message.toString());
         }
 
