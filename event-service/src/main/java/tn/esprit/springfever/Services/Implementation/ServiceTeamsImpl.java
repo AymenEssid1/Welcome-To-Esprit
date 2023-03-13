@@ -370,4 +370,9 @@ public class ServiceTeamsImpl implements IServiceTeams{
     }
 
 
+
+    public List<Teams> findTeamsByNameTeam(String NameTeam) {
+        return teamsRepository.findByNameTeamContainingIgnoreCase(NameTeam);
+    }
+
 }

@@ -38,6 +38,9 @@ public interface IServiceTeams {
 
     public void sendOnlineEventInvitation() throws MessagingException, JsonProcessingException;
 
+
+    public List<Teams> findTeamsByNameTeam(String NameTeam);
+
     private static com.google.zxing.EncodeHintType getQRCodeHints() {
         return null;
     }

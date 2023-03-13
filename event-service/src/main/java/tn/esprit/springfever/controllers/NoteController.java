@@ -60,12 +60,14 @@ public class NoteController {
 
     @PostMapping("/add")
     @ResponseBody
-    public Note createNote(@RequestBody Note note) throws IOException {
-      /*  if (note.filterBadWords()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }*/
-        // save the note
-        return (iServiceNote.addNote(note));
+
+
+    public ResponseEntity<?> createNote(@RequestBody Note note) throws IOException {
+        if (note.filterBadWords()) {
+            return ResponseEntity.badRequest().body("Note contains inappropriate language");
+        }
+        Note savedNote = iServiceNote.addNote(note);
+        return ResponseEntity.ok(savedNote);
     }
 
 

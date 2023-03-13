@@ -17,6 +17,6 @@ public class LoggingAspect {
             LogManager.getLogger(LoggingAspect.class);
     @After("execution(* tn.esprit.springfever.Services.Implementation.*.get*(..))")
     public void apres(JoinPoint thisJoinPoint) {
-        log.info("Out of the method (After)" + thisJoinPoint.getSignature().getName());
+        log.info("\n******************************************************************************\n" +"Out of the method (After) " + thisJoinPoint.getSignature().getName() + "\n *****************************************");
     }
 }

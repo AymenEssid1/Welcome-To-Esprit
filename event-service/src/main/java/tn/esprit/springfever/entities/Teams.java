@@ -29,7 +29,7 @@ public class Teams implements Serializable{
 
     @NotBlank(message = "Le NameTeam ne peut pas être vide.")
     @Size(max = 10, message = "Le nom du team ne peut pas dépasser {max} caractères.")
-    private String NameTeam ;
+    private String nameTeam ;
 
     @NotBlank(message = "Le QRcertificat ne peut pas être vide.")
     @ApiModelProperty(notes = "The QR code image in base64-encoded PNG format", value = "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAA3NCSVQICAjb4U/gAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJZJREFUeNpiYBhgeP//PwMWQAKcAizF+/PjEwMzAxHgIYGZiYmZiYs3AhLCT//37LnQUyNiAeTbQ2MLFiwFEly6UxLihgZ2YAKXl6VdnBzMQl/CwMDwGJibGoqalBVMxh3NhYGDZfPmLXz/z5PhgcG5gCIwN7AOAC8gP4VhjEG2xgAAEI0F5fSNA5kwAAAABJRU5ErkJggg==")
@@ -51,8 +51,9 @@ public class Teams implements Serializable{
     @JsonIgnore
     private Project project;
 
-    @JsonIgnore
+
     @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private ImageData image;
 
     public Teams() {
