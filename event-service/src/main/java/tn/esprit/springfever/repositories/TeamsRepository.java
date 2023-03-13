@@ -8,6 +8,7 @@ import java.util.Optional;
 @EnableJpaRepositories
 public interface TeamsRepository extends JpaRepository <Teams,Long> {
     Teams findByIdTeam(Long idTeam ) ;
+    List<Teams> findByNameTeamContainingIgnoreCase(String NameTeam);
 
     default List<Teams> findbyIdProject(Long idProject) {
         return null;

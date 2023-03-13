@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BadWords {
-    private static final List<String> BAD_WORDS = Arrays.asList("bad", "offensive", "hate");
+    private static final List<String> BAD_WORDS = Arrays.asList("bad", "offensive", "hate", "violent", "rasist", "merde");
 
     public static boolean containsBadWord(String comment) {
         for (String badWord : BAD_WORDS) {

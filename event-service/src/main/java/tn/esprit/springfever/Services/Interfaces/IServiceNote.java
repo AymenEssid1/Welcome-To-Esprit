@@ -10,6 +10,7 @@ import java.util.List;
 
 
 public interface IServiceNote {
+
     public Note addNote(Note note) throws IOException;
     public  List<Note> getAllNote() ;
     public  boolean deleteNote(Long idNote) ;

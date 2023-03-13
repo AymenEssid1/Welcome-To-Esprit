@@ -180,4 +180,11 @@ public class TeamsController {
     }
 
 
+
+    @GetMapping("/findTeamsByName")
+    public List<Teams> findTeamsByNameTeam(@RequestParam("name") String NameTeam) {
+        return iServiceTeams.findTeamsByNameTeam(NameTeam);
+    }
+
+
 }
