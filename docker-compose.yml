@@ -140,27 +140,6 @@ services:
       - mysql
     restart: always
 
-  ## FAQ-Service Container
-  faq-service:
-    build:
-      context: ./faq-service
-      dockerfile: ./Dockerfile
-    container_name: faq-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    working_dir: /app
-    ports:
-      - "8084:8084"
-    expose:
-      - "8084"
-    volumes:
-      - ./faq-service:/app
-      - ~/.m2:/root/.m2
-    depends_on:
-      - discovery-server
-      - api-gateway
-      - mysql
-    restart: always
 
   ## Evaluation-Service Container
   evaluation-service:
