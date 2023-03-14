@@ -68,7 +68,7 @@ public class ClaimController {
         } else {
             UserDTO u = userService.getUserDetailsFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
             claim.setUser(u.getId());
-            Claim addedClaim = iServiceClaims.addClaim(claim);
+            Claim addedClaim = iServiceClaims.addClaim(claim,u.getEmail());
             return new ResponseEntity<>(addedClaim, HttpStatus.OK);
 
         }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface IServiceClaims {
 
- public Claim addClaim(Claim claim) throws IOException; // add by user 
+ public Claim addClaim(Claim claim , String mail) throws IOException; // add by user
  public  List<Claim> getAllClaims() ;
  public  boolean deleteClaim(Long idClaim) ;
  public Claim updateClaim(Long idClaim , ClaimDTO claimDTO) ;

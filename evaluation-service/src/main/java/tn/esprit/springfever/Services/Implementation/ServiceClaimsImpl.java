@@ -110,7 +110,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
 
 
     @Override
-    public Claim addClaim(Claim claim) throws IOException {
+    public Claim addClaim(Claim claim , String mail) throws IOException {
 
         if ((this.badWordsFound(claim.getDescription()))) {
             // send sms
@@ -119,7 +119,7 @@ public class ServiceClaimsImpl implements IServiceClaims {
             SimpleMailMessage warning = new SimpleMailMessage();
             warning.setSubject("Warning");
             warning.setText("you have not respect the rules of use of our website ");
-            warning.setTo("springforfever@gmail.com"); // to change with the email of the user
+            warning.setTo(mail); // to change with the email of the user
             javaMailSender.send(warning);
 
         } else {

@@ -43,7 +43,7 @@ public class DtoTest {
         Mockito.when(claimRepository.findById(entityId)).thenReturn(Optional.of(claim));
 
          try {
-            claim = claimService.addClaim(claim);
+            claim = claimService.addClaim(claim, "ahmed.gouiaa@esprit.tn");
         } catch (IOException e) {
           System.out.print("la la la ");
         }
