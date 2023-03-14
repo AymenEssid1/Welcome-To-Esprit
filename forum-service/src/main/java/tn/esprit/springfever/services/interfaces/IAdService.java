@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface IAdService {
     public ResponseEntity<?> addAd(Channel channel, float cost, Date startDate,

@@ -108,7 +108,7 @@ public class CommentService implements ICommentService {
                 p.setMedia(listM);
             }
             repo.save(p);
-            notificationService.sendNotification("commented on your post",
+            notificationService.sendNotification("commented on your comment",
                     userService.getUserDetailsFromToken(authentication.getHeader(HttpHeaders.AUTHORIZATION)).getUsername(),
                     userService.getUserDetailsFromId(p.getPost().getUser()).getUsername());
             String key = String.valueOf(p.getId());

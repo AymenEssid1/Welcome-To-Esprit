@@ -1,6 +1,12 @@
 package tn.esprit.springfever.services.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.ads.googleads.lib.GoogleAdsClient;
+import com.google.ads.googleads.v13.services.GoogleAdsRow;
+import com.google.ads.googleads.v13.services.GoogleAdsServiceClient;
+import com.google.ads.googleads.v13.services.SearchGoogleAdsStreamRequest;
+import com.google.ads.googleads.v13.services.SearchGoogleAdsStreamResponse;
+import com.google.api.gax.rpc.ServerStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,10 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +60,42 @@ public class AdService implements IAdService {
 
     @Autowired
     private AdViewsRepository adViewsRepository;
+
+    @Autowired
+    private  GoogleAdsClient googleAdsClient;
+
+    public Map<String,String> getCampaigns() {
+        Long customerId = Long.parseLong("4129888592");
+        Map<String, String> campaigns = new HashMap<>();
+
+        try (GoogleAdsServiceClient googleAdsServiceClient =
+                     googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
+            String query = "SELECT campaign.id, campaign.name, campaign.status, campaign.start_date, campaign.end_date FROM campaign ORDER BY campaign.id";
+            // Constructs the SearchGoogleAdsStreamRequest.
+            SearchGoogleAdsStreamRequest request =
+                    SearchGoogleAdsStreamRequest.newBuilder()
+                            .setCustomerId(Long.toString(customerId))
+                            .setQuery(query)
+                            .build();
+            // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
+            ServerStream<SearchGoogleAdsStreamResponse> stream = googleAdsServiceClient
+                    .searchStreamCallable()
+                    .call(request);
+            for (SearchGoogleAdsStreamResponse response : stream) {
+                for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
+                    String campaignInfo = String.format("Campaign with ID %s and name '%s' is %s and runs from %s to %s",
+                            googleAdsRow.getCampaign().getId(),
+                            googleAdsRow.getCampaign().getName(),
+                            googleAdsRow.getCampaign().getStatus(),
+                            googleAdsRow.getCampaign().getStartDate(),
+                            googleAdsRow.getCampaign().getEndDate());
+                    campaigns.put(String.valueOf(googleAdsRow.getCampaign().getId()), campaignInfo);
+
+                }
+            }
+            return campaigns;
+        }
+    }
 
     @Override
     public ResponseEntity<?> addAd(Channel channel, float cost, Date startDate,
@@ -244,4 +283,5 @@ public class AdService implements IAdService {
             }
         }
     }
+
 }

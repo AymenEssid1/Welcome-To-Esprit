@@ -20,6 +20,7 @@ import tn.esprit.springfever.dto.AdDTO;
 import tn.esprit.springfever.entities.Ad;
 import tn.esprit.springfever.entities.AdMedia;
 import tn.esprit.springfever.enums.Channel;
+import tn.esprit.springfever.services.implementations.AdService;
 import tn.esprit.springfever.utils.AdMediaComparator;
 import tn.esprit.springfever.utils.MultipartFileSizeComparator;
 import tn.esprit.springfever.services.interfaces.IAdMediaService;
@@ -29,18 +30,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("advertisement")
 @Tag(name = "Advertisement Module")
-@Service
 public class AdController {
     @Autowired
     private IAdService service;
+
+    @Autowired
+    private AdService adService;
     @Autowired
     private IAdMediaService mediaService;
 
@@ -100,6 +100,11 @@ public class AdController {
     @GetMapping(value = "/")
     public ResponseEntity<List<Ad>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, HttpServletRequest request) {
         return ResponseEntity.ok().body(service.getAllLazy(page, size, request));
+    }
+
+    @GetMapping(value = "/getCampaigns")
+    public Map<String,String> getCampaigns() {
+        return adService.getCampaigns();
     }
 
 }
