@@ -12,28 +12,29 @@ stompClient.connect({}, function(frame) {
 
     // Subscribe to the public chatroom
     stompClient.subscribe('/chatroom/public', function(message) {
-        console.log('Public message received:', JSON.parse(message.body));
     });
 
     // Subscribe to private messages for this user
     stompClient.subscribe('/user/' + username + '/private', function(message) {
-        console.log('Private message received:', JSON.parse(message.body));
+        console.log('New Notification Received!');
+        var notification = JSON.parse(message.body);
+        console.log (notification.sender+" "+notification.message);
     });
 
-    // Send a public message
+    /* Send a public message
     stompClient.send('/app/notification', {}, JSON.stringify({
         sender: username,
         message: 'Hello, everyone!',
         date: null,
         status: 'MESSAGE'
-    }));
+    }));*/
 
-    // Send a private message
+    /* Send a private message
     stompClient.send('/app/private-notification', {}, JSON.stringify({
         sender: username,
         receiver: 'someOtherUser',
         message: 'Hi, how are you doing?',
         date: null,
         status: 'MESSAGE'
-    }));
+    }));*/
 });

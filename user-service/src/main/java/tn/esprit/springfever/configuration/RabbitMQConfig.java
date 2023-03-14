@@ -38,6 +38,9 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.template.routing-key.forum.id}")
     private String rabbitmqRoutingForumId;
 
+    @Value("${spring.rabbitmq.template.routing-key.forum.daily}")
+    private String rabbitmqRoutingDaily;
+
     @Value("${spring.rabbitmq.template.routing-key.forum.ids}")
     private String rabbitmqRoutingForumIds;
 
@@ -107,5 +110,10 @@ public class RabbitMQConfig {
     @Bean
     public Binding forumIdsBinding(Queue forumQueue, DirectExchange forumExchange) {
         return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingForumIds);
+    }
+
+    @Bean
+    public Binding forumDailyMailBinding(Queue forumQueue, DirectExchange forumExchange) {
+        return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingDaily);
     }
 }

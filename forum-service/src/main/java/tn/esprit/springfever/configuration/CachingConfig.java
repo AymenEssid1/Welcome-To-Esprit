@@ -20,7 +20,7 @@ public class CachingConfig extends CachingConfigurerSupport {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager(
-                "ad", "adMedia", "post", "postLike", "postMedia", "comment", "commentMedia","commentLike", "react", "msg", "user"
+                "ad", "adMedia", "post", "postLike", "postMedia", "comment", "commentMedia","commentLike", "react", "msg", "user", "matching"
         );
     }
 

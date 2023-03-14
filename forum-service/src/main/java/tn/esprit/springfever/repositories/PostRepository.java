@@ -22,4 +22,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             ") AS report_counts\n" +
             "ON post.id = report_counts.post_id;", nativeQuery = true)
     public List<Post> getReportedPosts();
+
+    @Query(value = "SELECT *\n" +
+            "FROM post\n" +
+            "WHERE post.id NOT IN (\n" +
+            "  SELECT post_view.post_id\n" +
+            "  FROM post_view\n" +
+            "  WHERE post_view.user = :user\n" +
+            ")", nativeQuery = true)
+    public List<Post> findUnviewedPosts(Long user);
 }

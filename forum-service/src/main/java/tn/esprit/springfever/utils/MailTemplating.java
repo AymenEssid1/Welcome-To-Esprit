@@ -25,7 +25,7 @@ import java.util.Date;
 @Service
 @Slf4j
 public class MailTemplating {
-    @Value("spring.application.link")
+    @Value("${spring.application.link}")
     String applicationLink;
 
     public String getHtml(String filePath) throws IOException {

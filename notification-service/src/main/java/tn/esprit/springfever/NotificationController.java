@@ -60,6 +60,7 @@ public class NotificationController {
         if (!routingKey.equals(routingKey)) {
             return;
         }
+        log.info("getting the message");
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
         ObjectMapper mapper = new ObjectMapper();
         Notification n = mapper.readValue(body, Notification.class);

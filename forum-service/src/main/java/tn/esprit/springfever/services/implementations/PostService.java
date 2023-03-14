@@ -19,6 +19,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -72,6 +73,9 @@ public class PostService implements IPostService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
 
@@ -451,6 +455,9 @@ public class PostService implements IPostService {
                     p.getLikes().add(like);
                     repo.save(p);
                     UserDTO userDTO = userService.getUserDetailsFromId(p.getUser());
+                    String key = String.valueOf(like.getLikeId());
+                    String value = "like:"+like.getLikeId()+p.getId();
+                    redisTemplate.opsForValue().set(key, value);
                     notificationService.sendNotification("reacted to your post", user.getUsername(), userDTO.getUsername() );
                     return "Liked!";
                 } else {

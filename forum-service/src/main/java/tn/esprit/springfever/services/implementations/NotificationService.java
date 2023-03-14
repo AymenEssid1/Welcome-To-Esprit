@@ -41,7 +41,7 @@ public class NotificationService {
                 .withBody(obj.toJSONString().getBytes())
                 .andProperties(messageProperties)
                 .build();
-        amqpTemplate.send(rabbitmqExchange, rabbitmqRoutingKey, message);
+        amqpTemplate.convertAndSend(rabbitmqExchange, rabbitmqRoutingKey, message);
     }
 
 }
