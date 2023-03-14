@@ -1,6 +1,6 @@
 deploy:
   stage: deploy
   script:
-    - pwd
+    - echo $PWD
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
