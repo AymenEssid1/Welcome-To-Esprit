@@ -1,0 +1,7 @@
+deploy:
+  stage: deploy
+  script:
+    - cd /home/mahdi
+    - ./script.sh
+  only:
+    - master
