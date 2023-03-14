@@ -50,6 +50,9 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.template.routing-key.admission.indisponible}")
     private String routingAdmission;
 
+    @Value("${spring.rabbitmq.template.routing-key.forum.daily}")
+    private String rabbitmqRoutingDaily;
+
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(rabbitmqHost, rabbitmqPort);
@@ -123,5 +126,9 @@ public class RabbitMQConfig {
     @Bean
     public Binding admissionBinding(Queue forumQueue, DirectExchange forumExchange) {
         return BindingBuilder.bind(forumQueue).to(forumExchange).with(routingAdmission);
+    }
+    @Bean
+    public Binding forumDailyMailBinding(Queue forumQueue, DirectExchange forumExchange) {
+        return BindingBuilder.bind(forumQueue).to(forumExchange).with(rabbitmqRoutingDaily);
     }
 }

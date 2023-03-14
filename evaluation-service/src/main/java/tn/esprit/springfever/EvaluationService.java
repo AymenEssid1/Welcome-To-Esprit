@@ -17,7 +17,7 @@ import tn.esprit.springfever.Services.Interfaces.IServiceClaims;
 @SpringBootApplication // ( @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan )
 @EnableSpringConfigured
 @EntityScan (basePackages = {"tn.esprit.springfever.entities"})
-@ComponentScan(basePackages = {"tn.esprit.springfever.Controllers","tn.esprit.springfever.Services","tn.esprit.springfever.configuration","tn.esprit.springfever.repositories","tn.esprit.springfever.Security","tn.esprit.springfever.payload"})
+@ComponentScan(basePackages = {"tn.esprit.springfever.controllers","tn.esprit.springfever.Services","tn.esprit.springfever.configuration","tn.esprit.springfever.repositories","tn.esprit.springfever.Security","tn.esprit.springfever.payload"})
 
 
 @EnableEurekaClient

@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,8 +47,6 @@ public class RabbitMQMessageReceiver {
     @Autowired
     private RabbitTemplate amqpTemplate;
 
-    @Autowired
-    RedisTemplate<String, Object> redisTemplate;
 
     @Value("${spring.rabbitmq.template.routing-key.forum.id}")
     private String routingKeyForumId;
@@ -62,7 +60,6 @@ public class RabbitMQMessageReceiver {
     @Value("${spring.rabbitmq.template.routing-key.admission.indisponible}")
     private String routingAdmission;
 
-    @Cacheable("user")
     @RabbitListener(bindings = {
             @QueueBinding(value =
             @Queue(value = "${spring.rabbitmq.template.queue.forum}"), exchange = @Exchange("${spring.rabbitmq.template.exchange.forum}"), key = "${spring.rabbitmq.template.routing-key.forum.token}")})
@@ -86,15 +83,12 @@ public class RabbitMQMessageReceiver {
         }
         return null;
     }
-
-    @Cacheable("user")
+    @Cacheable(value = "user")
     public Message getUserById(Message message) {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
         String jsonText = null;
-        if (redisTemplate.opsForValue().get("user" + token) != null) {
-            jsonText = redisTemplate.opsForValue().get("user" + token).toString();
-        } else {
+
             Long id = Long.valueOf(token);
             User user = userRepo.findById(id).orElse(null);
             if (user != null) {
@@ -117,19 +111,16 @@ public class RabbitMQMessageReceiver {
             } else {
                 return null;
             }
-        }
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setContentType("application/json");
         Message response = MessageBuilder
                 .withBody(jsonText.getBytes())
                 .andProperties(messageProperties)
                 .build();
-        redisTemplate.opsForValue().set("user" + token, jsonText);
         return response;
     }
 
-
-    @Cacheable("user")
+    @Cacheable(value = "user")
     public Message getUserByToken(Message message) {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
@@ -162,8 +153,7 @@ public class RabbitMQMessageReceiver {
         }
         return null;
     }
-
-    @Cacheable("user")
+    @Cacheable(value = "user")
     public Message getUsersByIds(Message message) throws JsonProcessingException {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
@@ -201,8 +191,7 @@ public class RabbitMQMessageReceiver {
                 .build();
         return response;
     }
-
-    @Cacheable("user")
+    @Cacheable(value = "user")
     public Message getAvailableUsers(Message message) throws JsonProcessingException {
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);
@@ -235,8 +224,7 @@ public class RabbitMQMessageReceiver {
                 .build();
         return response;
     }
-
-    @Cacheable("user")
+    @Cacheable(value = "user")
     public void setDisponibility(Message message){
         String token = new String(message.getBody(), StandardCharsets.UTF_8);
         token = token.substring(1, token.length() - 1);

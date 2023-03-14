@@ -1,4 +1,4 @@
-package tn.esprit.springfever.payload.Response;
+package tn.esprit.springfever.payload.response;
 
 public class MessageResponse {
     private String message;

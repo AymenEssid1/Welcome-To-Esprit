@@ -18,13 +18,12 @@
     <modules>
         <module>discovery-server</module>
         <module>api-gateway</module>
-
+        <module>forum-service</module>
          <module>evaluation-service</module>
         <module>recrutement-service</module>
         <module>event-service</module>
         <module>admission-service</module>
-
-
+        <module>notification-service</module>
         <module>openapi-service</module>
         <module>user-service</module>
 
