@@ -1,7 +1,6 @@
 deploy:
   stage: deploy
   script:
-    - cd /home/mahdi
-    - "./script.sh"
+    - pwd
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
