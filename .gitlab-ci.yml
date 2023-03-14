@@ -1,7 +1,7 @@
 deploy:
   stage: deploy
   script:
-    - cd /home/mahdi
+    - cd ..
     - ./script.sh
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
