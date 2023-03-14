@@ -20,7 +20,6 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>admission-service</module>
-        <module>forum-service</module>
         <module>openapi-service</module>
     </modules>
 
